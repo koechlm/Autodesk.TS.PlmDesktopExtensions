@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+
+  <assemblyIdentity name="Autodesk.TS.InvPlmAddIn" version="1.0.0.0"></assemblyIdentity>
+
+  <clrClass clsid="{08b0dcaa-5757-4a40-a785-c79fae87efea}" progid="Autodesk.StandardAddInServer" threadingModel="Both" name="Autodesk.TS.InvPlmAddIn.StandardAddInServer" runtimeVersion=""></clrClass>
+
+  <file name="Autodesk.TS.InvPlmAddIn.dll" hashalg="SHA1"></file>
+
+</assembly>
