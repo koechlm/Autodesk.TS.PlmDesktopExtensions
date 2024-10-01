@@ -118,6 +118,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.txt" />
+    <None Include="SDK Refs\Adsk.Ts.VaultUtils.Core.dll" />
     <None Include="SDK Refs\Autodesk.Connectivity.WebServices.dll" />
     <None Include="SDK Refs\Autodesk.DataManagement.Client.Framework.dll" />
     <None Include="SDK Refs\Autodesk.DataManagement.Client.Framework.Forms.dll" />
@@ -133,6 +134,9 @@
     <PackageReference Include="System.Drawing.Common" Version="8.0.8" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Adsk.Ts.VaultUtils.Core">
+      <HintPath>SDK Refs\Adsk.Ts.VaultUtils.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Autodesk.Connectivity.WebServices">
       <HintPath>SDK Refs\Autodesk.Connectivity.WebServices.dll</HintPath>
     </Reference>

@@ -2,8 +2,8 @@
   <!--Created for Autodesk Inventor Version 29.0-->
   <ClassId>{08b0dcaa-5757-4a40-a785-c79fae87efea}</ClassId>
   <ClientId>{08b0dcaa-5757-4a40-a785-c79fae87efea}</ClientId>
-  <DisplayName>Autodesk.TS.InvPlmAddIn</DisplayName>
-  <Description>Autodesk.TS.InvPlmAddIn</Description>
+  <DisplayName>Fusion Manage Inventor Extension</DisplayName>
+  <Description>Integrate PDM|PLM Workflows in Inventor</Description>
   <Assembly>Autodesk.TS.InvPlmAddIn.dll</Assembly>
   <LoadOnStartUp>1</LoadOnStartUp>
   <UserUnloadable>1</UserUnloadable>

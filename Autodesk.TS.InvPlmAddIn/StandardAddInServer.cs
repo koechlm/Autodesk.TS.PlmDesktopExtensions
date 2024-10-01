@@ -16,7 +16,7 @@ namespace Autodesk.TS.InvPlmAddIn
         /// <summary>
         /// Display name of the addin to be used for Dialog caption.
         /// </summary>
-        public static readonly string AddInName = "Fusion Manage Inventor";
+        public static readonly string AddInName = "Fusion Manage Inventor Extension";
         public static readonly string mClsId = "{08b0dcaa-5757-4a40-a785-c79fae87efea}";
         private Inventor.Application mInventorApplication;
         private UserInterfaceManager mUserInterfaceManager;
@@ -101,9 +101,9 @@ namespace Autodesk.TS.InvPlmAddIn
                     mPlmNavigatorWindow.AddChild(mDockWinChild.Handle.ToInt64());
                     mDockWinChild.Show();
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    //todo: add Autodesk TS Vault Utils' error message
+                    AdskTsVaultUtils.Messages.ShowError(string.Format("The initialization of the WindowManager failed with unhandled exception: {0}", e.Message), AddInName);
                 }
             }
 
