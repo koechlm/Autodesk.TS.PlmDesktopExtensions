@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0-windows</TargetFramework>
     <ProjectType>Local</ProjectType>
@@ -128,7 +128,6 @@
     <None Include="SDK Refs\Autodesk.Inventor.Interop.dll" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DevExpress.Win.Design" Version="22.2.12" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2792.45" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.8" />
   </ItemGroup>
@@ -160,7 +159,7 @@
       <Private>True</Private>
     </Reference>
   </ItemGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="WHERE MT.EXE&#xD;&#xA;IF ERRORLEVEL 1 call &quot;$(DevEnvDir)..\..\VC\Auxiliary\Build\vcvarsall.bat&quot; amd64&#xD;&#xA;mt.exe -manifest &quot;$(ProjectDir)Autodesk.TS.InvPlmAddIn.X.manifest&quot; -outputresource:&quot;$(TargetPath)&quot;;#2" />
   </Target>
 </Project>
