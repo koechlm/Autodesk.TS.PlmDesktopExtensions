@@ -90,7 +90,7 @@ namespace InvPlmAddIn.Forms
 
             if (uri != null)
             {
-                webView21.Source = uri;
+                webView21.CoreWebView2.Navigate(uri.AbsoluteUri);
             }
             else
             {
