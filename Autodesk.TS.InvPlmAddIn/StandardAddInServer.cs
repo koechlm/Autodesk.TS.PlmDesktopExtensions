@@ -13,17 +13,18 @@ namespace Autodesk.TS.InvPlmAddIn
     [GuidAttribute("08b0dcaa-5757-4a40-a785-c79fae87efea")]
     public class StandardAddInServer : Inventor.ApplicationAddInServer
     {
-
-        // Inventor application object.
-        private const string mClsId = "{08b0dcaa-5757-4a40-a785-c79fae87efea}";
+        /// <summary>
+        /// Display name of the addin to be used for Dialog caption.
+        /// </summary>
+        public static readonly string AddInName = "Fusion Manage Inventor";
+        public static readonly string mClsId = "{08b0dcaa-5757-4a40-a785-c79fae87efea}";
         private Inventor.Application mInventorApplication;
         private UserInterfaceManager mUserInterfaceManager;
         private global::InvPlmAddIn.Forms.mDockWindowChild mDockWinChild;
-        private DockableWindow mPlmNavigatorWindow, mPlmTasksWindow, mPlmSearchWindow;
+        private DockableWindow mPlmNavigatorWindow = null, mPlmTasksWindow = null, mPlmSearchWindow = null;
         public const string mSearchWinName = "plmSearchWindow";
         public const string mTasksWinName = "plmTasksWindow";
         public const string mNavigatorWinName = "plmNavigatorWindow";
-        private bool mPlmNvgtrWinExists = false, mPlmTsksWinExists = false, mPlmSrchWinExists = false;
 
 
         public StandardAddInServer()
@@ -44,60 +45,72 @@ namespace Autodesk.TS.InvPlmAddIn
 
             foreach (DockableWindow mWindow in mUserInterfaceManager.DockableWindows)
             {
-                if (mWindow.InternalName == "plmSearchWindow")
-                {
-                    if (mPlmSrchWinExists == false)
-                    {
-                        mPlmSearchWindow = mUserInterfaceManager.DockableWindows.Add(mClsId, mSearchWinName, "PLM Search");
-                        mPlmSrchWinExists = true;
-                        //add the child form to the dockable window
-                        mDockWinChild = new global::InvPlmAddIn.Forms.mDockWindowChild(mInventorApplication.ActiveColorScheme.Name, mWindow.InternalName);
-                        mPlmSearchWindow.AddChild(mDockWinChild);
-                        mDockWinChild.Show();
-                    }
-                    else
-                    {
-                        mPlmSearchWindow = mWindow;
-                        mPlmSearchWindow.ShowVisibilityCheckBox = true;
-                    }
+                if (mWindow.InternalName.Equals(mSearchWinName, StringComparison.InvariantCultureIgnoreCase))
+                {                   
+                    mPlmSearchWindow = mWindow;
                 }
-
-                if (mWindow.InternalName == "plmTasksWindow" && mPlmTsksWinExists != false)
+                if (mWindow.InternalName == mTasksWinName)
                 {
-                    if (mPlmTsksWinExists == false)
-                    {
-                        mPlmTasksWindow = mUserInterfaceManager.DockableWindows.Add(mClsId, "plmTasksWindow", "PLM Tasks");
-                        mPlmTsksWinExists = true;
-                        //add the child form to the dockable window
-                        mDockWinChild = new global::InvPlmAddIn.Forms.mDockWindowChild(mInventorApplication.ActiveColorScheme.Name, mWindow.InternalName);
-                        mPlmTasksWindow.AddChild(mDockWinChild);
-                        mDockWinChild.Show();
-                    }
-                    else
-                    {
-                        mPlmTasksWindow = mWindow;
-                        mPlmTasksWindow.ShowVisibilityCheckBox = true;
-                    }
+                    mPlmTasksWindow = mWindow;
                 }
-
-                if (mWindow.InternalName == "plmNavigatorWindow" && mPlmNvgtrWinExists != false)
+                if (mWindow.InternalName == mNavigatorWinName)
                 {
-                    if (mPlmNvgtrWinExists == false)
-                    {
-                        mPlmNavigatorWindow = mUserInterfaceManager.DockableWindows.Add(mClsId, "plmNavigatorWindow", "PLM Navigator");
-                        mPlmNvgtrWinExists = true;
-                        //add the child form to the dockable window
-                        mDockWinChild = new global::InvPlmAddIn.Forms.mDockWindowChild(mInventorApplication.ActiveColorScheme.Name, mWindow.InternalName);
-                        mPlmNavigatorWindow.AddChild(mDockWinChild);
-                        mDockWinChild.Show();
-                    }
-                    else
-                    {
-                        mPlmNavigatorWindow = mWindow;
-                        mPlmNavigatorWindow.ShowVisibilityCheckBox = true;
-                    }
+                    mPlmNavigatorWindow = mWindow;
                 }
             }
+
+            if (mPlmSearchWindow == null)
+            {
+                try
+                {
+                    mPlmSearchWindow = mUserInterfaceManager.DockableWindows.Add(mClsId, mSearchWinName, "PLM Search");
+                    //add the child form to the dockable window
+                    mDockWinChild = new global::InvPlmAddIn.Forms.mDockWindowChild(mInventorApplication.ActiveColorScheme.Name, mSearchWinName);
+                    mPlmSearchWindow.AddChild(mDockWinChild.Handle.ToInt64());
+                    mDockWinChild.Show();
+                }
+                catch (Exception)
+                {
+                    //todo: add Autodesk TS Vault Utils' error message                    
+                }
+            }
+
+            if (mPlmTasksWindow == null)
+            {
+                mPlmTasksWindow = mUserInterfaceManager.DockableWindows.Add(mClsId, mTasksWinName, "PLM Tasks");
+                //add the child form to the dockable window
+                try
+                {
+                    mDockWinChild = new global::InvPlmAddIn.Forms.mDockWindowChild(mInventorApplication.ActiveColorScheme.Name, mTasksWinName);
+                    mPlmTasksWindow.AddChild(mDockWinChild.Handle.ToInt64());
+                    mDockWinChild.Show();
+                }
+                catch (Exception)
+                {
+                    //todo: add Autodesk TS Vault Utils' error message                    
+                }
+            }
+
+            if (mPlmNavigatorWindow == null)
+            {
+                try
+                {
+                    mPlmNavigatorWindow = mUserInterfaceManager.DockableWindows.Add(mClsId, mNavigatorWinName, "PLM Navigator");
+                    //add the child form to the dockable window
+                    mDockWinChild = new global::InvPlmAddIn.Forms.mDockWindowChild(mInventorApplication.ActiveColorScheme.Name, mNavigatorWinName);
+                    mPlmNavigatorWindow.AddChild(mDockWinChild.Handle.ToInt64());
+                    mDockWinChild.Show();
+                }
+                catch (Exception)
+                {
+                    //todo: add Autodesk TS Vault Utils' error message
+                }
+            }
+
+            //add the windows to the user interface View menu
+            mPlmSearchWindow.ShowVisibilityCheckBox = true;
+            mPlmTasksWindow.ShowVisibilityCheckBox = true;
+            mPlmNavigatorWindow.ShowVisibilityCheckBox = true;
         }
 
         public void Deactivate()
@@ -105,41 +118,34 @@ namespace Autodesk.TS.InvPlmAddIn
             // This method is called by Inventor when the AddIn is unloaded.
             // The AddIn will be unloaded either manually by the user or
             // when the Inventor session is terminated
-
-            // TODO: Add ApplicationAddInServer.Deactivate implementation
-
             // Release objects.
 
             foreach (DockableWindow mWindow in mUserInterfaceManager.DockableWindows)
             {
 
-                if (mWindow.InternalName == "plmSearchWindow" && mPlmSrchWinExists == true)
+                if (mWindow.InternalName == "plmSearchWindow")
                 {
                     mWindow.Visible = false;
                     mWindow.ShowVisibilityCheckBox = false;
                     mWindow.Clear();
-                    mPlmSrchWinExists = false;
                     mPlmSearchWindow = null;
                 }
-                if (mWindow.InternalName == "plmTasksWindow" && mPlmTsksWinExists == true)
+                if (mWindow.InternalName == "plmTasksWindow")
                 {
                     mWindow.Visible = false;
                     mWindow.ShowVisibilityCheckBox = false;
                     mWindow.Clear();
-                    mPlmTsksWinExists = false;
                     mPlmTasksWindow = null;
                 }
-                if (mWindow.InternalName == "plmNavigatorWindow" && mPlmTsksWinExists == true)
+                if (mWindow.InternalName == "plmNavigatorWindow")
                 {
                     mWindow.Visible = false;
                     mWindow.ShowVisibilityCheckBox = false;
                     mWindow.Clear();
-                    mPlmNvgtrWinExists = false;
                     mPlmNavigatorWindow = null;
                 }
             }
 
-            // Release objects.
             mInventorApplication = null;
 
             GC.Collect();

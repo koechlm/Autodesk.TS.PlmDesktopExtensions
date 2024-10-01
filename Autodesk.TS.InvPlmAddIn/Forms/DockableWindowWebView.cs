@@ -7,25 +7,31 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using VDF = Autodesk.DataManagement.Client.Framework;
+using DevExpress.Utils;
+using System.Diagnostics;
+using Inventor;
 
 namespace InvPlmAddIn.Forms
 {
-    public partial class mDockWindowChild : DevExpress.XtraEditors.XtraUserControl
+    public partial class mDockWindowChild : DevExpress.XtraEditors.XtraUserControl, IDisposable
     {
         private static Utils.Settings mAddinSettings = new Utils.Settings();
+        private static Uri mBaseUri = null;
 
         public mDockWindowChild(string currentTheme, string internalName)
         {
             InitializeComponent();
 
             mAddinSettings = Utils.Settings.Load();
-
+            mBaseUri = new Uri(mAddinSettings.FmExtensionUrl);
+            Debug.Print("mBaseUri: " + mBaseUri.ToString());
             ApplyThemes(currentTheme);
 
             mWebViewInit(internalName);
@@ -46,7 +52,7 @@ namespace InvPlmAddIn.Forms
         {
             //ensure the webview2 is loaded completely
             var frame = new DispatcherFrame();
-            var env = CoreWebView2Environment.CreateAsync(null, Environment.GetEnvironmentVariable("TEMP"), null);
+            var env = CoreWebView2Environment.CreateAsync(null, System.Environment.GetEnvironmentVariable("TEMP"), null);
 
             using (var task = webView21.EnsureCoreWebView2Async(env.Result))
             {
@@ -56,39 +62,41 @@ namespace InvPlmAddIn.Forms
             }
 
             String mUrl = null;
+            Uri uri = null;
+            Uri uriRel = null;
             switch (internalName)
             {
                 case Autodesk.TS.InvPlmAddIn.StandardAddInServer.mSearchWinName:
-                    mUrl = Path.Combine(mAddinSettings.FmExtensionUrl, "/search");
+                    uriRel = new Uri("/addins/search", UriKind.Relative);
+                    Debug.Print("mUrl: " + mUrl);
+                    uri = new Uri(mBaseUri, uriRel);
+                    Debug.Print("uri: " + uri.ToString());
                     break;
                 case Autodesk.TS.InvPlmAddIn.StandardAddInServer.mTasksWinName:
-                    mUrl = Path.Combine(mAddinSettings.FmExtensionUrl, "/tasks");
+                    uriRel = new Uri("/addins/tasks", UriKind.Relative);
+                    Debug.Print("mUrl: " + mUrl);
+                    uri = new Uri(mBaseUri, uriRel);
+                    Debug.Print("uri: " + uri.ToString());
                     break;
                 case Autodesk.TS.InvPlmAddIn.StandardAddInServer.mNavigatorWinName:
-                    mUrl = Path.Combine(mAddinSettings.FmExtensionUrl, "/navigator");
+                    uriRel = new Uri("/addins/navigate", UriKind.Relative);
+                    Debug.Print("mUrl: " + mUrl);
+                    uri = new Uri(mBaseUri, uriRel);
+                    Debug.Print("uri: " + uri.ToString());
                     break;
                 default:
                     break;
             }
 
-            if (mUrl != null)
+            if (uri != null)
             {
-                mNavigate(mUrl);
+                webView21.Source = uri;
             }
             else
             {
-                mUrl = Path.Combine(Utils.Util.GetAssemblyPath(), "/Forms/plmExtensionAddInError.html");
-                mNavigate(mUrl);
-            }            
-
-        }
-        
-
-        private void mNavigate(string mUrl)
-        {
-            //read the property of the corresponding project
-            Uri uri = new Uri(mUrl, System.UriKind.Absolute);
-            webView21.Source = uri;
+                mUrl = System.IO.Path.Combine(Utils.Util.GetAssemblyPath(), "/Forms/plmExtensionAddInError.html");
+                webView21.CoreWebView2.NavigateToString(System.IO.File.ReadAllText(mUrl));
+            }
         }
     }
 }
