@@ -27,6 +27,7 @@ namespace InvPlmAddIn.Utils
 {
     public class Util
     {
+        public static object LogicUtil { get; internal set; }
 
         public static void DoAction(Action a)
         {
