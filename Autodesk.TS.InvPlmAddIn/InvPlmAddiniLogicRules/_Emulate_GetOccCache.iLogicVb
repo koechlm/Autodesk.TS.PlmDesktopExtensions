@@ -1,0 +1,4 @@
+﻿break
+Dim map As Inventor.NameValueMap = ThisApplication.TransientObjects.CreateNameValueMap()
+iLogicVb.RunExternalRule("GetOccCache", map)
+	

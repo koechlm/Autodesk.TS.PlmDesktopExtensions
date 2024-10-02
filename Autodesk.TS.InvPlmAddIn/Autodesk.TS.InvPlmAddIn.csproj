@@ -88,8 +88,8 @@
   <ItemGroup>
     <Compile Include="Forms\DockableWindowWebView.cs" />
     <Compile Include="Forms\DockableWindowWebView.Designer.cs" />
-    <Compile Include="Forms\FMExtensionLogin.cs" />
-    <Compile Include="Forms\FMExtensionLogin.Designer.cs" />
+    <Compile Include="Forms\PlmExtensionLogin.cs" />
+    <Compile Include="Forms\PlmExtensionLogin.Designer.cs" />
     <Compile Include="Model\BrowserPanelWindow.cs" />
     <Compile Include="Model\BrowserPanelWindowManager.cs" />
     <Compile Include="Model\BrowserPanelWindowOptions.cs" />
@@ -106,11 +106,13 @@
     <Compile Include="Utils\iLogicUtil.cs" />
     <Compile Include="Utils\Settings.cs" />
     <Compile Include="Utils\Util.cs" />
+    <Compile Include="Utils\VaultUtils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Forms\plmExtensionAddInError.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="Resources\autodesk-vault-plm-16x16.ico" />
+    <Content Include="Resources\autodesk-vault-plm-16x16.png" />
+    <Content Include="Resources\autodesk-vault-plm-32x32.ico" />
+    <Content Include="Resources\autodesk-vault-plm-32x32.png" />
     <Content Include="SDK Refs\Autodesk.iLogic.Interfaces.xml" />
     <Content Include="SDK Refs\Autodesk.Inventor.Interop.xml" />
     <Content Include="InvPlmAddInSettings.xml">
@@ -119,13 +121,82 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Forms\DockableWindowWebView.resx" />
-    <EmbeddedResource Include="Forms\FMExtensionLogin.resx" />
+    <EmbeddedResource Include="Forms\PlmExtensionLogin.resx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Autodesk.TS.InvPlmAddIn.X.manifest" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Autodesk.Autodesk.TS.InvPlmAddIn.Inventor.addin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\AddComponents.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\assignMaterial.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\CaptureMatrix4x4-First-Level.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\createFileLink.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\getActiveDocument.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\GetComponentsLocked.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\GetOccCache.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\getSelectedComponentPaths.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\IsolateComponents.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\ManageAssemblyOnOff.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\OnDocumentClose.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\OnDocumentOpen.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\OpenComponent.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\SelectComponents.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\SetLifecycleState.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\UndoIsolateComponents.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\UpdateOccurrenceCache.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\UpdateProperties.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\_Emulate_AddComponents.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\_Emulate_GetComponentsLocked.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\_Emulate_GetOccCache.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\_InteractiveAddComp.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\_QA_callRuleWithArguments.iLogicVb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

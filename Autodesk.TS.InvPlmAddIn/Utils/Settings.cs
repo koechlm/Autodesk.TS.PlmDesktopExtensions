@@ -24,6 +24,9 @@ using System.Xml;
 
 namespace InvPlmAddIn.Utils
 {
+    /// <summary>
+    /// The default SDK samples settings class, extended to support saving to and loading from the Vault KnowledgeOptions
+    /// </summary>
 
     [XmlRoot("settings")]
     public class Settings

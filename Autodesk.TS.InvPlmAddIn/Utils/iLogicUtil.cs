@@ -9,6 +9,12 @@ using Autodesk.iLogic.Interfaces;
 
 namespace InvPlmAddIn.Utils
 {
+    /// <summary>
+    /// iLogic utility class, to interact with the iLogic Addin.
+    /// Execute iLogic rules and get the occurrence cache.
+    /// iLogic rules can be executed with or without arguments. The arguments are passed as a dictionary; 
+    /// the iLogic rule can return a result, added to the dictionary or update existing key/value pairs.
+    /// </summary>
 	public static class iLogicUtil
 	{
 		public static void ExecuteILogicRule(Application app, Document document, string rulename)

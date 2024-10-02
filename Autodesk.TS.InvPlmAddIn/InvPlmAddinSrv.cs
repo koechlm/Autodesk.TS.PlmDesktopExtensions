@@ -20,7 +20,7 @@ namespace InvPlmAddIn
         /// <summary>
         /// Display name of the addin to be used for Dialog caption.
         /// </summary>
-        public static readonly string AddInName = "Fusion Manage Inventor Extension";
+        public static readonly string AddInName = "Vault plm Inventor";
         public static string ClientId = "{08b0dcaa-5757-4a40-a785-c79fae87efea}";
         public static Inventor.Application mInventorApplication { get; set; }
         private UserInterfaceManager mUserInterfaceManager;
@@ -29,15 +29,15 @@ namespace InvPlmAddIn
         private static Utils.Settings mAddinSettings = Utils.Settings.Load();
         public static Uri mBaseUri = new Uri(mAddinSettings.FmExtensionUrl);
 
-        private global::InvPlmAddIn.Forms.FMExtensionLogin mLoginDialog;             
+        private global::InvPlmAddIn.Forms.PlmExtensionLogin mLoginDialog;             
 
         public BrowserPanelWindowManager WindowManager { get; set; }
 
-        private static string PathToWebSite
-            => System.IO.Path.Combine(System.IO.Path.GetDirectoryName(MethodBase.GetCurrentMethod().ReflectedType.Assembly.Location), "PLMInventorRules");
+        private static string PathToiLogicRules
+            => System.IO.Path.Combine(System.IO.Path.GetDirectoryName(MethodBase.GetCurrentMethod().ReflectedType.Assembly.Location), "InvPlmAddiniLogicRules");
 
         public static string ILogicFullRulePath(string rulename)
-            => System.IO.Path.Combine(PathToWebSite, $"{rulename}.iLogicVb");
+            => System.IO.Path.Combine(PathToiLogicRules, $"{rulename}.iLogicVb");
 
         public InvPlmAddinSrv()
         {
@@ -56,10 +56,11 @@ namespace InvPlmAddIn
             mUserInterfaceManager = mInventorApplication.UserInterfaceManager;
 
             // Show the FMExtension Login dialog and continue only if the user has logged in and confirmed the dialog with OK
-            mLoginDialog = new InvPlmAddIn.Forms.FMExtensionLogin(mInventorApplication.ActiveColorScheme.Name);
+            mLoginDialog = new InvPlmAddIn.Forms.PlmExtensionLogin(mInventorApplication.ActiveColorScheme.Name);
             if (mLoginDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK)
             {
-                return;
+                // User canceled the dialog, exit the add-in
+                throw new OperationCanceledException("Add-in loading canceled by user.");
             }
 
             WindowManager = new BrowserPanelWindowManager(this);
@@ -106,7 +107,7 @@ namespace InvPlmAddIn
             }
             catch (Exception e)
             {
-                AdskTsVaultUtils.Messages.ShowError(string.Format("The initialization of the WindowManager failed with unhandled exception: {0}", e.Message), AddInName);
+                AdskTsVaultUtils.Messages.ShowError(string.Format("The initialization of dockable windows for Vault plm failed with unhandled exception: {0}", e.Message), AddInName);
             }
         }
 
@@ -159,12 +160,12 @@ namespace InvPlmAddIn
             mInventorApplication.ApplicationEvents.OnDeactivateView -= ApplicationEventsOnDeactivateView;
             mInventorApplication.ApplicationEvents.OnCloseDocument -= ApplicationEventsOnOnCloseDocument;
 
-            WindowManager.DeactivateByInventorAddIn();
+            WindowManager?.DeactivateByInventorAddIn();
         }
 
         private void RemoveBrowserWindow()
         {
-            WindowManager.Remove();
+            WindowManager?.Remove();
         }
 
         public void ExecuteCommand(int commandID)

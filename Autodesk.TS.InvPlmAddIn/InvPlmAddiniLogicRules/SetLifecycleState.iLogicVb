@@ -1,0 +1,75 @@
+﻿AddReference "System.Linq"
+AddReference "Autodesk.Connectivity.WebServices.dll"
+AddReference "Autodesk.DataManagement.Client.Framework.Vault.dll"
+Imports System.Linq
+
+Sub Main()
+
+'Validate user's login state
+If iLogicVault.LoggedIn = False
+	Logger.Error("Not Logged In to Vault! - Login first and repeat executing this rule.")
+	Exit Sub
+End If
+
+
+targetfolder = RuleArguments("FolderName")
+targetstateName = RuleArguments("TargetStateName")
+Logger.Info("SetLifecycleState started. Target folder: '{0}'. Target state '{1}'", targetfolder, targetstateName)
+SetFolderLifecycleState(targetfolder, targetstateName)
+End Sub
+
+Dim iLogicVault
+
+Function GetTaskFolder(ByVal taskName As String) As Autodesk.Connectivity.WebServices.Folder
+	Dim subpath = GetTaskSubPath(taskName)
+
+	Try
+		GetTaskFolder = iLogicVault.GetVaultConnection().WebServiceManager.DocumentService.GetFolderByPath(GetTaskSubPath(taskName))
+		Logger.Info("Folder found in vault.")
+	Catch
+		Logger.Info("Folder not found in vault.")
+		GetTaskFolder = Nothing
+	End Try
+End Function
+
+Function GetTaskSubPath(ByVal taskName As String) As String
+
+	Dim taskNameOnlyNumber = taskName.Remove(0, 3)
+
+	Dim uproundedLength = (3 - taskNameOnlyNumber.Length Mod 3) Mod 3 + taskNameOnlyNumber.Length
+	Dim fullname = taskNameOnlyNumber.PadLeft(uproundedLength, "0"c)
+	Dim sb = New System.Text.StringBuilder("$/Designs/Tasks/")
+
+	For i = 0 To fullname.Length / 3 - 1 Step 3
+		sb.Append(fullname.Substring(i, 3)).Append("/"c)
+	Next
+	sb.Append(taskName)
+	fullPath = sb.ToString()
+	Logger.Info("Full task path in vault: '{0}'", fullPath)
+
+	GetTaskSubPath = fullPath
+End Function
+
+Sub SetTargetFolderState(ByVal folder As Autodesk.Connectivity.WebServices.Folder, ByVal targetStateName As String)
+	If folder.LfCyc Is Nothing OrElse folder.LfCyc.LfCycDefId < 1 Then
+		Throw New ApplicationException(String.Format("Targetstate '{0}' for task '{1}' (Folder: '{2}') could not be changed. Folder has no lifecyle attached.", targetStateName, folder.Name, folder.FullName))
+	End If
+	Dim lcd As Autodesk.Connectivity.WebServices.LfCycDef = iLogicVault.GetVaultConnection().WebServiceManager.LifeCycleService.GetLifeCycleDefinitionsByIds({folder.LfCyc.LfCycDefId })(0)
+
+	Dim targetState = lcd.StateArray.FirstOrDefault(Function(x) x.DispName = targetStateName)
+	If targetState Is Nothing Then Throw New ApplicationException(String.Format("Targetstate '{0}' for task '{1}' (Folder: '{2}') could not be found in definition '{3}'.", targetStateName, folder.Name, folder.FullName, lcd.DispName))
+
+	Try
+		iLogicVault.GetVaultConnection().WebServiceManager.DocumentServiceExtensions.UpdateFolderLifeCycleStates({folder.Id }, {targetState.Id }, "Update State by PLM")
+	Catch
+		Throw New ApplicationException(String.Format("Targetstate '{0}' for task '{1}' (Folder: '{2}') could not be set.", targetStateName, folder.Name, folder.FullName))
+	End Try
+End Sub
+
+Sub SetFolderLifecycleState(ByVal targetFolder As String, ByVal targetState As String)
+	Dim folder = GetTaskFolder(targetFolder)
+
+	If folder Is Nothing Then Return
+
+	SetTargetFolderState(folder, targetState)
+End Sub
