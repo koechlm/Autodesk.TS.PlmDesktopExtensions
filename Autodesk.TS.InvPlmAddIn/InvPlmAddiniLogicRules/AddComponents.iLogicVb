@@ -1,8 +1,8 @@
 ﻿AddReference "Adsk.Ts.VaultUtils.dll"
 AddReference "System.XML"
-'use case 1: active document = Assembly, mPartnumbers provides Part Numbers: start the Insert the component command allowing user interactive positioning or iMate consumption
-'use case 2: active document = Assembly, mPartnumbers provides AssemblyPaths allowing to search for 3D transformation data to auto-position components.
-'use case 2.1 active document = Assembly, mPartnumbers provides Partnumber Paths
+'use case 1: active document = Assembly, mDownloadedFiles provides Part Numbers: start the Insert the component command allowing user interactive positioning or iMate consumption
+'use case 2: active document = Assembly, mDownloadedFiles provides AssemblyPaths allowing to search for 3D transformation data to auto-position components.
+'use case 2.1 active document = Assembly, mDownloadedFiles provides Partnumber Paths
 ' - ToDo: use case 3: active document = part: start the insert derived component workflow
 ' - ToDo: use case 4: active document = presentation: add the component to the active scene
 ' - ToDo: use case 5: active document = drawing: insert new drawing view of the given component
@@ -10,577 +10,562 @@ AddReference "System.XML"
 Public Class AddComponents
 #Region "global declaration"
 
-	Private mPath As String
-	Private mFileName As String
-	Private mCounter As Long = 0
-	Private mLastNode, mParentNode As Xml.XmlElement
-	Private mXmlDoc As New Xml.XmlDocument
-	Private mXmlFileName As String
-	Private mPrtDoc As PartDocument
-	Private mAsmDoc As AssemblyDocument
+    Private mPath As String
+    Private mFileName As String
+    Private mCounter As Long = 0
+    Private mLastNode, mParentNode As Xml.XmlElement
+    Private mXmlDoc As New Xml.XmlDocument
+    Private mXmlFileName As String
+    Private mPrtDoc As PartDocument
+    Private mAsmDoc As AssemblyDocument
 
-	'variables to build an occurrence cache
-	Private mCacheFullFileName As String 'local full filename for assemblies = name of SharedVariable for the cached occurrences
-	'Private mOccAll As List(Of Inventor.ComponentOccurrence)
-	Private mPartNumOccs As New Dictionary(Of String, List(Of Inventor.ComponentOccurrence)) 'lists of occurrences linked to an individual part number;
+    'variables to build an occurrence cache
+    Private mCacheFullFileName As String 'local full filename for assemblies = name of SharedVariable for the cached occurrences
+    'Private mOccAll As List(Of Inventor.ComponentOccurrence)
+    Private mPartNumOccs As New Dictionary(Of String, List(Of Inventor.ComponentOccurrence)) 'lists of occurrences linked to an individual part number;
 
-	Private mCompPrtNums As List(Of String) = New List(Of String)
-	Private mInstancePaths As List(Of String) = New List(Of String)
-	Private mPrtNumPaths As List(Of String) = New List(Of String)
+    Private mCompPrtNums As List(Of String) = New List(Of String)
+    Private mInstancePaths As List(Of String) = New List(Of String)
+    Private mPrtNumPaths As List(Of String) = New List(Of String)
 
-	Private Class mOccData
-		Public Property Name As String 'browser name as Inventor naming default: = file name/number:x
-		Public Property PartNumber As String 'iProperty Part Number
-		Public Property ModelState As String 'model state name
-		Public Property Path As String 'assembly path of an instance, e.g. Assembly1 | Subassy2:3; Path + InstName reflect the full path of an individual instance proxy			
-		Public Matrix As Inventor.Matrix  '4x4 transformation matrix in database units = [cm]
-	End Class
+    Private Class mOccData
+        Public Property Name As String 'browser name as Inventor naming default: = file name/number:x
+        Public Property PartNumber As String 'iProperty Part Number
+        Public Property ModelState As String 'model state name
+        Public Property Path As String 'assembly path of an instance, e.g. Assembly1 | Subassy2:3; Path + InstName reflect the full path of an individual instance proxy			
+        Public Matrix As Inventor.Matrix  '4x4 transformation matrix in database units = [cm]
+    End Class
 
-	Private Class mBomRow
-		Public Property InstName As String
-		Public Property PartNumber As String
-		Public Property Qty As Integer
-		Public Property Pos As String
-		Public Property Path As String
-		Public Property InstMatrix As Inventor.Matrix 'in database units = [cm]
-	End Class
+    Private Class mBomRow
+        Public Property InstName As String
+        Public Property PartNumber As String
+        Public Property Qty As Integer
+        Public Property Pos As String
+        Public Property Path As String
+        Public Property InstMatrix As Inventor.Matrix 'in database units = [cm]
+    End Class
 
 #End Region
 
-	Public Sub main
-		break
+    Public Sub main()
+        break
 
-		Dim mPartnumbers As String() = RuleArguments("Partnumbers")
+        Dim mDownloadedFiles As String() = RuleArguments("DownloadedFiles")
+        Dim mDialogCaption As String = "Vault plm Inventor/iLogic Rule 'AddComponents'"
+        Dim mMessage As String = Nothing
 
-		If mPartnumbers Is Nothing 'Or mPartnumbers.Length = 0 Then
-			Logger.Error("Missing RuleArgument value [Partnumbers]")
-			AdskTsVaultUtils.Messages.ShowError("Missing rule argument [Partnumbers] - Restart the rule providing a rule argument and value(s).", "iLogic-Vault")
-			Exit Sub
-		End If
+        If mDownloadedFiles Is NothingThen Then 'Or mDownloadedFiles.Length = 0 Then
+            Logger.Error("Missing RuleArgument value [DownloadedFiles]")
+            AdskTsVaultUtils.Messages.ShowError("Missing rule argument [DownloadedFiles] - Restart the rule providing a rule argument and value(s).", mDialogCaption)
+            Exit Sub
+        End If
 
-		'Validate user's login state
-		If iLogicVault.LoggedIn = False
-			Logger.Error("Not Logged In to Vault! - Login first and repeat executing this rule.")
-			Exit Sub
-		End If
+        'Validate user's login state
+        If iLogicVault.LoggedIn = False Then
+            mMessage = "Not Logged In to Vault! - Login first and repeat your last command calling this rule."
+            Logger.Error(mMessage)
+            AdskTsVaultUtils.Messages.ShowError("Not Logged In to Vault! - Login first and repeat executing this rule.", mDialogCaption)
+            Exit Sub
+        End If
 
-		'use cases 1 and 2.x expect an assembly context
-		If ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kAssemblyDocumentObject Then
-			mAsmDoc = ThisApplication.ActiveDocument
+        'use cases 1 and 2.x expect an assembly context
+        If ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kAssemblyDocumentObject Then
+            mAsmDoc = ThisApplication.ActiveDocument
 
-			'differentiate Partnumbers and Assembly Paths
-			For Each mComp As String In mPartnumbers
-				If mComp.Split("|").Length = 1 Then
-					mCompPrtNums.Add(mComp)
-				Else
-					If mComp.Split("|").LastOrDefault().Split(":").Length = 2 Then
-						mInstancePaths.Add(mComp)
-					ElseIf mComp.Split("|").LastOrDefault().Split(":").Length = 1 Then
-						mPrtNumPaths.Add(mComp)
-					End If
-				End If
-			Next
+            'differentiate DownloadedFiles and Assembly Paths + DownloadedFiles
+            For Each mComp As String In mDownloadedFiles
+                If mComp.Split("|").Length = 1 Then
+                    mCompPrtNums.Add(mComp)
+                Else
+                    If mComp.Split("|").LastOrDefault().Split(":").Length = 2 Then
+                        mInstancePaths.Add(mComp)
+                    ElseIf mComp.Split("|").LastOrDefault().Split(":").Length = 1 Then
+                        mPrtNumPaths.Add(mComp)
+                    End If
+                End If
+            Next
 
-			'use case 1
-			If mCompPrtNums.Count > 0 Then
+            'use case 1
+            If mCompPrtNums.Count > 0 Then
 
-				Dim result As Boolean = False
-				result = mProcessPartnumbers(mCompPrtNums)
-				If result = False Then
-					AdskTsVaultUtils.Messages.ShowError("The rule 'AddComponents' finished with errors providing all components for interactive placement. " + vbLf + vbLf + "Please review the iLogic Log Panel for details. ", "iLogic-Vault")
-				End If
+                Dim result As Boolean = False
+                result = mProcessFiles(mCompPrtNums)
+                If result = False Then
+                    AdskTsVaultUtils.Messages.ShowError("The rule 'AddComponents' finished with errors providing all components for interactive placement. " + vbLf + vbLf + "Please review the iLogic Log Panel for details. ", "iLogic-Vault")
+                End If
 
-			End If 'use case 1
+            End If 'use case 1
 
-			'use case 2: (Mindmap: Type InstancePath)
-			If mInstancePaths.Count > 0 Then
-				Dim result As Boolean = False
-				result = mProcessInstancePaths(mInstancePaths)
-				If result = False Then
-					AdskTsVaultUtils.Messages.ShowError("The rule 'AddComponents' finished with errors automatically placing components. " + vbLf + vbLf + "Please review the iLogic Log for details. ", "iLogic-Vault")
-				End If
-			End If ' use case 2
+            'use case 2: (Mindmap: Type InstancePath)
+            If mInstancePaths.Count > 0 Then
+                Dim result As Boolean = False
+                result = mProcessInstancePaths(mInstancePaths)
+                If result = False Then
+                    AdskTsVaultUtils.Messages.ShowError("The rule 'AddComponents' finished with errors automatically placing components. " + vbLf + vbLf + "Please review the iLogic Log for details. ", "iLogic-Vault")
+                End If
+            End If ' use case 2
 
-			'use case 2.1 (Mindmap: Type PartnumberPath
-			If mPrtNumPaths.Count > 0 Then
-				Dim result As Boolean = False
-				result = mProcessPartNumberPaths(mPrtNumPaths)
-			End If 'use case 2.1
+            'use case 2.1 (Mindmap: Type PartnumberPath
+            If mPrtNumPaths.Count > 0 Then
+                Dim result As Boolean = False
+                result = mProcessPartNumberPaths(mPrtNumPaths)
+            End If 'use case 2.1
 
-			Exit Sub
-		End If  'assembly context for use cases 1 and 2
+            Exit Sub
+        End If  'assembly context for use cases 1 and 2
 
-		'use case 3: expecting part context
-		If ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kPartDocumentObject Then
-			mPrtDoc = ThisApplication.ActiveDocument
+        'use case 3: expecting part context
+        If ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kPartDocumentObject Then
+            mPrtDoc = ThisApplication.ActiveDocument
 
-			Exit Sub
-		End If 'use case 3
+            Exit Sub
+        End If 'use case 3
 
-		'use case 4:
-		If ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kPresentationDocumentObject Then
-			Dim mIpnDoc As Inventor.Document = ThisApplication.ActiveDocument
+        'use case 4:
+        If ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kPresentationDocumentObject Then
+            Dim mIpnDoc As Inventor.Document = ThisApplication.ActiveDocument
 
-			Exit Sub
-		End If 'use case 4
+            Exit Sub
+        End If 'use case 4
 
-		'use case 5:
-		If ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kDrawingDocumentObject Then
-			Dim mDrwDoc As Inventor.Document = ThisApplication.ActiveDocument
+        'use case 5:
+        If ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kDrawingDocumentObject Then
+            Dim mDrwDoc As Inventor.Document = ThisApplication.ActiveDocument
 
-			Exit Sub
-		End If 'use case 5
+            Exit Sub
+        End If 'use case 5
 
-		'use case 6:	
+        'use case 6:	
 
 
-	End Sub
+    End Sub
 
 
 #Region "matrix transformation"
-	'function to read transformation matrices
-	Private Function mReadContextTransformations(ByVal m4x4File As String, ByRef mContextMatrices As Dictionary(Of String, mOccData)) As Dictionary(Of String, mOccData)
+    'function to read transformation matrices
+    Private Function mReadContextTransformations(ByVal m4x4File As String, ByRef mContextMatrices As Dictionary(Of String, mOccData)) As Dictionary(Of String, mOccData)
 
-		Dim mOccNodes As Xml.XmlNodeList
-		Dim mTG As Inventor.TransientGeometry = ThisApplication.TransientGeometry
-		Dim mLevelMatrix As Inventor.Matrix
-		Dim mLevelPath As String = Nothing
+        Dim mOccNodes As Xml.XmlNodeList
+        Dim mTG As Inventor.TransientGeometry = ThisApplication.TransientGeometry
+        Dim mLevelMatrix As Inventor.Matrix
+        Dim mLevelPath As String = Nothing
 
-		mXmlDoc.Load(m4x4File)
-		mParentNode = mXmlDoc.DocumentElement 'we need to get a starting element
-		mLastNode = mParentNode.FirstChild 'as we jump back and forth later, the node to return to sometimes helps, even nodes provide parent/child information
-		mOccNodes = mParentNode.ChildNodes
-		If mOccNodes.Count > 0 Then
-			Call mReadLevel(mLevelPath, mOccNodes, mContextMatrices)
-		End If
-		Return mContextMatrices
+        mXmlDoc.Load(m4x4File)
+        mParentNode = mXmlDoc.DocumentElement 'we need to get a starting element
+        mLastNode = mParentNode.FirstChild 'as we jump back and forth later, the node to return to sometimes helps, even nodes provide parent/child information
+        mOccNodes = mParentNode.ChildNodes
+        If mOccNodes.Count > 0 Then
+            Call mReadLevel(mLevelPath, mOccNodes, mContextMatrices)
+        End If
+        Return mContextMatrices
 
-	End Function
+    End Function
 
-	'function to recursively read transformation per assembly level
-	Private Sub mReadLevel(ByVal mOccPath As String, ByVal mNodes As Xml.XmlNodeList, ByRef mContextMatrices As Dictionary(Of String, mOccData))
-		For Each mNode As Xml.XmlElement In mNodes
-			Dim mOccName As String = mNode.Attributes("Name").Value
-			Dim mData As New mOccData()
-			mData.Name = mNode.Attributes("Name").Value
-			mData.PartNumber = mNode.Attributes("PartNumber").Value
-			mData.ModelState = mNode.Attributes("ModelState").Value
-			Dim mMatrix As Inventor.Matrix
-			mData.Matrix = mGetNodeMatrix(mNode.Attributes)
-			If mOccPath Is Nothing Then
-				mContextMatrices.Add(mOccName, mData)
-			Else
-				mContextMatrices.Add(mOccPath + "|" + mOccName, mData)
-			End If
-			If mNode.ChildNodes.Count > 0 Then
-				Dim mLevelPath As String
-				If mOccPath Is Nothing Then
-					mLevelPath = mOccName + "|"
-				Else
-					mLevelPath = mOccPath + "|" + mOccName + "|"
-				End If
-				Call mReadLevel(mLevelPath, mNode.ChildNodes, mContextMatrices)
-			End If
-		Next
-	End Sub
+    'function to recursively read transformation per assembly level
+    Private Sub mReadLevel(ByVal mOccPath As String, ByVal mNodes As Xml.XmlNodeList, ByRef mContextMatrices As Dictionary(Of String, mOccData))
+        For Each mNode As Xml.XmlElement In mNodes
+            Dim mOccName As String = mNode.Attributes("Name").Value
+            Dim mData As New mOccData()
+            mData.Name = mNode.Attributes("Name").Value
+            mData.PartNumber = mNode.Attributes("PartNumber").Value
+            mData.ModelState = mNode.Attributes("ModelState").Value
+            Dim mMatrix As Inventor.Matrix
+            mData.Matrix = mGetNodeMatrix(mNode.Attributes)
+            If mOccPath Is Nothing Then
+                mContextMatrices.Add(mOccName, mData)
+            Else
+                mContextMatrices.Add(mOccPath + "|" + mOccName, mData)
+            End If
+            If mNode.ChildNodes.Count > 0 Then
+                Dim mLevelPath As String
+                If mOccPath Is Nothing Then
+                    mLevelPath = mOccName + "|"
+                Else
+                    mLevelPath = mOccPath + "|" + mOccName + "|"
+                End If
+                Call mReadLevel(mLevelPath, mNode.ChildNodes, mContextMatrices)
+            End If
+        Next
+    End Sub
 
-	'function to build matrix from xml attributes
-	Private Function mGetNodeMatrix(ByVal mNodeAttribs As Xml.XmlAttributeCollection) As Inventor.Matrix
-		Dim mMatrix As Inventor.Matrix = ThisApplication.TransientGeometry.CreateMatrix()
-		Dim mMatrixValues(15) As Double
-		mMatrixValues(0) = mNodeAttribs("C11").Value
-		mMatrixValues(1) = mNodeAttribs("C12").Value
-		mMatrixValues(2) = mNodeAttribs("C13").Value
-		mMatrixValues(3) = mNodeAttribs("C14").Value
-		mMatrixValues(4) = mNodeAttribs("C21").Value
-		mMatrixValues(5) = mNodeAttribs("C22").Value
-		mMatrixValues(6) = mNodeAttribs("C23").Value
-		mMatrixValues(7) = mNodeAttribs("C24").Value
-		mMatrixValues(8) = mNodeAttribs("C31").Value
-		mMatrixValues(9) = mNodeAttribs("C32").Value
-		mMatrixValues(10) = mNodeAttribs("C33").Value
-		mMatrixValues(11) = mNodeAttribs("C34").Value
-		mMatrixValues(12) = mNodeAttribs("C41").Value
-		mMatrixValues(13) = mNodeAttribs("C42").Value
-		mMatrixValues(14) = mNodeAttribs("C43").Value
-		mMatrixValues(15) = mNodeAttribs("C44").Value
+    'function to build matrix from xml attributes
+    Private Function mGetNodeMatrix(ByVal mNodeAttribs As Xml.XmlAttributeCollection) As Inventor.Matrix
+        Dim mMatrix As Inventor.Matrix = ThisApplication.TransientGeometry.CreateMatrix()
+        Dim mMatrixValues(15) As Double
+        mMatrixValues(0) = mNodeAttribs("C11").Value
+        mMatrixValues(1) = mNodeAttribs("C12").Value
+        mMatrixValues(2) = mNodeAttribs("C13").Value
+        mMatrixValues(3) = mNodeAttribs("C14").Value
+        mMatrixValues(4) = mNodeAttribs("C21").Value
+        mMatrixValues(5) = mNodeAttribs("C22").Value
+        mMatrixValues(6) = mNodeAttribs("C23").Value
+        mMatrixValues(7) = mNodeAttribs("C24").Value
+        mMatrixValues(8) = mNodeAttribs("C31").Value
+        mMatrixValues(9) = mNodeAttribs("C32").Value
+        mMatrixValues(10) = mNodeAttribs("C33").Value
+        mMatrixValues(11) = mNodeAttribs("C34").Value
+        mMatrixValues(12) = mNodeAttribs("C41").Value
+        mMatrixValues(13) = mNodeAttribs("C42").Value
+        mMatrixValues(14) = mNodeAttribs("C43").Value
+        mMatrixValues(15) = mNodeAttribs("C44").Value
 
-		mMatrix.PutMatrixData(mMatrixValues)
-		Return mMatrix
+        mMatrix.PutMatrixData(mMatrixValues)
+        Return mMatrix
 
-	End Function
+    End Function
 
 #End Region
 
 #Region "MBOM Assembly"
-	'function to configure assembly BOM settings according MBOM requirements
-	Private Function mEnableMBOM() As Boolean
-		Dim mAssyDoc As Inventor.AssemblyDocument
-		Dim mAssyCompDef As Inventor.AssemblyComponentDefinition
-		Dim mBom As Inventor.BOM
-		Dim mBomView As Inventor.BOMView
-		Dim mBomRow As Inventor.BOMRow
-		Dim mBomRowEnum As Inventor.BOMRowsEnumerator
+    'function to configure assembly BOM settings according MBOM requirements
+    Private Function mEnableMBOM() As Boolean
+        Dim mAssyDoc As Inventor.AssemblyDocument
+        Dim mAssyCompDef As Inventor.AssemblyComponentDefinition
+        Dim mBom As Inventor.BOM
+        Dim mBomView As Inventor.BOMView
+        Dim mBomRow As Inventor.BOMRow
+        Dim mBomRowEnum As Inventor.BOMRowsEnumerator
 
-		Try
-			mDoc = ThisDoc.Document
-			If mDoc.DocumentType = kAssemblyDocumentObject Then
-				mAssyDoc = mDoc
-				mAssyCompDef = mAssyDoc.ComponentDefinition
-			End If
-			mBom = mAssyCompDef.BOM
-			mBom.StructuredViewEnabled = True
-			mBom.StructuredViewFirstLevelOnly = False
-			mBom.SetPartNumberMergeSettings2(True, , True)
+        Try
+            mDoc = ThisDoc.Document
+            If mDoc.DocumentType = kAssemblyDocumentObject Then
+                mAssyDoc = mDoc
+                mAssyCompDef = mAssyDoc.ComponentDefinition
+            End If
+            mBom = mAssyCompDef.BOM
+            mBom.StructuredViewEnabled = True
+            mBom.StructuredViewFirstLevelOnly = False
+            mBom.SetPartNumberMergeSettings2(True, , True)
 
-			'Validate user's login state
-			If iLogicVault.LoggedIn = False
-				Logger.Error("Not Logged In to Vault! - Login first and repeat executing this rule.")
-				Exit Function
-			End If
+            'Validate user's login state
+            If iLogicVault.LoggedIn = False Then
+                Logger.Error("Not Logged In to Vault! - Login first and repeat executing this rule.")
+                Exit Function
+            End If
 
 
-			'Download a single file to the local working folder
-			Dim mVaultFile As String = iLogicVault.GetFileByFullFilePath("$/Templates/Settings/InventorBomSettings_CarthagoMBOM.xml") 'add ..., True) to enable check-out of downloaded file.
-			If mVaultFile Is Nothing Then
-				Logger.Error("Vault file *CarthagMBOM.xml not found - Please double check that file exists in Vault.")
-			ElseIf mVaultFile.Count > 0 Then
-				mInvBomSettings = mVaultFile
-				mBom.ImportBOMCustomization(mInvBomSettings)
-			End If
+            'Download a single file to the local working folder
+            Dim mVaultFile As String = iLogicVault.GetFileByFullFilePath("$/Templates/Settings/InventorBomSettings_CarthagoMBOM.xml") 'add ..., True) to enable check-out of downloaded file.
+            If mVaultFile Is Nothing Then
+                Logger.Error("Vault file *CarthagMBOM.xml not found - Please double check that file exists in Vault.")
+            ElseIf mVaultFile.Count > 0 Then
+                mInvBomSettings = mVaultFile
+                mBom.ImportBOMCustomization(mInvBomSettings)
+            End If
 
-			mBomView = mBom.BOMViews.Item("Structured")
-			For Each mBomRow In mBomView.BOMRows
-				mBomRow.ItemNumberLocked = True
-			Next
-			Return True
-		Catch ex As Exception
-			Logger.Error("Something went wrong while enabling BOM Structured View.")
-			'Throw ex 'for Job Processing: the rule should not return success in case of failure
-			Return False
-		End Try
-	End Function
+            mBomView = mBom.BOMViews.Item("Structured")
+            For Each mBomRow In mBomView.BOMRows
+                mBomRow.ItemNumberLocked = True
+            Next
+            Return True
+        Catch ex As Exception
+            Logger.Error("Something went wrong while enabling BOM Structured View.")
+            'Throw ex 'for Job Processing: the rule should not return success in case of failure
+            Return False
+        End Try
+    End Function
 #End Region
 
 #Region "assembly context"
 
-	'function to call Inventor place component command as user interaction
-	Function mInteractiveAdd(LocalFullFileName As String) As Boolean
-		Dim mCmdMgr As Inventor.CommandManager = ThisApplication.CommandManager
-		mCmdMgr.PostPrivateEvent(Inventor.PrivateEventTypeEnum.kFileNameEvent, LocalFullFileName)
-		Dim mCtrlDef As Inventor.ControlDefinition = mCmdMgr.ControlDefinitions("AssemblyPlaceComponentCmd")
-		mCtrlDef.Execute2(True)
-		Return True
-	End Function
+    'function to call Inventor place component command as user interaction
+    Function mInteractiveAdd(LocalFullFileName As String) As Boolean
+        Dim mCmdMgr As Inventor.CommandManager = ThisApplication.CommandManager
+        mCmdMgr.PostPrivateEvent(Inventor.PrivateEventTypeEnum.kFileNameEvent, LocalFullFileName)
+        Dim mCtrlDef As Inventor.ControlDefinition = mCmdMgr.ControlDefinitions("AssemblyPlaceComponentCmd")
+        mCtrlDef.Execute2(True)
+        Return True
+    End Function
 
-	'function to process the part numbers interactively
-	Function mProcessPartnumbers(Partnumbers As List(Of String)) As Boolean
+    'function to process the part numbers interactively
+    Function mProcessFiles(mLocalFiles As List(Of String)) As Boolean
 
-		Dim success As Boolean = True
+        Dim success As Boolean = True
 
-		For Each mPartNumber As String In Partnumbers
+        For Each mFile As String In mLocalFiles
+            mDone = mInteractiveAdd(mFile)
+            If mDone <> True Then Logger.Error("The user interactive component placement for component [" + mFile + "] stopped unhandled.")
+        Next
 
-			'Build one to many name/value pairs of Property/Value as search criteria
-			Dim mSearchParams As New Dictionary(Of String, String) 'add UDP.DisplayName, Value Pairs
-			mSearchParams.Add("Part Number", mPartNumber)
-			'...add as many as required to enable a unique search result
+        Return success
 
-			'leverage folder filter to search in specific paths only
-			Dim mSearchFolders() As String = {"$/Designs/", "$/Libraries/" }
+    End Function
 
-			'returns full file name in local working folder (download enforces override, if local file exists)
-			mVaultFile = iLogicVault.GetFileBySearchCriteria(mSearchParams, True, False, mSearchFolders)
+    'function to process the instances provided
+    Function mProcessInstancePaths(InstancePaths As List(Of String)) As Boolean
 
-			If mVaultFile Is Nothing Then
-				Logger.Error("Vault file search: File not found - Please double check that file can be found with search criteria applied.")
-				AdskTsVaultUtils.Messages.ShowError("Vault file search: File with Part Number = [" + mPartNumber + "] not found.", "iLogic-Vault")
-				success = False
-			Else
-				Logger.Info("File " & mVaultFile & " found by search and downloaded to local workspace.")
-				mDone = mInteractiveAdd(mVaultFile)
-				If mDone <> True Then Logger.Error("The user interactive component placement for component [" + mVaultFile + "] stopped unhandled.")
-			End If 'mVaultFile returned
+        Dim success As Boolean = True
+        Dim mComponentList As New Dictionary(Of String, mOccData)
 
-		Next 'part number to be searched and inserted
+        For Each mPath As String In InstancePaths
 
-		Return success
-	End Function
+            Dim mPathArray As String() = mPath.Split("|")
+            Dim mPathMatrix As Inventor.Matrix = ThisApplication.TransientGeometry.CreateMatrix()
+            Dim mRoot As String = mPathArray.FirstOrDefault().Split(":").FirstOrDefault() 'it is the root providing the context information Baureihe/Typ
+            Dim mCurrentRoot As String = iProperties.Value("Project", "Part Number")
+            Dim mCurrentPath As String = mCurrentRoot
+            Dim mN As Integer
+            For Each s As String In mPathArray
+                If s.Contains(mCurrentRoot) Then
+                    mN = mPathArray.ToList().IndexOf(s)
+                    Exit For
+                End If
+            Next
+            Dim mCompToInsert As String = mPathArray.LastOrDefault().Split(":").FirstOrDefault() 'the name/number of the component to be placed/added
+            Dim m4x4Complete As Boolean = True
 
-	'function to process the instances provided
-	Function mProcessInstancePaths(InstancePaths As List(Of String)) As Boolean
+            Dim x As Integer = 0
+            If mN <> Nothing Then x = mN
+            For i = x To mPathArray.Length - 2
 
-		Dim success As Boolean = True
-		Dim mComponentList As New Dictionary(Of String, mOccData)
+                Dim m4x4File As String = Nothing
+                Dim mContextMatrices As New Dictionary(Of String, mOccData)
+                Dim mRelMatrix As Inventor.Matrix = ThisApplication.TransientGeometry.CreateMatrix()
 
-		For Each mPath As String In InstancePaths
+                'search the 4x4 matrix file in Vault
+                Dim mSearchParams As New Dictionary(Of String, String) 'add UDP.DisplayName, Value Pairs
+                Dim mName As String = mPathArray(i).Split(":").FirstOrDefault
+                mSearchParams.Add("Name", mName + ".4x4xml")
 
-			Dim mPathArray As String() = mPath.Split("|")
-			Dim mPathMatrix As Inventor.Matrix = ThisApplication.TransientGeometry.CreateMatrix()
-			Dim mRoot As String = mPathArray.FirstOrDefault().Split(":").FirstOrDefault() 'it is the root providing the context information Baureihe/Typ
-			Dim mCurrentRoot As String = iProperties.Value("Project", "Part Number")
-			Dim mCurrentPath As String = mCurrentRoot
-			Dim mN As Integer
-			For Each s As String In mPathArray
-				If s.Contains(mCurrentRoot)
-					mN = mPathArray.ToList().IndexOf(s)
-					Exit For
-				End If
-			Next
-			Dim mCompToInsert As String = mPathArray.LastOrDefault().Split(":").FirstOrDefault() 'the name/number of the component to be placed/added
-			Dim m4x4Complete As Boolean = True
+                'returns full file name in local working folder (download enforces override, if local file exists)
+                m4x4File = iLogicVault.GetFileBySearchCriteria(mSearchParams, True, False) ', True: combine search criteria by AND; , , False: don't check-out
 
-			Dim x As Integer = 0
-			If mN <> Nothing Then x = mN
-			For i = x To mPathArray.Length - 2
+                If m4x4File Is Nothing Then
+                    Logger.Error("Vault file search: File " + mName + ".4x4xml Not found - Please Double check that File can be found With search criteria applied.")
+                    success = False
+                Else
+                    Logger.Info("File " & m4x4File & " found by search and downloaded to local workspace.")
+                    mContextMatrices = mReadContextTransformations(m4x4File, mContextMatrices)
+                End If
 
-				Dim m4x4File As String = Nothing
-				Dim mContextMatrices As New Dictionary(Of String, mOccData)
-				Dim mRelMatrix As Inventor.Matrix = ThisApplication.TransientGeometry.CreateMatrix()
+                Try
+                    mRelMatrix = mContextMatrices.Item(mPathArray(i + 1)).Matrix
+                    mPathMatrix.PostMultiplyBy(mRelMatrix)
+                    If mCurrentRoot <> Nothing Then mCurrentPath = mCurrentPath + "|" + mPathArray(i + 1)
+                Catch
+                    m4x4Complete = False
+                    Logger.Error("The component [" + mPathArray(i + 1) + "] does not have sufficient 3D transformation data to place automatically")
+                    'todo: ask the user to add the component to the list of interactive placed components
+                End Try
 
-				'search the 4x4 matrix file in Vault
-				Dim mSearchParams As New Dictionary(Of String, String) 'add UDP.DisplayName, Value Pairs
-				Dim mName As String = mPathArray(i).Split(":").FirstOrDefault
-				mSearchParams.Add("Name", mName + ".4x4xml")
+                If i = mPathArray.Length - 2 Then
+                    If m4x4Complete = True Then
+                        'add component to the dictionary of components to add
+                        Dim mInstData As New mOccData
+                        mInstData.Name = mContextMatrices(mPathArray(i + 1)).Name
+                        mInstData.PartNumber = mContextMatrices(mPathArray(i + 1)).PartNumber
+                        mInstData.ModelState = mContextMatrices(mPathArray(i + 1)).ModelState
+                        If mCurrentRoot <> Nothing Then
+                            mInstData.Path = mCurrentPath
+                        Else
+                            mInstData.Path = mPath
+                        End If
+                        mInstData.Matrix = mPathMatrix
+                        mComponentList.Add(mInstData.Path, mInstData)
+                    End If
+                End If
 
-				'returns full file name in local working folder (download enforces override, if local file exists)
-				m4x4File = iLogicVault.GetFileBySearchCriteria(mSearchParams, True, False) ', True: combine search criteria by AND; , , False: don't check-out
+            Next 'i = segment in PathArray
 
-				If m4x4File Is Nothing Then
-					Logger.Error("Vault file search: File " + mName + ".4x4xml Not found - Please Double check that File can be found With search criteria applied.")
-					success = False
-				Else
-					Logger.Info("File " & m4x4File & " found by search and downloaded to local workspace.")
-					mContextMatrices = mReadContextTransformations(m4x4File, mContextMatrices)
-				End If
+        Next 'mCompPath in InstancePaths
 
-				Try
-					mRelMatrix = mContextMatrices.Item(mPathArray(i + 1)).Matrix
-					mPathMatrix.PostMultiplyBy(mRelMatrix)
-					If mCurrentRoot <> Nothing Then mCurrentPath = mCurrentPath + "|" + mPathArray(i + 1)
-				Catch
-					m4x4Complete = False
-					Logger.Error("The component [" + mPathArray(i + 1) + "] does not have sufficient 3D transformation data to place automatically")
-					'todo: ask the user to add the component to the list of interactive placed components
-				End Try
+        'Mindmap: MngdAssy/AddComp = iterate the list To be added
+        ThisAssembly.BeginManage("AddComponentsByAsmPath")
 
-				If i = mPathArray.Length - 2 Then
-					If m4x4Complete = True
-						'add component to the dictionary of components to add
-						Dim mInstData As New mOccData
-						mInstData.Name = mContextMatrices(mPathArray(i + 1)).Name
-						mInstData.PartNumber = mContextMatrices(mPathArray(i + 1)).PartNumber
-						mInstData.ModelState = mContextMatrices(mPathArray(i + 1)).ModelState
-						If mCurrentRoot <> Nothing
-							mInstData.Path = mCurrentPath
-						Else
-							mInstData.Path = mPath
-						End If
-						mInstData.Matrix = mPathMatrix
-						mComponentList.Add(mInstData.Path, mInstData)
-					End If
-				End If
+        For Each mInst As mOccData In mComponentList.Values
+            Dim mPartNumber As String = mInst.PartNumber
+            'get the component from Vault
+            Dim mCompFile As String
+            'build search criteria
+            Dim mCompSearchParams As New Dictionary(Of String, String) 'add UDP.DisplayName, Value Pairs
+            Dim mFldrs As String() = {"$/Designs/"}
+            mCompSearchParams.Add("Part Number", mPartNumber)
+            'search and get the local file
+            mCompFile = iLogicVault.GetFileBySearchCriteria(mCompSearchParams, True, False, mFldrs)
 
-			Next 'i = segment in PathArray
+            Dim mCompMatrix = ThisAssembly.Geometry.Matrix()
+            Dim mCells(15) As Double
+            'convert to current assembly units
+            mCompMatrix.InDatabaseUnits = mInst.Matrix 'mAbsMatrix is in db units [cm]
+            Dim componentA = Components.Add(mInst.Path, mCompFile, mCompMatrix, grounded:=True, visible:=True)
+        Next 'mInst in mComponentList
 
-		Next 'mCompPath in InstancePaths
+        ThisAssembly.EndManage("AddComponentsByAsmPath")
 
-		'Mindmap: MngdAssy/AddComp = iterate the list To be added
-		ThisAssembly.BeginManage("AddComponentsByAsmPath")
+        Return success
+    End Function
 
-		For Each mInst As mOccData In mComponentList.Values
-			Dim mPartNumber As String = mInst.PartNumber
-			'get the component from Vault
-			Dim mCompFile As String
-			'build search criteria
-			Dim mCompSearchParams As New Dictionary(Of String, String) 'add UDP.DisplayName, Value Pairs
-			Dim mFldrs As String() = {"$/Designs/" }
-			mCompSearchParams.Add("Part Number", mPartNumber)
-			'search and get the local file
-			mCompFile = iLogicVault.GetFileBySearchCriteria(mCompSearchParams, True, False, mFldrs)
+    Function mProcessPartNumberPaths(PartNumberPaths As List(Of String)) As Boolean
 
-			Dim mCompMatrix = ThisAssembly.Geometry.Matrix()
-			Dim mCells(15) As Double
-			'convert to current assembly units
-			mCompMatrix.InDatabaseUnits = mInst.Matrix 'mAbsMatrix is in db units [cm]
-			Dim componentA = Components.Add(mInst.Path, mCompFile, mCompMatrix, grounded :=True, visible :=True)
-		Next 'mInst in mComponentList
+        Dim success As Boolean = True
+        Dim mPrtNumInstancePaths As New List(Of String)
 
-		ThisAssembly.EndManage("AddComponentsByAsmPath")
+        For Each mPrtNumPath As String In PartNumberPaths
 
-		Return success
-	End Function
+            Dim mLevelInstances As New Dictionary(Of String, List(Of String))
+            Dim mPathArray As String() = mPrtNumPath.Split("|")
+            Dim mOccNames As New List(Of String)
 
-	Function mProcessPartNumberPaths(PartNumberPaths As List(Of String)) As Boolean
+            'get the occurrence cache or create it
+            Dim mRootNumber As String = mPathArray.FirstOrDefault()
+            Dim mCurrentRoot As String = iProperties.Value("Project", "Part Number")
+            mCacheFullFileName = mGetCacheFileName(mRootNumber + ".iam")
+            If SharedVariable.Exists(mCacheFullFileName) = False Then
+                mCreateOccCache(mCacheFullFileName)
+            End If
+            Dim mOccCache As Dictionary(Of String, List(Of ComponentOccurrence)) = SharedVariable(mCacheFullFileName)
+            Dim mAddCompNumber = mPathArray.LastOrDefault()
 
-		Dim success As Boolean = True
-		Dim mPrtNumInstancePaths As New List(Of String)
+            'Filter the cache and iterate the returned list
+            For Each mOcc As Inventor.ComponentOccurrence In mOccCache.Item(mAddCompNumber)
+                Dim mOccPath As String = mOcc.Name
+                Dim mOccParent As Inventor.ComponentOccurrence = mOcc.ParentOccurrence
+                While mOccParent IsNot Nothing
+                    mOccPath = mOccParent.Name + "|" + mOccPath
+                    mOccParent = mOccParent.ParentOccurrence
+                End While
+                mOccPath = mRootNumber + "|" + mOccPath
+                mPrtNumInstancePaths.Add(mOccPath)
+            Next
 
-		For Each mPrtNumPath As String In PartNumberPaths
+            If mPrtNumInstancePaths.Count > 0 Then
+                Dim result As Boolean = False
+                result = mProcessInstancePaths(mPrtNumInstancePaths)
+                If result = False Then
+                    AdskTsVaultUtils.Messages.ShowError("The rule 'AddComponents' finished with errors automatically placing components. " + vbLf + vbLf + "Please review the iLogic Log for details. ", "iLogic-Vault")
+                End If
+            End If
 
-			Dim mLevelInstances As New Dictionary(Of String, List(Of String))
-			Dim mPathArray As String() = mPrtNumPath.Split("|")
-			Dim mOccNames As New List(Of String)
+        Next 'PrtNumPath in PrtNumPaths
 
-			'get the occurrence cache or create it
-			Dim mRootNumber As String = mPathArray.FirstOrDefault()
-			Dim mCurrentRoot As String = iProperties.Value("Project", "Part Number")
-			mCacheFullFileName = mGetCacheFileName(mRootNumber + ".iam")
-			If SharedVariable.Exists(mCacheFullFileName) = False Then
-				mCreateOccCache(mCacheFullFileName)
-			End If
-			Dim mOccCache As Dictionary(Of String, List(Of ComponentOccurrence)) = SharedVariable(mCacheFullFileName)
-			Dim mAddCompNumber = mPathArray.LastOrDefault()
+        Return success
+    End Function
 
-			'Filter the cache and iterate the returned list
-			For Each mOcc As Inventor.ComponentOccurrence In mOccCache.Item(mAddCompNumber)
-				Dim mOccPath As String = mOcc.Name
-				Dim mOccParent As Inventor.ComponentOccurrence = mOcc.ParentOccurrence
-				While mOccParent IsNot Nothing
-					mOccPath = mOccParent.Name + "|" + mOccPath
-					mOccParent = mOccParent.ParentOccurrence
-				End While
-				mOccPath = mRootNumber + "|" + mOccPath
-				mPrtNumInstancePaths.Add(mOccPath)
-			Next
+    'function to retrieve an assembly file to create an occurrence cache
+    '	Function mGetAssemblyFile(Name As String) As String
+    '		'this rule is applicable to assemblies only; we search for a file name <PartNumber.iam>
+    '		Dim mSearchParams As New Dictionary(Of String, String) 'add UDP.DisplayName, Value Pairs
+    '		mSearchParams.Add("Name", Name)
+    '		'returns full file name in local working folder (download enforces override, if local file exists)
+    '		mVaultFile = iLogicVault.GetFileBySearchCriteria(mSearchParams, True, False) ', True: combine search criteria by AND; , , False: don't check-out
 
-			If mPrtNumInstancePaths.Count > 0 Then
-				Dim result As Boolean = False
-				result = mProcessInstancePaths(mPrtNumInstancePaths)
-				If result = False Then
-					AdskTsVaultUtils.Messages.ShowError("The rule 'AddComponents' finished with errors automatically placing components. " + vbLf + vbLf + "Please review the iLogic Log for details. ", "iLogic-Vault")
-				End If
-			End If
+    '		If mVaultFile Is Nothing Then
+    '			Logger.Error("Vault file search: File not found - Please double check that file can be found with search criteria applied.")
+    '			Return Nothing
+    '		Else
+    '			Logger.Info("File " & mVaultFile & " found by search and downloaded; continue to create occurrence cache...")
+    '			Return mVaultFile
+    '		End If
+    '	End Function
 
-		Next 'PrtNumPath in PrtNumPaths
+    'function to create a list of occurrence names reflecting a single part number
+    '	Function mGetOccNames(AssemblyName As String, PartNumber As String) As List(Of String)
 
-		Return success
-	End Function
+    '		Dim mPartNumDic As New Dictionary(Of String, List(Of String))
 
-	'function to retrieve an assembly file to create an occurrence cache
-	'	Function mGetAssemblyFile(Name As String) As String
-	'		'this rule is applicable to assemblies only; we search for a file name <PartNumber.iam>
-	'		Dim mSearchParams As New Dictionary(Of String, String) 'add UDP.DisplayName, Value Pairs
-	'		mSearchParams.Add("Name", Name)
-	'		'returns full file name in local working folder (download enforces override, if local file exists)
-	'		mVaultFile = iLogicVault.GetFileBySearchCriteria(mSearchParams, True, False) ', True: combine search criteria by AND; , , False: don't check-out
+    '		'get the assembly matching this part number
+    '		Dim FullFileName As String = mGetAssemblyFile(AssemblyName)
+    '		Dim occurenceCache As Dictionary(Of String, List(Of ComponentOccurrence)) = SharedVariable(FullFileName)
+    '		Dim mAsmDoc As Inventor.AssemblyDocument
+    '		Dim mProp As Inventor.Property
+    '		Dim mPropSet As Inventor.PropertySet
 
-	'		If mVaultFile Is Nothing Then
-	'			Logger.Error("Vault file search: File not found - Please double check that file can be found with search criteria applied.")
-	'			Return Nothing
-	'		Else
-	'			Logger.Info("File " & mVaultFile & " found by search and downloaded; continue to create occurrence cache...")
-	'			Return mVaultFile
-	'		End If
-	'	End Function
+    '		mAsmDoc = ThisApplication.Documents.Open(FullFileName, False)
+    '		'read iterate the first level occurrences and filter occurrences matching the given part number
+    '		For Each mOcc As Inventor.ComponentOccurrence In mAsmDoc.ComponentDefinition.Occurrences
 
-	'function to create a list of occurrence names reflecting a single part number
-	'	Function mGetOccNames(AssemblyName As String, PartNumber As String) As List(Of String)
+    '			'register in new or existing list of occurrences and add to this assembly's dictionary
+    '			mDoc = mOcc.Definition.Document
+    '			mPropSet = mDoc.PropertySets("Design Tracking Properties")
+    '			mProp = mPropSet("Part Number")
 
-	'		Dim mPartNumDic As New Dictionary(Of String, List(Of String))
+    '			If mPartNumDic.ContainsKey(mProp.Value.ToString()) Then
+    '				mPartNumDic(mProp.Value.ToString()).Add(mOcc.Name)
+    '			Else
+    '				mOccAllNames = New List(Of String)
+    '				mOccAllNames.Add(mOcc.Name)
+    '				mPartNumDic.Add(mProp.Value.ToString(), mOccAllNames)
+    '			End If
+    '		Next
 
-	'		'get the assembly matching this part number
-	'		Dim FullFileName As String = mGetAssemblyFile(AssemblyName)
-	'		Dim occurenceCache As Dictionary(Of String, List(Of ComponentOccurrence)) = SharedVariable(FullFileName)
-	'		Dim mAsmDoc As Inventor.AssemblyDocument
-	'		Dim mProp As Inventor.Property
-	'		Dim mPropSet As Inventor.PropertySet
+    '		Return mPartNumDic(PartNumber)
 
-	'		mAsmDoc = ThisApplication.Documents.Open(FullFileName, False)
-	'		'read iterate the first level occurrences and filter occurrences matching the given part number
-	'		For Each mOcc As Inventor.ComponentOccurrence In mAsmDoc.ComponentDefinition.Occurrences
+    '	End Function
 
-	'			'register in new or existing list of occurrences and add to this assembly's dictionary
-	'			mDoc = mOcc.Definition.Document
-	'			mPropSet = mDoc.PropertySets("Design Tracking Properties")
-	'			mProp = mPropSet("Part Number")
+    'function to retrieve an assembly file to create an occurrence cache
+    Function mGetCacheFileName(Name As String) As String
+        'this rule is applicable to assemblies only; we search for a file name <PartNumber.iam>
+        Dim mSearchParams As New Dictionary(Of String, String) 'add UDP.DisplayName, Value Pairs
+        mSearchParams.Add("Name", Name)
+        'returns full file name in local working folder (download enforces override, if local file exists)
+        mVaultFile = iLogicVault.GetFileBySearchCriteria(mSearchParams, True, False) ', True: combine search criteria by AND; , , False: don't check-out
 
-	'			If mPartNumDic.ContainsKey(mProp.Value.ToString()) Then
-	'				mPartNumDic(mProp.Value.ToString()).Add(mOcc.Name)
-	'			Else
-	'				mOccAllNames = New List(Of String)
-	'				mOccAllNames.Add(mOcc.Name)
-	'				mPartNumDic.Add(mProp.Value.ToString(), mOccAllNames)
-	'			End If
-	'		Next
+        If mVaultFile Is Nothing Then
+            Logger.Error("Vault file search: File not found - Please double check that file can be found with search criteria applied.")
+            Return Nothing
+        Else
+            Logger.Info("File " & mVaultFile & " found by search and downloaded; continue to create occurrence cache...")
+            Return mVaultFile
+        End If
+    End Function
 
-	'		Return mPartNumDic(PartNumber)
+    'function to create an occurrence cache
+    Function mCreateOccCache(FullFileName As String) As Boolean
 
-	'	End Function
+        Dim mAsmDoc As Inventor.AssemblyDocument
+        Dim mProp As Inventor.Property
+        Dim mPropSet As Inventor.PropertySet
 
-	'function to retrieve an assembly file to create an occurrence cache
-	Function mGetCacheFileName(Name As String) As String
-		'this rule is applicable to assemblies only; we search for a file name <PartNumber.iam>
-		Dim mSearchParams As New Dictionary(Of String, String) 'add UDP.DisplayName, Value Pairs
-		mSearchParams.Add("Name", Name)
-		'returns full file name in local working folder (download enforces override, if local file exists)
-		mVaultFile = iLogicVault.GetFileBySearchCriteria(mSearchParams, True, False) ', True: combine search criteria by AND; , , False: don't check-out
+        mAsmDoc = ThisApplication.Documents.Open(FullFileName, False)
+        'recursively iterate all assembly occurrences and register a list of occurrences for each individual partnumber
+        For Each mOcc As Inventor.ComponentOccurrence In mAsmDoc.ComponentDefinition.Occurrences
 
-		If mVaultFile Is Nothing Then
-			Logger.Error("Vault file search: File not found - Please double check that file can be found with search criteria applied.")
-			Return Nothing
-		Else
-			Logger.Info("File " & mVaultFile & " found by search and downloaded; continue to create occurrence cache...")
-			Return mVaultFile
-		End If
-	End Function
+            'start recursive call for subassembly occurrence
+            If mOcc.SubOccurrences.Count > 0 Then mOccAdd(mOcc.SubOccurrences)
 
-	'function to create an occurrence cache
-	Function mCreateOccCache(FullFileName As String) As Boolean
+            'continue to register in new or existing list of occurrences and add to this assembly's dictionary
+            mDoc = mOcc.Definition.Document
+            mPropSet = mDoc.PropertySets("Design Tracking Properties")
+            mProp = mPropSet("Part Number")
 
-		Dim mAsmDoc As Inventor.AssemblyDocument
-		Dim mProp As Inventor.Property
-		Dim mPropSet As Inventor.PropertySet
+            If mPartNumOccs.ContainsKey(mProp.Value.ToString()) Then
+                mPartNumOccs(mProp.Value.ToString()).Add(mOcc)
+            Else
+                mOccAll = New List(Of Inventor.ComponentOccurrence)
+                mOccAll.Add(mOcc)
+                mPartNumOccs.Add(mProp.Value.ToString(), mOccAll)
+            End If
+        Next
 
-		mAsmDoc = ThisApplication.Documents.Open(FullFileName, False)
-		'recursively iterate all assembly occurrences and register a list of occurrences for each individual partnumber
-		For Each mOcc As Inventor.ComponentOccurrence In mAsmDoc.ComponentDefinition.Occurrences
-
-			'start recursive call for subassembly occurrence
-			If mOcc.SubOccurrences.Count > 0 Then mOccAdd(mOcc.SubOccurrences)
-
-			'continue to register in new or existing list of occurrences and add to this assembly's dictionary
-			mDoc = mOcc.Definition.Document
-			mPropSet = mDoc.PropertySets("Design Tracking Properties")
-			mProp = mPropSet("Part Number")
-
-			If mPartNumOccs.ContainsKey(mProp.Value.ToString()) Then
-				mPartNumOccs(mProp.Value.ToString()).Add(mOcc)
-			Else
-				mOccAll = New List(Of Inventor.ComponentOccurrence)
-				mOccAll.Add(mOcc)
-				mPartNumOccs.Add(mProp.Value.ToString(), mOccAll)
-			End If
-		Next
-
-		'store the assembly's dictionary as iLogic Shared Variable
-		SharedVariable(mAsmDoc.FullDocumentName) = mPartNumOccs
-		Return True
+        'store the assembly's dictionary as iLogic Shared Variable
+        SharedVariable(mAsmDoc.FullDocumentName) = mPartNumOccs
+        Return True
 
 
-	End Function
+    End Function
 
-	'recursive helper of mCreateOccCache
-	Private Sub mOccAdd(Occurrences As Inventor.ComponentOccurrences)
+    'recursive helper of mCreateOccCache
+    Private Sub mOccAdd(Occurrences As Inventor.ComponentOccurrences)
 
-		Dim mDoc As Inventor.Document
-		Dim mProp As Inventor.Property
-		Dim mPropSet As Inventor.PropertySet
+        Dim mDoc As Inventor.Document
+        Dim mProp As Inventor.Property
+        Dim mPropSet As Inventor.PropertySet
 
-		For Each mOcc As Inventor.ComponentOccurrence In Occurrences
-			If mOcc.SubOccurrences.Count > 0 Then mOccAdd(mOcc.SubOccurrences)
-			mDoc = mOcc.Definition.Document
-			mPropSet = mDoc.PropertySets("Design Tracking Properties")
-			mProp = mPropSet("Part Number")
-			If mPartNumOccs.ContainsKey(mProp.Value.ToString())
-				mPartNumOccs(mProp.Value.ToString()).Add(mOcc)
-			Else
-				mOccAll = New List(Of Inventor.ComponentOccurrence)
-				mOccAll.Add(mOcc)
-				mPartNumOccs.Add(mProp.Value.ToString(), mOccAll)
-			End If
-		Next
+        For Each mOcc As Inventor.ComponentOccurrence In Occurrences
+            If mOcc.SubOccurrences.Count > 0 Then mOccAdd(mOcc.SubOccurrences)
+            mDoc = mOcc.Definition.Document
+            mPropSet = mDoc.PropertySets("Design Tracking Properties")
+            mProp = mPropSet("Part Number")
+            If mPartNumOccs.ContainsKey(mProp.Value.ToString()) Then
+                mPartNumOccs(mProp.Value.ToString()).Add(mOcc)
+            Else
+                mOccAll = New List(Of Inventor.ComponentOccurrence)
+                mOccAll.Add(mOcc)
+                mPartNumOccs.Add(mProp.Value.ToString(), mOccAll)
+            End If
+        Next
 
-	End Sub
+    End Sub
 
 #End Region
 
