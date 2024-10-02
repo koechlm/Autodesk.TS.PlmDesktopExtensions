@@ -223,6 +223,12 @@
     <Reference Include="Adsk.Ts.VaultUtils">
       <HintPath>SDK Refs\Adsk.Ts.VaultUtils.dll</HintPath>
     </Reference>
+    <Reference Include="Autodesk.Connectivity.Explorer.Extensibility">
+      <HintPath>SDK Refs\Autodesk.Connectivity.Explorer.Extensibility.dll</HintPath>
+    </Reference>
+    <Reference Include="Autodesk.Connectivity.Explorer.ExtensibilityTools">
+      <HintPath>SDK Refs\Autodesk.Connectivity.Explorer.ExtensibilityTools.dll</HintPath>
+    </Reference>
     <Reference Include="Autodesk.Connectivity.WebServices">
       <HintPath>SDK Refs\Autodesk.Connectivity.WebServices.dll</HintPath>
     </Reference>
@@ -248,6 +254,9 @@
       <HintPath Condition="Exists('$(programfiles)\Autodesk\Inventor 2025\Bin')">$(programfiles)\Autodesk\Inventor 2025\Bin\Autodesk.Inventor.Interop.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="Connectivity.Application.VaultBase">
+      <HintPath>SDK Refs\Connectivity.Application.VaultBase.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

@@ -1,4 +1,5 @@
-﻿using InvPlmAddIn.Utils;
+﻿using DevExpress.Data.Filtering.Helpers;
+using InvPlmAddIn.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace InvPlmAddIn.Model
     {
         public HostObject(BrowserPanelWindowManager panelManager)
         {
-            PanelManager = panelManager;
+            ApplicationPanelSet = panelManager;
         }
 
         public HostObject(DocumentPanelSet documentPanelSet)
@@ -25,22 +26,22 @@ namespace InvPlmAddIn.Model
 
         private DocumentPanelSet DocumentPanelSet { get; set; }
 
-        private BrowserPanelWindowManager PanelManager { get; set; }
+        private BrowserPanelWindowManager ApplicationPanelSet { get; set; }
 
         private class mVaultEntity
-        {
+        {            
+            // valid values: "file", "item", "plm-item"        
             public string entityType { get; set; }
+            
+            // values represent per type: file = iterationId, item = ItemRevision, plm-item = NUMBER
             public string id { get; set; }
+
+            // values represent per type: file = fileName (includes extension), item = Number, plm-item = linked Vault file name (including extension)
             public string name { get; set; }
-            public string parentFolderId { get; set; }
-        }
 
-        public async Task confirmLogin(string a)
-        {
-            (DocumentPanelSet?.PanelManager ?? PanelManager).UserLoggedIn();
-            await Task.CompletedTask;
+            // values represent per type: file = folderId, item = "", plm-item = LOCATION (folder path of linked file)
+            public string parentFolder { get; set; }
         }
-
 
         /// <summary>
         /// PLM call to query active document; optionally check against contextId
@@ -92,8 +93,32 @@ namespace InvPlmAddIn.Model
 
         public async Task addComponents(object[] numbers)
         {
-            var dic = new Dictionary<string, object>();
-            dic = mCastToDicOfVaultEntities(numbers);
+            var EntityIds = new Dictionary<string, object>();
+            EntityIds = mCastToDicOfVaultEntities(numbers);
+
+            //extract list of files to be added
+            var VaultFiles = new List<string>();
+            foreach (mVaultEntity item in EntityIds)
+            {
+                if (item.entityType == "file") {
+                    //get files from file => get file by iterationId
+                }
+                if (item.entityType == "item") {
+                    //get files from item => get file by ItemRevision's primary linked file iteration'
+                }
+                if (item.entityType == "plm-item") {
+                    //get files from plm-item => get file by full file name (Vault path + file name)
+                }
+            }
+
+            //download list of files to be added                       
+            List<string> DownloadedFiles = new List<string>();
+
+            //hand over file list (successfully downloaded files) to iLogic for insertion
+            var dic = new Dictionary<string, object>()
+            {
+                ["DownloadedFiles"] = DownloadedFiles
+            };
             CallILogic("AddComponents", ref dic);
             await Task.CompletedTask;
         }
@@ -162,7 +187,7 @@ namespace InvPlmAddIn.Model
 
         private void CallILogic(string rule, ref Dictionary<string, object> dic)
         {
-            (DocumentPanelSet?.PanelManager ?? PanelManager)?.CallILogic(rule, ref dic);
+            (DocumentPanelSet?.PanelManager ?? ApplicationPanelSet)?.CallILogic(rule, ref dic);
         }
 
         private string[] mCastObjectToStringArray(object obj)
@@ -185,11 +210,11 @@ namespace InvPlmAddIn.Model
                             entityType = mItems[0],
                             id = mItems[1],
                             name = mItems[2],
-                            parentFolderId = mItems[3]
+                            parentFolder = mItems[3]
                         };
 
                         // Ensure all properties are not null before adding to the list
-                        if (number.entityType != null && number.id != null && number.name != null && number.parentFolderId != null)
+                        if (number.entityType != null && number.id != null && number.name != null && number.parentFolder != null)
                         {
                             dic.Add(number.id, number);
                         }
