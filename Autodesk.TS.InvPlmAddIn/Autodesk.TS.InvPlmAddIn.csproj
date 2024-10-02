@@ -113,6 +113,7 @@
     <Content Include="Resources\autodesk-vault-plm-16x16.png" />
     <Content Include="Resources\autodesk-vault-plm-32x32.ico" />
     <Content Include="Resources\autodesk-vault-plm-32x32.png" />
+    <Content Include="SDK Refs\Adsk.Ts.VaultUtils.xml" />
     <Content Include="SDK Refs\Autodesk.iLogic.Interfaces.xml" />
     <Content Include="SDK Refs\Autodesk.Inventor.Interop.xml" />
     <Content Include="InvPlmAddInSettings.xml">
@@ -203,6 +204,7 @@
   <ItemGroup>
     <None Include="Readme.txt" />
     <None Include="SDK Refs\Adsk.Ts.VaultUtils.Core.dll" />
+    <None Include="SDK Refs\Adsk.Ts.VaultUtils.dll" />
     <None Include="SDK Refs\Autodesk.Connectivity.WebServices.dll" />
     <None Include="SDK Refs\Autodesk.DataManagement.Client.Framework.dll" />
     <None Include="SDK Refs\Autodesk.DataManagement.Client.Framework.Forms.dll" />
@@ -218,8 +220,8 @@
     <PackageReference Include="System.Drawing.Common" Version="8.0.8" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Adsk.Ts.VaultUtils.Core">
-      <HintPath>SDK Refs\Adsk.Ts.VaultUtils.Core.dll</HintPath>
+    <Reference Include="Adsk.Ts.VaultUtils">
+      <HintPath>SDK Refs\Adsk.Ts.VaultUtils.dll</HintPath>
     </Reference>
     <Reference Include="Autodesk.Connectivity.WebServices">
       <HintPath>SDK Refs\Autodesk.Connectivity.WebServices.dll</HintPath>

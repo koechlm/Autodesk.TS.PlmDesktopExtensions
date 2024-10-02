@@ -54,7 +54,7 @@
             panelControl1.Size = new System.Drawing.Size(714, 503);
             panelControl1.TabIndex = 2;
             // 
-            // FMExtensionLogin
+            // PlmExtensionLogin
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -63,10 +63,11 @@
             ClientSize = new System.Drawing.Size(738, 556);
             Controls.Add(panelControl1);
             Controls.Add(btnCancel);
-            IconOptions.Icon = (System.Drawing.Icon)resources.GetObject("FMExtensionLogin.IconOptions.Icon");
-            IconOptions.LargeImage = (System.Drawing.Image)resources.GetObject("FMExtensionLogin.IconOptions.LargeImage");
-            Name = "FMExtensionLogin";
+            IconOptions.Icon = (System.Drawing.Icon)resources.GetObject("PlmExtensionLogin.IconOptions.Icon");
+            IconOptions.LargeImage = (System.Drawing.Image)resources.GetObject("PlmExtensionLogin.IconOptions.LargeImage");
+            Name = "PlmExtensionLogin";
             SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             Text = "Vault plm - Autodesk Account Login";
             TopMost = true;
             Shown += PlmExtensionLogin_Shown;
