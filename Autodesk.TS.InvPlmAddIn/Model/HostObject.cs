@@ -1,10 +1,12 @@
 ﻿using DevExpress.Data.Filtering.Helpers;
+using DevExpress.XtraEditors;
 using InvPlmAddIn.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace InvPlmAddIn.Model
 {
@@ -28,11 +30,13 @@ namespace InvPlmAddIn.Model
 
         private BrowserPanelWindowManager ApplicationPanelSet { get; set; }
 
-        private class mVaultEntity
-        {            
+        private static bool mLoggedIn = false;
+
+        public class mVaultEntity
+        {
             // valid values: "file", "item", "plm-item"        
             public string entityType { get; set; }
-            
+
             // values represent per type: file = iterationId, item = ItemRevision, plm-item = NUMBER
             public string id { get; set; }
 
@@ -75,7 +79,7 @@ namespace InvPlmAddIn.Model
             var result = new List<string>();
 
             var dic = new Dictionary<string, object>();
-            dic = mCastToDicOfVaultEntities(numbers);
+            //dic = mCastToDicOfVaultEntities(numbers);
 
             CallILogic("GetComponentsLocked", ref dic);
             await Task.FromResult(dic);
@@ -93,40 +97,46 @@ namespace InvPlmAddIn.Model
 
         public async Task addComponents(object[] numbers)
         {
-            var EntityIds = new Dictionary<string, object>();
+            Cursor.Current = Cursors.WaitCursor;        
+
+            var EntityIds = new Dictionary<string, mVaultEntity>();
             EntityIds = mCastToDicOfVaultEntities(numbers);
 
-            //extract list of files to be added
-            var VaultFiles = new List<string>();
-            foreach (mVaultEntity item in EntityIds)
-            {
-                if (item.entityType == "file") {
-                    //get files from file => get file by iterationId
-                }
-                if (item.entityType == "item") {
-                    //get files from item => get file by ItemRevision's primary linked file iteration'
-                }
-                if (item.entityType == "plm-item") {
-                    //get files from plm-item => get file by full file name (Vault path + file name)
-                }
-            }
+            //download files from Vault
+            List<string> mDownloadedFiles = VaultUtils.mDownloadRelatedFiles(EntityIds);
 
-            //download list of files to be added                       
-            List<string> DownloadedFiles = new List<string>();
+            //todo: check and feedback to user if the download was successful
+
 
             //hand over file list (successfully downloaded files) to iLogic for insertion
             var dic = new Dictionary<string, object>()
             {
-                ["DownloadedFiles"] = DownloadedFiles
+                ["DownloadedFiles"] = mDownloadedFiles
             };
+
             CallILogic("AddComponents", ref dic);
             await Task.CompletedTask;
+
+            Cursor.Current = Cursors.Default;
         }
 
         public async Task openComponents(object[] numbers)
         {
-            var dic = new Dictionary<string, object>();
-            dic = mCastToDicOfVaultEntities(numbers);   
+            var EntityIds = new Dictionary<string, mVaultEntity>();
+            EntityIds = mCastToDicOfVaultEntities(numbers);
+
+            //download files from Vault
+            List<string> mDownloadedFiles = VaultUtils.mDownloadRelatedFiles(EntityIds);
+
+            //todo: check and feedback to user if the download was successful
+
+
+            //hand over file list (successfully downloaded files) to iLogic for insertion
+            var dic = new Dictionary<string, object>()
+            {
+                ["DownloadedFiles"] = mDownloadedFiles
+            };
+
             CallILogic("OpenComponent", ref dic);
             await Task.CompletedTask;
         }
@@ -135,13 +145,18 @@ namespace InvPlmAddIn.Model
         {
             BrowserPanelWindowManager.mSelectionSender = "PLM";
 
-            var dic = new Dictionary<string, object>();
-            dic = mCastToDicOfVaultEntities(numbers);
+            var EntityIds = new Dictionary<string, mVaultEntity>();
+            EntityIds = mCastToDicOfVaultEntities(numbers);
 
-            //todo: get entities from Vault using mVaultEntity.entityType
+            //get instance names (=file names, not extension) from Vault using mVaultEntity.entityType
+            List<string> mPartNumbers = VaultUtils.mGetPartNumbers(EntityIds);
 
+            var dic = new Dictionary<string, object>
+            {
+                ["PartNumbers"] = mPartNumbers.ToArray()
+            };
 
-            //CallILogic("SelectComponents", ref mList);
+            CallILogic("SelectComponents", ref dic);
             await Task.CompletedTask;
 
             BrowserPanelWindowManager.mSelectionSender = "Inventor";
@@ -151,8 +166,16 @@ namespace InvPlmAddIn.Model
         {
             BrowserPanelWindowManager.mSelectionSender = "PLM";
 
-            var dic = new Dictionary<string, object>();
-            dic = mCastToDicOfVaultEntities(numbers);
+            var EntityIds = new Dictionary<string, mVaultEntity>();
+            EntityIds = mCastToDicOfVaultEntities(numbers);
+
+            //get instance names (=file names, not extension) from Vault using mVaultEntity.entityType
+            List<string> mPartNumbers = VaultUtils.mGetPartNumbers(EntityIds);
+
+            var dic = new Dictionary<string, object>
+            {
+                ["PartNumbers"] = mPartNumbers.ToArray()
+            };
 
             CallILogic("IsolateComponents", ref dic);
             await Task.CompletedTask;
@@ -194,9 +217,9 @@ namespace InvPlmAddIn.Model
             => (obj as object[])?.Select(x => x.ToString()).ToArray();
 
 
-        private Dictionary<string, object> mCastToDicOfVaultEntities(object obj)
+        private Dictionary<string, mVaultEntity> mCastToDicOfVaultEntities(object obj)
         {
-            Dictionary<string, object> dic = new Dictionary<string, object>();
+            Dictionary<string, mVaultEntity> dic = new Dictionary<string, mVaultEntity>();
 
             if (obj is object[] objArray)
             {

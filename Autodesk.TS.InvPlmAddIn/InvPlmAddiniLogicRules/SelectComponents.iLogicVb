@@ -1,28 +1,28 @@
 ﻿AddReference "Adsk.Ts.VaultUtils.dll"
-Public Sub main
+Public Sub main()
 	'use case 1: select occurrence(s) in assembly
 	'use case 2: select surface body(ies) in multi-body part
 
 	break
 
-	Dim mPartnumbers As String() = RuleArguments("Partnumbers")
+	Dim mPartnumbers As String() = RuleArguments("PartNumbers")
 	Dim mDoc As Inventor.Document = ThisApplication.ActiveDocument
 
-	If mPartnumbers Is Nothing
+	If mPartnumbers Is Nothing Then
 		Logger.Error("Rule exits due to missing rule argument 'Partnumber'")
 		AdskTsVaultUtils.Messages.ShowError("Rule exits due to missing rule argument [mPartnumbers].", "iLogic-Vault")
 		Exit Sub
 	End If
-	
+
 	'PartNumbers may be handed as latest element of an instance or part number path (user selected proxies)
 	Dim mTemp As New List(Of String)
 	For Each mNum In mPartnumbers
-		If mNum.Split("|").Length > 1
+		If mNum.Split("|").Length > 1 Then
 			mTemp.Add(mNum.Split("|").LastOrDefault().Split(":").FirstOrDefault())
-			Else
-				mTemp.Add(mNum)
+		Else
+			mTemp.Add(mNum)
 		End If
-		Next
+	Next
 	mPartnumbers = mTemp.ToArray()
 
 	'differentiate selection of bodies in multi-body part files and occurrences in assemblies
@@ -46,8 +46,8 @@ Public Sub main
 		'Perform Selection
 		mAsmDoc.SelectSet.Clear()
 		For Each s In occurenceCache.Where(Function(x)
-			Return mPartnumbers.Contains(x.Key)
-			End Function )
+											   Return mPartnumbers.Contains(x.Key)
+										   End Function)
 			'Logger.Info("Select occurences for partnumber " & s.Key & "; Count: " & s.Value.Count)
 			Dim occ As ComponentOccurrence
 			For Each occ In s.Value
@@ -59,7 +59,7 @@ Public Sub main
 
 	' region for Multi-Body part components
 	If (ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kPartDocumentObject) Then
-		If mPartnumbers.Count = 0
+		If mPartnumbers.Count = 0 Then
 			Exit Sub
 		End If
 		Dim mPrtDoc As PartDocument = mDoc
@@ -68,55 +68,55 @@ Public Sub main
 
 		If mCompDef.SurfaceBodies.Count > 1 Then
 
-				'get the cache for faster selection or create it on first time run
-				If SharedVariable.Exists(mDoc.FullDocumentName) Then
-					mBodyCache = SharedVariable(mDoc.FullDocumentName)
-				Else
-					mBodyCache = New Dictionary(Of String, List(Of SurfaceBody))()
-					For Each mBody As SurfaceBody In mCompDef.SurfaceBodies
-						Dim mBodyPartNumber As String = mExtractPartNumFromBodyName(mBody.Name)
-						If mBodyPartNumber <> Nothing Then
-							If mBodyCache.ContainsKey(mBodyPartNumber) Then
-								'there is a list of bodies with the same partnumber
-								mBodyCache(mBodyPartNumber).Add(mBody)
-							Else
-								'create a new list of bodies for this partnumber
-								mBodyList = New List(Of Inventor.SurfaceBody)
-								mBodyList.Add(mBody)
-								mBodyCache.Add(mBodyPartNumber, mBodyList)
-							End If
-						End If
-					Next
-					'create a shared variable for the cache
-					SharedVariable(mDoc.FullDocumentName) = mBodyCache
-				End If
-
-				'Perform Selection
-				mPrtDoc.SelectSet.Clear()
+			'get the cache for faster selection or create it on first time run
+			If SharedVariable.Exists(mDoc.FullDocumentName) Then
+				mBodyCache = SharedVariable(mDoc.FullDocumentName)
+			Else
+				mBodyCache = New Dictionary(Of String, List(Of SurfaceBody))()
 				For Each mBody As SurfaceBody In mCompDef.SurfaceBodies
 					Dim mBodyPartNumber As String = mExtractPartNumFromBodyName(mBody.Name)
-					' if a user turned on "Isolate" before, none of the bodies might be visible
-					mBody.Visible = True
-					For Each s In mBodyCache.Where(Function(x)
-						Return mPartnumbers.Contains(x.Key)
-						End Function )
-						'Logger.Info("Select bodies for partnumber " & s.Key & "; Count: " & s.Value.Count)
-						For Each body As SurfaceBody In s.Value
-							mPrtDoc.SelectSet.Select(body)
-						Next
+					If mBodyPartNumber <> Nothing Then
+						If mBodyCache.ContainsKey(mBodyPartNumber) Then
+							'there is a list of bodies with the same partnumber
+							mBodyCache(mBodyPartNumber).Add(mBody)
+						Else
+							'create a new list of bodies for this partnumber
+							mBodyList = New List(Of Inventor.SurfaceBody)
+							mBodyList.Add(mBody)
+							mBodyCache.Add(mBodyPartNumber, mBodyList)
+						End If
+					End If
+				Next
+				'create a shared variable for the cache
+				SharedVariable(mDoc.FullDocumentName) = mBodyCache
+			End If
+
+			'Perform Selection
+			mPrtDoc.SelectSet.Clear()
+			For Each mBody As SurfaceBody In mCompDef.SurfaceBodies
+				Dim mBodyPartNumber As String = mExtractPartNumFromBodyName(mBody.Name)
+				' if a user turned on "Isolate" before, none of the bodies might be visible
+				mBody.Visible = True
+				For Each s In mBodyCache.Where(Function(x)
+												   Return mPartnumbers.Contains(x.Key)
+											   End Function)
+					'Logger.Info("Select bodies for partnumber " & s.Key & "; Count: " & s.Value.Count)
+					For Each body As SurfaceBody In s.Value
+						mPrtDoc.SelectSet.Select(body)
 					Next
 				Next
+			Next
 
 		End If ' surfacebodies.count > 0
 
-	End If 	' end region Mulit-Body selection
+	End If  ' end region Mulit-Body selection
 
 End Sub
 
 Private Function mExtractPartNumFromBodyName(Name As String)
 	Dim mNameSubStrings As String() = Name.Split("_")
 	'the name convention is: Pos_'CAD'_Number_Title_LxBxH
-	If mNameSubStrings.Length >= 3
+	If mNameSubStrings.Length >= 3 Then
 		Return mNameSubStrings(1) + "_" + mNameSubStrings(2)
 	End If
 	Return Nothing

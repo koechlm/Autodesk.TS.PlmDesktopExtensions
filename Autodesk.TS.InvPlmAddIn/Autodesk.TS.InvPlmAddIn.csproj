@@ -131,6 +131,9 @@
     <None Include="Autodesk.Autodesk.TS.InvPlmAddIn.Inventor.addin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="InvPlmAddiniLogicRules\AddComponentsBy4x4Matrix.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="InvPlmAddiniLogicRules\AddComponents.iLogicVb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -222,6 +225,8 @@
   <ItemGroup>
     <Reference Include="Adsk.Ts.VaultUtils">
       <HintPath>SDK Refs\Adsk.Ts.VaultUtils.dll</HintPath>
+      <Private>True</Private>
+      <EmbedInteropTypes></EmbedInteropTypes>
     </Reference>
     <Reference Include="Autodesk.Connectivity.Explorer.Extensibility">
       <HintPath>SDK Refs\Autodesk.Connectivity.Explorer.Extensibility.dll</HintPath>

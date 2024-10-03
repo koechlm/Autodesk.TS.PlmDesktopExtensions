@@ -2,7 +2,7 @@
 
 Public Sub main
 
-	Dim mPartnumbers As String() = RuleArguments("Partnumbers")
+	Dim mPartnumbers As String() = RuleArguments("PartNumbers")
 	Dim mDoc As Inventor.Document = ThisApplication.ActiveDocument
 
 	If mPartnumbers Is Nothing Then

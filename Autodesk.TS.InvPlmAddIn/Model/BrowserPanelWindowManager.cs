@@ -117,6 +117,10 @@ namespace InvPlmAddIn.Model
 
         public void SetActiveDocumentSet(Document document)
         {
+            if (document == null)
+            {                
+                return;
+            }
             var docSet = GetDocumentPanelSetForDocument(document);
 
             if (docSet != ActiveDocumentPanelSet)
@@ -250,8 +254,14 @@ namespace InvPlmAddIn.Model
             var docSet = panelSets.FirstOrDefault(p => p.PartNumber == partNumber);
             if (docSet != null)
             {
-                docSet.DocumentsEvents.OnChangeSelectSet -= DocumentEvents_OnChangeSelectSet;
-
+                //todo: investigate if we need to remove the event handler, there is a risk that it does not exist anymore
+                try
+                {
+                    docSet.DocumentsEvents.OnChangeSelectSet -= DocumentEvents_OnChangeSelectSet;
+                }
+                catch (Exception)
+                {}
+                
                 panelSets.Remove(docSet);
                 docSet.Dispose();
             }

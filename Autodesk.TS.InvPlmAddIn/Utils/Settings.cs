@@ -36,6 +36,8 @@ namespace InvPlmAddIn.Utils
         [XmlElement("FmExtensionUrl")]
         public string FmExtensionUrl;
 
+        [XmlElement("AddOpenSpprtdExts")]
+        public string AddOpenSpprtdExts;
 
         public Settings()
         {

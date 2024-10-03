@@ -1,42 +1,34 @@
-﻿AddReference "Adsk.Ts.VaultUtils.dll"
-Sub main
+﻿Imports System.Collections.Generic
 
-	'Validate user's login state
-	If iLogicVault.LoggedIn = False
-		Logger.Error("Not Logged In to Vault! - Login first and repeat executing this rule.")
-		Exit Sub
-	End If
+AddReference "Adsk.Ts.VaultUtils.dll"
+Sub main()
+
+    Dim mDownloadedFiles As List(Of String) = RuleArguments("DownloadedFiles")
+    Dim mDialogCaption As String = "Vault plm Inventor/iLogic Rule 'OpenComponents'"
+    Dim mMessage As String = Nothing
+
+    If mDownloadedFiles Is NothingThen Then 'Or mDownloadedFiles.Length = 0 Then
+        mMessage = "Missing or empty RuleArgument value(s) [DownloadedFiles]."
+        Logger.Error(mMessage)
+        AdskTsVaultUtils.Messages.ShowError(mMessage, mDialogCaption)
+        Exit Sub
+    End If
+
+    'Validate user's login state
+    If iLogicVault.LoggedIn = False Then
+        mMessage = "Not Logged In to Vault! - Login first and repeat your last command calling this rule."
+        Logger.Error(mMessage)
+        AdskTsVaultUtils.Messages.ShowError(mMessage, mDialogCaption)
+        Exit Sub
+    End If
 
 
-	'Search File(s) with given part number in Vault
-	Dim mPartNumber As String = RuleArguments("Partnumber")
-	If String.IsNullOrEmpty(mPartNumber)
-		Logger.Error("Missing RuleArgument value [Partnumber]")
-		AdskTsVaultUtils.Messages.ShowError("Missing rule argument [Partnumber] - Restart the rule providing a rule argument and value.", "iLogic-Vault")
-		Exit Sub
-	End If
-
-	'Build one to many name/value pairs of Property/Value as search criteria;
-	Dim mSearchParams As New System.Collections.Generic.Dictionary(Of String, String) 'add UDP.DisplayName, Value Pairs
-	mSearchParams.Add("Part Number", mPartNumber)
-
-	'the list of downloaded files
-	Dim mVaultFiles As List(Of String)
-	'returns full file names in local working folder (download enforces override, if local file exists)	
-	mVaultFiles = iLogicVault.GetFilesBySearchCriteria(mSearchParams, False, False)  'the default for optional parameter MatchAllCriteria = false, CheckOut = true, searching all folders
-	'prepare output
-	If mVaultFiles is Nothing
-		Logger.Error("The file searched was not found. Please double check that files can be found with search criteria applied.")
-		AdskTsVaultUtils.Messages.ShowError("Vault file search: File with Part Number = [" + mPartNumber + "] not found.", "iLogic-Vault")
-		Exit Sub
-	ElseIf mVaultFiles.Count > 0 Then
-		Dim mFileList As String
-		For Each mFile As String In mVaultFiles
-			mFileList += mFile & vbCr
-			ThisApplication.Documents.Open(mFile, True)
-		Next
-		Logger.Info("iLogic-Vault file search found and opened: " & mFileList)
-		'so the files are there, do what ever you need to do consuming these...
-	End If
+    If mDownloadedFiles.Count > 0 Then
+        Dim mFileList As String
+        For Each mFile As String In mDownloadedFiles
+            mFileList += mFile & vbCr
+            ThisApplication.Documents.Open(mFile, True)
+        Next
+    End If
 
 End Sub
