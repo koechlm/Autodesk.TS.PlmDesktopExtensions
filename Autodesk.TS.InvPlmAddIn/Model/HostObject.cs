@@ -30,7 +30,6 @@ namespace InvPlmAddIn.Model
 
         private BrowserPanelWindowManager ApplicationPanelSet { get; set; }
 
-        private static bool mLoggedIn = false;
 
         public class mVaultEntity
         {

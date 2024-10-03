@@ -97,23 +97,28 @@ namespace InvPlmAddIn.Utils
 
         internal static WebServiceManager GetConnection()
         {
+            WebServiceManager webServiceManager = null;
             conn = VltBase.ConnectionManager.Instance.Connection;
             if (conn != null)
             {
-                mWsMgr = conn.WebServiceManager;
+                webServiceManager = conn.WebServiceManager;
+                return webServiceManager;
+            }
+            else
+            {
+                AdskTsVaultUtils.Messages.ShowWarning("The AddIn could get a Vault connection. \n Are you logged in to Vault?", InvPlmAddinSrv.AddInName);
                 return null;
             }
-            return null;
         }
 
         private static void mRenewConnection()
         {
-            if (conn == null || conn?.Ticket == "")
+            if (conn == null || conn?.Ticket == "" || mWsMgr == null)
             {
                 mWsMgr = GetConnection();
                 if (mWsMgr == null)
                 {
-                    AdskTsVaultUtils.Messages.ShowWarning("Vault connection is not established. Please login to Vault.", InvPlmAddinSrv.AddInName);
+                    AdskTsVaultUtils.Messages.ShowWarning("The AddIn could not reuse the Vault connection. \n Unload/Load the Inventor Vault plm Addin and try again.", InvPlmAddinSrv.AddInName);
                 }
             }
         }
@@ -131,7 +136,7 @@ namespace InvPlmAddIn.Utils
             List<string> mDownloadedFiles = new List<string>();
             ACW.File mFile = null;
             long mFileId = -1, mItemId;
-            ACW.Item mItem = null;           
+            ACW.Item mItem = null;
 
             //get files from Vault entities
             foreach (HostObject.mVaultEntity item in mVaultEntities.Values)
