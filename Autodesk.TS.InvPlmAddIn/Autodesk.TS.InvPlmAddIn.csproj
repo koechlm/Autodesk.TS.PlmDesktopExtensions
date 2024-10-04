@@ -90,6 +90,8 @@
     <Compile Include="Forms\DockableWindowWebView.Designer.cs" />
     <Compile Include="Forms\PlmExtensionLogin.cs" />
     <Compile Include="Forms\PlmExtensionLogin.Designer.cs" />
+    <Compile Include="Forms\WaitForm1.cs" />
+    <Compile Include="Forms\WaitForm1.Designer.cs" />
     <Compile Include="Model\BrowserPanelWindow.cs" />
     <Compile Include="Model\BrowserPanelWindowManager.cs" />
     <Compile Include="Model\BrowserPanelWindowOptions.cs" />
@@ -126,6 +128,7 @@
     <EmbeddedResource Include="Forms\DockableWindowWebView.resx" />
     <EmbeddedResource Include="Forms\PlmExtensionLogin.resx" />
     <EmbeddedResource Include="Forms\ProgressFrm.resx" />
+    <EmbeddedResource Include="Forms\WaitForm1.resx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Autodesk.TS.InvPlmAddIn.X.manifest" />

@@ -33,7 +33,9 @@ namespace InvPlmAddIn
         private static Utils.Settings mAddinSettings = Utils.Settings.Load();
         public static Uri mBaseUri = new Uri(mAddinSettings.FmExtensionUrl);
 
-        private global::InvPlmAddIn.Forms.PlmExtensionLogin mLoginDialog;           
+        private global::InvPlmAddIn.Forms.PlmExtensionLogin mLoginDialog;  
+        
+        private global::InvPlmAddIn.Forms.WaitForm1 mWaitForm;
 
 
         public BrowserPanelWindowManager WindowManager { get; set; }
@@ -70,6 +72,15 @@ namespace InvPlmAddIn
             progressFrm.Text = AddInName;            
             System.Threading.Thread thread = new System.Threading.Thread(() => RunProgressFrm(progressFrm, _cancellationTokenSource.Token));
             thread.Start();
+
+            mWaitForm = new global::InvPlmAddIn.Forms.WaitForm1(mInventorApplication.ActiveColorScheme.Name);
+            mWaitForm.Show();
+            mWaitForm.SizeGripStyle = SizeGripStyle.Hide;
+            mWaitForm.Text = AddInName;
+            mWaitForm.AutoSize = true;
+            mWaitForm.TopMost = true;
+
+
 
             UpdateProgressFrm(progressFrm, "Autodesk Account Login ...");
 
@@ -124,6 +135,8 @@ namespace InvPlmAddIn
             // Request cancellation and wait for the thread to finish
             _cancellationTokenSource.Cancel();
             thread.Join();
+
+            mWaitForm.Close();
         }
 
         private void RunProgressFrm(ProgressFrm progressFrm, CancellationToken token)
