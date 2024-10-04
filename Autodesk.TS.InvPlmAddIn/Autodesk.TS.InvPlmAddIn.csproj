@@ -103,6 +103,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Forms\ProgressFrm.cs" />
+    <Compile Include="Forms\ProgressFrm.Designer.cs" />
     <Compile Include="Utils\iLogicUtil.cs" />
     <Compile Include="Utils\Settings.cs" />
     <Compile Include="Utils\Util.cs" />
@@ -123,6 +125,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Forms\DockableWindowWebView.resx" />
     <EmbeddedResource Include="Forms\PlmExtensionLogin.resx" />
+    <EmbeddedResource Include="Forms\ProgressFrm.resx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Autodesk.TS.InvPlmAddIn.X.manifest" />

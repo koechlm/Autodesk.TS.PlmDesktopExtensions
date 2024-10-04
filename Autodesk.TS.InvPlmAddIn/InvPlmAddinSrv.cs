@@ -7,6 +7,10 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
 namespace InvPlmAddIn
 {
     /// <summary>
@@ -29,7 +33,8 @@ namespace InvPlmAddIn
         private static Utils.Settings mAddinSettings = Utils.Settings.Load();
         public static Uri mBaseUri = new Uri(mAddinSettings.FmExtensionUrl);
 
-        private global::InvPlmAddIn.Forms.PlmExtensionLogin mLoginDialog;             
+        private global::InvPlmAddIn.Forms.PlmExtensionLogin mLoginDialog;           
+
 
         public BrowserPanelWindowManager WindowManager { get; set; }
 
@@ -45,29 +50,117 @@ namespace InvPlmAddIn
 
         #region ApplicationAddInServer Members
 
+        /// <summary>
+        /// This method is called by Inventor when it loads the addin.
+        /// The AddInSiteObject provides access to the Inventor mInventorApplication object.
+        /// The FirstTime flag indicates if the addin is loaded for the first time.
+        /// </summary>
+        /// <param name="addInSiteObject"></param>
+        /// <param name="firstTime"></param>
+        /// <exception cref="OperationCanceledException"></exception>
+        private CancellationTokenSource _cancellationTokenSource;
+
         public void Activate(Inventor.ApplicationAddInSite addInSiteObject, bool firstTime)
         {
-            // This method is called by Inventor when it loads the addin.
-            // The AddInSiteObject provides access to the Inventor mInventorApplication object.
-            // The FirstTime flag indicates if the addin is loaded for the first time.
-
             // Initialize mAddIn members.
             mInventorApplication = addInSiteObject.Application;
+
+            _cancellationTokenSource = new CancellationTokenSource();
+            ProgressFrm progressFrm = new ProgressFrm(mInventorApplication.ActiveColorScheme.Name, _cancellationTokenSource.Token);
+            progressFrm.Text = AddInName;            
+            System.Threading.Thread thread = new System.Threading.Thread(() => RunProgressFrm(progressFrm, _cancellationTokenSource.Token));
+            thread.Start();
+
+            UpdateProgressFrm(progressFrm, "Autodesk Account Login ...");
+
+            // loading the panels requires an active document
+            if (mInventorApplication.ActiveDocument == null)
+            {
+                mInventorApplication.Documents.Add(Inventor.DocumentTypeEnum.kAssemblyDocumentObject, "", true);
+            }
             mUserInterfaceManager = mInventorApplication.UserInterfaceManager;
+
+            // the add-in requires iLogic to be enabled
+
+            //we need the iLogic Addin to run the external rules
+            try
+            {
+                Inventor.ApplicationAddIns mInvSrvAddIns = mInventorApplication.ApplicationAddIns;
+                Inventor.ApplicationAddIn iLogicAddIn = mInvSrvAddIns.ItemById["{3BDD8D79-2179-4B11-8A5A-257B1C0263AC}"];
+
+                if (iLogicAddIn != null && iLogicAddIn.Activated != true)
+                {
+                    iLogicAddIn.Activate();
+                }
+            }
+            catch (Exception)
+            {
+                string mMessage = AddInName + " requires a running Inventor instance with the iLogic Addin available.\nPlease load iLogic first.";
+                AdskTsVaultUtils.Messages.ShowError(mMessage, InvPlmAddinSrv.AddInName);
+                throw new OperationCanceledException("Add-in loading canceled due to missing iLogic Add-in");
+            }
 
             // Show the FMExtension Login dialog and continue only if the user has logged in and confirmed the dialog with OK
             mLoginDialog = new InvPlmAddIn.Forms.PlmExtensionLogin(mInventorApplication.ActiveColorScheme.Name);
             if (mLoginDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK)
             {
                 // User canceled the dialog, exit the add-in
+                _cancellationTokenSource.Cancel();
+                thread.Join();
                 throw new OperationCanceledException("Add-in loading canceled by user.");
             }
 
+            UpdateProgressFrm(progressFrm, "Initialize Panels...");
+
             WindowManager = new BrowserPanelWindowManager(this);
+
+            // Update the progress form
+            UpdateProgressFrm(progressFrm, "Registering events...");
             ConnectEvents();
+
+            UpdateProgressFrm(progressFrm, "Loading dockable windows...");
             AddBrowserWindow();
-            
+
+            // Request cancellation and wait for the thread to finish
+            _cancellationTokenSource.Cancel();
+            thread.Join();
         }
+
+        private void RunProgressFrm(ProgressFrm progressFrm, CancellationToken token)
+        {
+            try
+            {
+                System.Windows.Forms.Application.Run(progressFrm);
+            }
+            catch (OperationCanceledException)
+            {
+                // Handle the cancellation if needed
+            }
+            finally
+            {
+                if (progressFrm.InvokeRequired)
+                {
+                    progressFrm.Invoke(new Action(() => progressFrm.Close()));
+                }
+                else
+                {
+                    progressFrm.Close();
+                }
+            }
+        }
+
+        private void UpdateProgressFrm(ProgressFrm progressFrm, string message)
+        {
+            if (progressFrm.InvokeRequired)
+            {
+                progressFrm.Invoke(new Action(() => progressFrm.lblProgress.Text = message));
+            }
+            else
+            {
+                progressFrm.lblProgress.Text = message;
+            }
+        }
+
 
         public void Deactivate()
         {
@@ -120,13 +213,13 @@ namespace InvPlmAddIn
                 WindowManager.OnChangeDocument(documentObject);
         }
 
-        private void ApplicationEventsOnCloseView(View viewObject, EventTimingEnum beforeOrAfter, NameValueMap context,
+        private void ApplicationEventsOnCloseView(Inventor.View viewObject, EventTimingEnum beforeOrAfter, NameValueMap context,
             out HandlingCodeEnum handlingCode)
         {
             handlingCode = HandlingCodeEnum.kEventNotHandled;
         }
 
-        private void ApplicationEventsOnDeactivateView(View viewObject, EventTimingEnum beforeOrAfter,
+        private void ApplicationEventsOnDeactivateView(Inventor.View viewObject, EventTimingEnum beforeOrAfter,
             NameValueMap context, out HandlingCodeEnum handlingCode)
         {
             handlingCode = HandlingCodeEnum.kEventNotHandled;
@@ -151,7 +244,7 @@ namespace InvPlmAddIn
             mInventorApplication.ApplicationEvents.OnActivateDocument += ApplicationEventsOnActivateDocument;
             mInventorApplication.ApplicationEvents.OnDeactivateView += ApplicationEventsOnDeactivateView;
             mInventorApplication.ApplicationEvents.OnCloseDocument += ApplicationEventsOnOnCloseDocument;
-        }   
+        }
 
         private void DisconnectEvents()
         {
