@@ -96,6 +96,9 @@ namespace InvPlmAddIn.Model
 
         public async Task addComponents(object[] numbers)
         {
+            //show wait form and wait cursor
+            Forms.WaitForm1 waitForm = new Forms.WaitForm1(InvPlmAddinSrv.mTheme, "Adding component...");
+            waitForm.Show();
             Cursor.Current = Cursors.WaitCursor;        
 
             var EntityIds = new Dictionary<string, mVaultEntity>();
@@ -117,10 +120,18 @@ namespace InvPlmAddIn.Model
             await Task.CompletedTask;
 
             Cursor.Current = Cursors.Default;
+            waitForm.Close();
+            waitForm.Dispose();
         }
 
         public async Task openComponents(object[] numbers)
         {
+            //show wait form and wait cursor
+            Forms.WaitForm1 waitForm = new Forms.WaitForm1(InvPlmAddinSrv.mTheme, "Opening component...");
+            
+            waitForm.Show();
+            Cursor.Current = Cursors.WaitCursor;
+
             var EntityIds = new Dictionary<string, mVaultEntity>();
             EntityIds = mCastToDicOfVaultEntities(numbers);
 
@@ -138,6 +149,10 @@ namespace InvPlmAddIn.Model
 
             CallILogic("OpenComponent", ref dic);
             await Task.CompletedTask;
+
+            Cursor.Current = Cursors.Default;
+            waitForm.Close();
+            waitForm.Dispose();
         }
 
         public async Task selectComponents(object[] numbers)

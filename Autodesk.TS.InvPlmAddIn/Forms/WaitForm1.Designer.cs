@@ -37,7 +37,9 @@
             // progressPanel1
             // 
             progressPanel1.Appearance.BackColor = System.Drawing.Color.Transparent;
+            progressPanel1.Appearance.ForeColor = System.Drawing.SystemColors.Highlight;
             progressPanel1.Appearance.Options.UseBackColor = true;
+            progressPanel1.Appearance.Options.UseForeColor = true;
             progressPanel1.AppearanceCaption.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
             progressPanel1.AppearanceCaption.Options.UseFont = true;
             progressPanel1.AppearanceDescription.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
@@ -51,6 +53,7 @@
             progressPanel1.Size = new System.Drawing.Size(351, 51);
             progressPanel1.TabIndex = 0;
             progressPanel1.Text = "progressPanel1";
+            progressPanel1.UseWaitCursor = true;
             // 
             // tableLayoutPanel1
             // 
@@ -68,20 +71,25 @@
             tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             tableLayoutPanel1.Size = new System.Drawing.Size(351, 85);
             tableLayoutPanel1.TabIndex = 1;
+            tableLayoutPanel1.UseWaitCursor = true;
             // 
             // WaitForm1
             // 
+            Appearance.BackColor = System.Drawing.SystemColors.Control;
+            Appearance.Options.UseBackColor = true;
             AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             AutoSize = true;
             AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             ClientSize = new System.Drawing.Size(351, 85);
-            ControlBox = false;
             Controls.Add(tableLayoutPanel1);
             DoubleBuffered = true;
             IconOptions.Icon = (System.Drawing.Icon)resources.GetObject("WaitForm1.IconOptions.Icon");
             Name = "WaitForm1";
-            Text = "Form1";
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            Text = "Vault plm Inventor";
+            TopMost = true;
+            UseWaitCursor = true;
             tableLayoutPanel1.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();

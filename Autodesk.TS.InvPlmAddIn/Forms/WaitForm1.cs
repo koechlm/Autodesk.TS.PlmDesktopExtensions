@@ -13,14 +13,15 @@ namespace InvPlmAddIn.Forms
 {
     public partial class WaitForm1 :  DevExpress.XtraEditors.XtraForm
     {
-        public WaitForm1(string currentTheme)
+        public WaitForm1(string currentTheme, string description)
         {
             InitializeComponent();
             this.progressPanel1.AutoHeight = true;
 
             ApplyThemes(currentTheme);
 
-            
+            this.progressPanel1.Text = InvPlmAddinSrv.AddInName;
+            this.progressPanel1.Description = description;
         }
 
         //#region Overrides

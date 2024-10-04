@@ -28,6 +28,7 @@ namespace InvPlmAddIn
         public static string ClientId = "{08b0dcaa-5757-4a40-a785-c79fae87efea}";
         public static Inventor.Application mInventorApplication { get; set; }
         private UserInterfaceManager mUserInterfaceManager;
+        public static string mTheme = "Light"; // "Dark" or "Light"
 
         //get the base uri of the Fusion Manage Extension
         private static Utils.Settings mAddinSettings = Utils.Settings.Load();
@@ -36,7 +37,6 @@ namespace InvPlmAddIn
         private global::InvPlmAddIn.Forms.PlmExtensionLogin mLoginDialog;  
         
         private global::InvPlmAddIn.Forms.WaitForm1 mWaitForm;
-
 
         public BrowserPanelWindowManager WindowManager { get; set; }
 
@@ -66,23 +66,21 @@ namespace InvPlmAddIn
         {
             // Initialize mAddIn members.
             mInventorApplication = addInSiteObject.Application;
+            mTheme = mInventorApplication.ActiveColorScheme.Name;
 
-            _cancellationTokenSource = new CancellationTokenSource();
-            ProgressFrm progressFrm = new ProgressFrm(mInventorApplication.ActiveColorScheme.Name, _cancellationTokenSource.Token);
-            progressFrm.Text = AddInName;            
-            System.Threading.Thread thread = new System.Threading.Thread(() => RunProgressFrm(progressFrm, _cancellationTokenSource.Token));
-            thread.Start();
+            //_cancellationTokenSource = new CancellationTokenSource();
+            //ProgressFrm progressFrm = new ProgressFrm(mInventorApplication.ActiveColorScheme.Name, _cancellationTokenSource.Token);
+            //progressFrm.Text = AddInName;            
+            //System.Threading.Thread thread = new System.Threading.Thread(() => RunProgressFrm(progressFrm, _cancellationTokenSource.Token));
+            //thread.Start();
 
-            mWaitForm = new global::InvPlmAddIn.Forms.WaitForm1(mInventorApplication.ActiveColorScheme.Name);
-            mWaitForm.Show();
-            mWaitForm.SizeGripStyle = SizeGripStyle.Hide;
-            mWaitForm.Text = AddInName;
-            mWaitForm.AutoSize = true;
+            mWaitForm = new global::InvPlmAddIn.Forms.WaitForm1(mTheme, "Loading Addin...");
+            mWaitForm.Show();            
             mWaitForm.TopMost = true;
 
 
 
-            UpdateProgressFrm(progressFrm, "Autodesk Account Login ...");
+            //UpdateProgressFrm(progressFrm, "Autodesk Account Login ...");
 
             // loading the panels requires an active document
             if (mInventorApplication.ActiveDocument == null)
@@ -116,25 +114,25 @@ namespace InvPlmAddIn
             if (mLoginDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK)
             {
                 // User canceled the dialog, exit the add-in
-                _cancellationTokenSource.Cancel();
-                thread.Join();
+                //_cancellationTokenSource.Cancel();
+                //thread.Join();
                 throw new OperationCanceledException("Add-in loading canceled by user.");
             }
 
-            UpdateProgressFrm(progressFrm, "Initialize Panels...");
+            //UpdateProgressFrm(progressFrm, "Initialize Panels...");
 
             WindowManager = new BrowserPanelWindowManager(this);
 
             // Update the progress form
-            UpdateProgressFrm(progressFrm, "Registering events...");
+            //UpdateProgressFrm(progressFrm, "Registering events...");
             ConnectEvents();
 
-            UpdateProgressFrm(progressFrm, "Loading dockable windows...");
+            //UpdateProgressFrm(progressFrm, "Loading dockable windows...");
             AddBrowserWindow();
 
             // Request cancellation and wait for the thread to finish
-            _cancellationTokenSource.Cancel();
-            thread.Join();
+            //_cancellationTokenSource.Cancel();
+            //thread.Join();
 
             mWaitForm.Close();
         }
