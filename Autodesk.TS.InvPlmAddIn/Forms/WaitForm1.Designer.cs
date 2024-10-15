@@ -75,8 +75,6 @@
             // 
             // WaitForm1
             // 
-            Appearance.BackColor = System.Drawing.SystemColors.Control;
-            Appearance.Options.UseBackColor = true;
             AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             AutoSize = true;

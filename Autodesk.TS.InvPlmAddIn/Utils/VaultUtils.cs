@@ -292,7 +292,7 @@ namespace InvPlmAddIn.Utils
 
                 //download
                 VDF.Vault.Results.AcquireFilesResults results = conn.FileManager.AcquireFiles(settings);
-
+                
                 //capture primary file name for return (download may include children and attachments)
                 if (results.FileResults != null)
                 {

@@ -1,10 +1,12 @@
 ﻿using DevExpress.Data.Filtering.Helpers;
 using DevExpress.XtraEditors;
+using DevExpress.XtraPrinting.Preview;
 using InvPlmAddIn.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -30,6 +32,7 @@ namespace InvPlmAddIn.Model
 
         private BrowserPanelWindowManager ApplicationPanelSet { get; set; }
 
+        private InvPlmAddIn.Forms.WaitForm1 mWaitForm;
 
         public class mVaultEntity
         {
@@ -97,8 +100,8 @@ namespace InvPlmAddIn.Model
         public async Task addComponents(object[] numbers)
         {
             //show wait form and wait cursor
-            Forms.WaitForm1 waitForm = new Forms.WaitForm1(InvPlmAddinSrv.mTheme, "Adding component...");
-            waitForm.Show();
+            mWaitForm = new Forms.WaitForm1(InvPlmAddinSrv.mTheme, "Downloading Component(s)...");
+            mWaitForm.Show();
             Cursor.Current = Cursors.WaitCursor;        
 
             var EntityIds = new Dictionary<string, mVaultEntity>();
@@ -107,8 +110,16 @@ namespace InvPlmAddIn.Model
             //download files from Vault
             List<string> mDownloadedFiles = VaultUtils.mDownloadRelatedFiles(EntityIds);
 
-            //todo: check and feedback to user if the download was successful
+            // check and feedback to user if the download was successful
+            if (mDownloadedFiles.Count == 0)
+            {
+                AdskTsVaultUtils.Messages.ShowError("No files were downloaded.", InvPlmAddinSrv.AddInName);
 
+                mWaitForm.Close();
+                mWaitForm.Dispose();
+
+                return;
+            }
 
             //hand over file list (successfully downloaded files) to iLogic for insertion
             var dic = new Dictionary<string, object>()
@@ -116,30 +127,38 @@ namespace InvPlmAddIn.Model
                 ["DownloadedFiles"] = mDownloadedFiles
             };
 
+            mWaitForm.progressPanel1.Description = "Adding Component...";
             CallILogic("AddComponents", ref dic);
             await Task.CompletedTask;
 
             Cursor.Current = Cursors.Default;
-            waitForm.Close();
-            waitForm.Dispose();
+            mWaitForm.Close();
+            mWaitForm.Dispose();
         }
 
         public async Task openComponents(object[] numbers)
         {
-            //show wait form and wait cursor
-            Forms.WaitForm1 waitForm = new Forms.WaitForm1(InvPlmAddinSrv.mTheme, "Opening component...");
-            
-            waitForm.Show();
+            // Initialize the progress form
+            mWaitForm = new Forms.WaitForm1(InvPlmAddinSrv.mTheme, "Downloading Component(s)...");
+            mWaitForm.Show();
             Cursor.Current = Cursors.WaitCursor;
 
             var EntityIds = new Dictionary<string, mVaultEntity>();
             EntityIds = mCastToDicOfVaultEntities(numbers);
 
-            //download files from Vault
+            // download files from Vault
             List<string> mDownloadedFiles = VaultUtils.mDownloadRelatedFiles(EntityIds);
 
-            //todo: check and feedback to user if the download was successful
+            // check and feedback to user if the download was successful
+            if (mDownloadedFiles.Count == 0)
+            {
+                AdskTsVaultUtils.Messages.ShowError("No files were downloaded.", InvPlmAddinSrv.AddInName);
 
+                mWaitForm.Close();
+                mWaitForm.Dispose();
+
+                return;
+            }
 
             //hand over file list (successfully downloaded files) to iLogic for insertion
             var dic = new Dictionary<string, object>()
@@ -147,12 +166,13 @@ namespace InvPlmAddIn.Model
                 ["DownloadedFiles"] = mDownloadedFiles
             };
 
+            mWaitForm.progressPanel1.Description = "Opening...";
             CallILogic("OpenComponent", ref dic);
             await Task.CompletedTask;
 
             Cursor.Current = Cursors.Default;
-            waitForm.Close();
-            waitForm.Dispose();
+            mWaitForm.Close();
+            mWaitForm.Dispose();
         }
 
         public async Task selectComponents(object[] numbers)

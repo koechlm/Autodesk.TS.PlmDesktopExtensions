@@ -1,4 +1,5 @@
 using Inventor;
+using InvPlmAddIn.Forms;
 using InvPlmAddIn.Model;
 using InvPlmAddIn.Utils;
 using Microsoft.Win32;
@@ -21,11 +22,10 @@ namespace InvPlmAddIn
     [GuidAttribute("08b0dcaa-5757-4a40-a785-c79fae87efea")]
     public class InvPlmAddinSrv : Inventor.ApplicationAddInServer
     {
-        /// <summary>
-        /// Display name of the addin to be used for Dialog caption.
-        /// </summary>
+        //Display name of the addin to be used for Dialog caption.
         public static readonly string AddInName = "Vault plm Inventor";
         public static string ClientId = "{08b0dcaa-5757-4a40-a785-c79fae87efea}";
+
         public static Inventor.Application mInventorApplication { get; set; }
         private UserInterfaceManager mUserInterfaceManager;
         public static string mTheme = "Light"; // "Dark" or "Light"
@@ -34,9 +34,9 @@ namespace InvPlmAddIn
         private static Utils.Settings mAddinSettings = Utils.Settings.Load();
         public static Uri mBaseUri = new Uri(mAddinSettings.FmExtensionUrl);
 
-        private global::InvPlmAddIn.Forms.PlmExtensionLogin mLoginDialog;  
-        
-        private global::InvPlmAddIn.Forms.WaitForm1 mWaitForm;
+        private InvPlmAddIn.Forms.PlmExtensionLogin mLoginDialog;
+
+        private InvPlmAddIn.Forms.WaitForm1 mWaitForm;
 
         public BrowserPanelWindowManager WindowManager { get; set; }
 
@@ -60,7 +60,6 @@ namespace InvPlmAddIn
         /// <param name="addInSiteObject"></param>
         /// <param name="firstTime"></param>
         /// <exception cref="OperationCanceledException"></exception>
-        private CancellationTokenSource _cancellationTokenSource;
 
         public void Activate(Inventor.ApplicationAddInSite addInSiteObject, bool firstTime)
         {
@@ -68,30 +67,19 @@ namespace InvPlmAddIn
             mInventorApplication = addInSiteObject.Application;
             mTheme = mInventorApplication.ActiveColorScheme.Name;
 
-            //_cancellationTokenSource = new CancellationTokenSource();
-            //ProgressFrm progressFrm = new ProgressFrm(mInventorApplication.ActiveColorScheme.Name, _cancellationTokenSource.Token);
-            //progressFrm.Text = AddInName;            
-            //System.Threading.Thread thread = new System.Threading.Thread(() => RunProgressFrm(progressFrm, _cancellationTokenSource.Token));
-            //thread.Start();
-
-            mWaitForm = new global::InvPlmAddIn.Forms.WaitForm1(mTheme, "Loading Addin...");
-            mWaitForm.Show();            
-            mWaitForm.TopMost = true;
-
-
-
-            //UpdateProgressFrm(progressFrm, "Autodesk Account Login ...");
+            // Initialize the progress form
+            mWaitForm = new InvPlmAddIn.Forms.WaitForm1(mTheme, "Loading Addin...");
+            mWaitForm.Show();
 
             // loading the panels requires an active document
+            mWaitForm.progressPanel1.Description = "Preparing Inventor Context ...";
             if (mInventorApplication.ActiveDocument == null)
             {
                 mInventorApplication.Documents.Add(Inventor.DocumentTypeEnum.kAssemblyDocumentObject, "", true);
             }
             mUserInterfaceManager = mInventorApplication.UserInterfaceManager;
 
-            // the add-in requires iLogic to be enabled
-
-            //we need the iLogic Addin to run the external rules
+            // the add-in requires iLogic to be enabled, we need the iLogic Addin to run the external rules
             try
             {
                 Inventor.ApplicationAddIns mInvSrvAddIns = mInventorApplication.ApplicationAddIns;
@@ -110,34 +98,31 @@ namespace InvPlmAddIn
             }
 
             // Show the FMExtension Login dialog and continue only if the user has logged in and confirmed the dialog with OK
+            mWaitForm.progressPanel1.Description = "Autodesk Account Login ...";
             mLoginDialog = new InvPlmAddIn.Forms.PlmExtensionLogin(mInventorApplication.ActiveColorScheme.Name);
             if (mLoginDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK)
             {
+                mWaitForm.Close();
+                mWaitForm.Dispose();
                 // User canceled the dialog, exit the add-in
-                //_cancellationTokenSource.Cancel();
-                //thread.Join();
                 throw new OperationCanceledException("Add-in loading canceled by user.");
             }
 
-            //UpdateProgressFrm(progressFrm, "Initialize Panels...");
-
+            mWaitForm.progressPanel1.Description = "Initialize Panels...";
             WindowManager = new BrowserPanelWindowManager(this);
 
             // Update the progress form
-            //UpdateProgressFrm(progressFrm, "Registering events...");
+            mWaitForm.progressPanel1.Description = "Registering events...";
             ConnectEvents();
 
-            //UpdateProgressFrm(progressFrm, "Loading dockable windows...");
+            mWaitForm.progressPanel1.Description = "Loading dockable windows...";
             AddBrowserWindow();
 
-            // Request cancellation and wait for the thread to finish
-            //_cancellationTokenSource.Cancel();
-            //thread.Join();
-
             mWaitForm.Close();
+            mWaitForm.Dispose();
         }
 
-        private void RunProgressFrm(ProgressFrm progressFrm, CancellationToken token)
+        public static void RunProgressFrm(WaitForm1 progressFrm, CancellationToken token)
         {
             try
             {
@@ -160,15 +145,15 @@ namespace InvPlmAddIn
             }
         }
 
-        private void UpdateProgressFrm(ProgressFrm progressFrm, string message)
+        private void UpdateProgressFrm(WaitForm1 progressFrm, string message)
         {
             if (progressFrm.InvokeRequired)
             {
-                progressFrm.Invoke(new Action(() => progressFrm.lblProgress.Text = message));
+                progressFrm.Invoke(new Action(() => progressFrm.progressPanel1.Description = message));
             }
             else
             {
-                progressFrm.lblProgress.Text = message;
+                progressFrm.progressPanel1.Description = message;
             }
         }
 
