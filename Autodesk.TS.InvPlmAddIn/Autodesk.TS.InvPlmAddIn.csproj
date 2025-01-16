@@ -267,7 +267,4 @@
       <HintPath>SDK Refs\Connectivity.Application.VaultBase.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="WHERE MT.EXE&#xD;&#xA;IF ERRORLEVEL 1 call &quot;$(DevEnvDir)..\..\VC\Auxiliary\Build\vcvarsall.bat&quot; amd64&#xD;&#xA;mt.exe -manifest &quot;$(ProjectDir)Autodesk.TS.InvPlmAddIn.X.manifest&quot; -outputresource:&quot;$(TargetPath)&quot;;#2" />
-  </Target>
 </Project>
