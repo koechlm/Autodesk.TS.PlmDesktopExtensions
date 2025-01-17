@@ -11,28 +11,27 @@ using Autodesk.TS.VltPlmAddIn.Model;
 using CefSharp;
 using CefSharp.WinForms;
 
-namespace Autodesk.TS.VltPlmAddIn
+namespace Autodesk.TS.VltPlmAddIn.Forms
 {
-    public partial class CefControlItem : UserControl
+    public partial class CefControlTasks : UserControl
     {
         CefSharp.WinForms.ChromiumWebBrowser? mBrowser;
 
         //register the JavaScript interoperability class
         internal JavaScriptInterop? JavaScriptInterop { get; set; }
 
-        public CefControlItem()
+        public CefControlTasks()
         {
             InitializeComponent();
 
-            //Initialize the CefSharp mBrowser
-
-            InitializeItemBrowser();
+            // Initialize the CefSharp mBrowser
+            InitializeTasksBrowser();
         }
 
-        private void InitializeItemBrowser()
+        private void InitializeTasksBrowser()
         {
             // Create a new instance of the CefSharp mBrowser
-            mBrowser = new CefSharp.WinForms.ChromiumWebBrowser("");
+            mBrowser = new CefSharp.WinForms.ChromiumWebBrowser("https://www.plm.tools:9600/addins/tasks?&theme=light");
             _ = mBrowser.WaitForInitialLoadAsync();
 
             // Make the mBrowser fill the form
@@ -43,26 +42,8 @@ namespace Autodesk.TS.VltPlmAddIn
 
             //register the JavaScript interoperability class
             JavaScriptInterop = new JavaScriptInterop(this);
-            mBrowser.JavascriptObjectRepository.Register("plmAddin", JavaScriptInterop);
+            mBrowser.JavascriptObjectRepository.Register("JavaScriptInterop", JavaScriptInterop);
 
         }
-
-        public void SetSelectedObject(object o)
-        {
-            //mPropertyGrid.SelectedObject = o;
-        }
-
-        //navigate to the specified URL
-        public void NavigateToUrl(string url)
-        {
-            mBrowser?.LoadUrl(url);
-        }
-
-        public void ExecuteScript(string script)
-        {
-            mBrowser?.ExecuteScriptAsync(script);
-        }
-
-        
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Autodesk.Connectivity.Explorer.Extensibility;
+using Autodesk.TS.VltPlmAddIn.Forms;
 using System.Reflection;
 
 // These 5 assembly attributes must be specified or your extension will not load. 
@@ -18,6 +19,9 @@ namespace Autodesk.TS.VltPlmAddIn
 {
     public class VaultExplorerExtension : IExplorerExtension
     {
+        // Capture the current theme on startup
+        private string mCurrentTheme = "light";
+
         IEnumerable<CommandSite>? IExplorerExtension.CommandSites()
         {
             return null;
@@ -40,17 +44,17 @@ namespace Autodesk.TS.VltPlmAddIn
 
             // Create a dock panels for Vault/Fusion Manage Search, ITem/BOM and Tasks
             DockPanel? mPanelSearch = new DockPanel(Guid.Parse("E2B3E9C6-80B2-4FED-8DF5-08E8C830E31E"),
-                                                "Fusion Manage Search", typeof(CefControlItem));          
+                                                "FM Search", typeof(CefControlSearch));          
             mDockPanels.Add(mPanelSearch);
        
             DockPanel? mPanelItemDetails = new DockPanel(Guid.Parse("31DB4F79-84D5-4D67-A109-5807563BE133"),
-                                                "Fusion Manage Item Details", typeof(CefControlItem));
+                                                "FM Item Details", typeof(CefControlItem));
             // Add event handler for selection changed event; the content of the panel needs to update accordingly.
             mPanelItemDetails.SelectionChanged += mPanelItemDetails_SelectionChanged;
             mDockPanels.Add(mPanelItemDetails);
 
             DockPanel? mPanelTasks = new DockPanel(Guid.Parse("7B5E20B1-C3FD-42FB-8955-A8D57D2015B2"),
-                                                "Fusion Manage Tasks", typeof(CefControlItem));
+                                                "FM Tasks", typeof(CefControlTasks));
             //no event handler for now: the content is the personal tasks of the user and not related to the selected object in Vault
             mDockPanels.Add(mPanelTasks);
 
@@ -76,17 +80,26 @@ namespace Autodesk.TS.VltPlmAddIn
         }
 
         void IExplorerExtension.OnStartup(IApplication application)
-        {            
+        {  
+
         }
 
         private void mPanelItemDetails_SelectionChanged(object? sender, DockPanelSelectionChangedEventArgs e)
         {
+            //todo: check that the sender is relevant
+
+            // filter the selected entities for candidates to navigate to in the Item Details panel
+            // for now we allow Files (Category = "Part", "Assembly", "Drawing") and Items
+            // todo: implement filter
+
             try
             {
                 // The event args has our custom panel object.  We need to cast it to our type.
                 CefControlItem? mCefControl = e.Context.UserControl as CefControlItem;
-                // Send selection to the panel so that it can display the object.
-                mCefControl?.SetSelectedObject(e.Context.SelectedObject);
+
+                // build the Item's URL and navigate to the selected item in the CEF browser
+                string mUrl = "https://www.plm.tools:9600/addins/item?number=9410-000&theme=light";
+                mCefControl?.NavigateToUrl(mUrl);
             }
             catch (Exception ex)
             {

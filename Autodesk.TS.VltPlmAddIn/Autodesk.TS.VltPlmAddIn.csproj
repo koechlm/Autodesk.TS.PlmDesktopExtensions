@@ -28,6 +28,7 @@
     <PackageReference Include="CefSharp.Common.NETCore" Version="126.2.180" />
     <PackageReference Include="CefSharp.WinForms.NETCore" Version="126.2.180" />
     <PackageReference Include="chromiumembeddedframework.runtime.win-x64" Version="126.2.18" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
