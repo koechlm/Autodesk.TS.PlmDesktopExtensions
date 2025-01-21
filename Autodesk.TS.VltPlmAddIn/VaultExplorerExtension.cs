@@ -1,4 +1,5 @@
 ﻿using Autodesk.Connectivity.Explorer.Extensibility;
+using Autodesk.DataManagement.Client.Framework.Vault.Currency.Connections;
 using Autodesk.TS.VltPlmAddIn.Forms;
 using System.Reflection;
 
@@ -21,6 +22,10 @@ namespace Autodesk.TS.VltPlmAddIn
     {
         // Capture the current theme on startup
         private string mCurrentTheme = "light";
+
+        internal static Connection? conn { get; set; }
+
+        internal static IApplication? mApplication { get; set; }
 
         IEnumerable<CommandSite>? IExplorerExtension.CommandSites()
         {
@@ -73,6 +78,8 @@ namespace Autodesk.TS.VltPlmAddIn
 
         void IExplorerExtension.OnLogOn(IApplication application)
         {
+            mApplication = application;
+            conn = application.Connection;
         }
 
         void IExplorerExtension.OnShutdown(IApplication application)
