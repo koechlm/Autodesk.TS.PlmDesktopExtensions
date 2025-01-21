@@ -32,7 +32,7 @@ namespace Autodesk.TS.VltPlmAddIn.Model
         }
 
         // This method is called from JavaScript to add components to Inventor _application
-        public async Task addComponents(object[] numbers)
+        public async Task addComponent(string[] parameters)
         {
             await Task.Run(() =>
             {
@@ -41,7 +41,7 @@ namespace Autodesk.TS.VltPlmAddIn.Model
         }
 
         // This method is called from JavaScript to open components from Inventor _application
-        public async Task openComponents(object[] numbers)
+        public async Task openComponent(string[] parameters)
         {
             await Task.Run(() =>
             {
@@ -55,7 +55,8 @@ namespace Autodesk.TS.VltPlmAddIn.Model
             await Task.Run(() =>
             {
                 // Navigate to the related entity in Vault
-                _navigation = new Navigation();
+                if (_navigation == null)
+                    _navigation = new Navigation();
                 _navigation?.GotoVaultFolder(parameters);
             });
         }
@@ -66,26 +67,40 @@ namespace Autodesk.TS.VltPlmAddIn.Model
             await Task.Run(() =>
             {
                 // Navigate to the related entity in Vault
-                _navigation = new Navigation();
+                if (_navigation == null)
+                    _navigation = new Navigation();
                 _navigation?.GotoVaultFile(parameters);
             });
         }
 
         // This method is called from JavaScript to navigate to the parameters in Vault
-        public async Task gotoVaultItem(string[] parameters)
+        //public async Task gotoVaultItem(string[] parameters)
+        //{
+        //    await Task.Run(() =>
+        //    {
+        //        // Navigate to the related entity in Vault
+        //        if (_navigation == null)
+        //            _navigation = new Navigation();
+        //        _navigation?.GotoVaultItem(parameters);
+        //    });
+        //}
+        public void gotoVaultItem(string[] parameters)
         {
-            await Task.Run(() =>
-            {
                 // Navigate to the related entity in Vault
-            });
+                if (_navigation == null)
+                    _navigation = new Navigation();
+                _navigation?.GotoVaultItem(parameters);           
         }
 
         // This method is called from JavaScript to navigate to the change order in Vault
-        public async Task gotoVaultECO(object[] parameters)
+        public async Task gotoVaultECO(string[] parameters)
         {
             await Task.Run(() =>
             {
                 // Navigate to the related entity in Vault
+                if (_navigation == null)
+                    _navigation = new Navigation();
+                _navigation?.GotoVaultChangeOrder(parameters);
             });
         }
     }

@@ -1,7 +1,10 @@
 ﻿using Autodesk.Connectivity.Explorer.Extensibility;
+using VDF = Autodesk.DataManagement.Client.Framework;
 using Autodesk.DataManagement.Client.Framework.Vault.Currency.Connections;
 using Autodesk.TS.VltPlmAddIn.Forms;
+using Autodesk.TS.VltPlmAddIn.Utils;
 using System.Reflection;
+using Autodesk.DataManagement.Client.Framework.Forms;
 
 // These 5 assembly attributes must be specified or your extension will not load. 
 //[assembly: AssemblyCompany("Autodesk")]
@@ -21,11 +24,13 @@ namespace Autodesk.TS.VltPlmAddIn
     public class VaultExplorerExtension : IExplorerExtension
     {
         // Capture the current theme on startup
-        private string mCurrentTheme = "light";
+        internal static string mCurrentTheme = "light";
 
-        internal static Connection? conn { get; set; }
+        internal static Connection? mConnection { get; set; }
 
         internal static IApplication? mApplication { get; set; }
+
+        internal static string? mFmExtensionUrl { get; set; }
 
         IEnumerable<CommandSite>? IExplorerExtension.CommandSites()
         {
@@ -78,8 +83,7 @@ namespace Autodesk.TS.VltPlmAddIn
 
         void IExplorerExtension.OnLogOn(IApplication application)
         {
-            mApplication = application;
-            conn = application.Connection;
+            mConnection = application.Connection;
         }
 
         void IExplorerExtension.OnShutdown(IApplication application)
@@ -87,8 +91,20 @@ namespace Autodesk.TS.VltPlmAddIn
         }
 
         void IExplorerExtension.OnStartup(IApplication application)
-        {  
+        {
+            mApplication = application;
 
+            mCurrentTheme = VDF.Forms.Library.CurrentTheme.ToString();
+            VDF.Forms.Library.ThemeChanged += ThemeChanged;
+
+            Autodesk.TS.VltPlmAddIn.Utils.Settings mSettings = new Autodesk.TS.VltPlmAddIn.Utils.Settings();
+            mSettings = Settings.Load();
+            mFmExtensionUrl = mSettings.FmExtensionUrl;
+        }
+
+        private void ThemeChanged(object? sender, Library.UITheme e)
+        {
+            mCurrentTheme = VDF.Forms.Library.CurrentTheme.ToString().ToLower();
         }
 
         private void mPanelItemDetails_SelectionChanged(object? sender, DockPanelSelectionChangedEventArgs e)
@@ -99,14 +115,21 @@ namespace Autodesk.TS.VltPlmAddIn
             // for now we allow Files (Category = "Part", "Assembly", "Drawing") and Items
             // todo: implement filter
 
+            string mItemNumber = "9410-000";
+
             try
             {
                 // The event args has our custom panel object.  We need to cast it to our type.
                 CefControlItem? mCefControl = e.Context.UserControl as CefControlItem;
 
                 // build the Item's URL and navigate to the selected item in the CEF browser
-                string mUrl = "https://www.plm.tools:9600/addins/item?number=9410-000&theme=light";
-                mCefControl?.NavigateToUrl(mUrl);
+                if (mCefControl != null)
+                {
+                    string mUrl = mFmExtensionUrl + "/item?number=" + mItemNumber + "&theme=" + mCurrentTheme.ToLower();
+                    mCefControl.NavigateToUrl(mUrl);
+                }
+                //string mUrl = "https://www.plm.tools:9600/addins/item?number=9410-000&theme=light";
+                //mCefControl?.NavigateToUrl(mUrl);
             }
             catch (Exception ex)
             {

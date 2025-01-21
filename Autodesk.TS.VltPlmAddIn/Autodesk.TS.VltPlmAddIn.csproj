@@ -25,6 +25,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="VltPlmAddInSettings.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CefSharp.Common.NETCore" Version="126.2.180" />
     <PackageReference Include="CefSharp.WinForms.NETCore" Version="126.2.180" />
     <PackageReference Include="chromiumembeddedframework.runtime.win-x64" Version="126.2.18" />

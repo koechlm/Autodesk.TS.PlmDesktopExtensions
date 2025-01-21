@@ -31,8 +31,9 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
 
         private void InitializeItemSearchBrowser()
         {
-            // Create a new instance of the CefSharp mBrowser
-            mBrowser = new CefSharp.WinForms.ChromiumWebBrowser("https://www.plm.tools:9600/addins/search?&theme=light");
+            string? mURL = VaultExplorerExtension.mFmExtensionUrl + "/search?&theme=" + VaultExplorerExtension.mCurrentTheme.ToLower();
+            // Create a new instance of the CefSharp mBrowser "https://www.plm.tools:9600/addins/search?&theme=light"
+            mBrowser = new CefSharp.WinForms.ChromiumWebBrowser(mURL);
             _ = mBrowser.WaitForInitialLoadAsync();                   
 
             // Make the mBrowser fill the form
@@ -52,7 +53,9 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
 
 
         private void ChromeBrowser_JavascriptMessageReceived(object? sender, JavascriptMessageReceivedEventArgs e)
-        {            
+        {   
+            MessageBox.Show(e.Message?.ToString());
+
             if (!String.IsNullOrEmpty(e.Message?.ToString()))
             {
                 String[]? mMessageArray = e.Message?.ToString()?.Split(":");
@@ -61,13 +64,14 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
                     String mCommand = mMessageArray[0];
                     String mParameters = mMessageArray[1];
                     String[] mParametersArray = mParameters.Split(";");
+
                     switch (mCommand)
                     {
-                        case "addComponents":
-                            JavaScriptInterop?.addComponents(mParametersArray);
+                        case "addComponent":
+                            JavaScriptInterop?.addComponent(mParametersArray);
                             break;
                         case "openComponents":
-                            JavaScriptInterop?.openComponents(mParametersArray);
+                            JavaScriptInterop?.openComponent(mParametersArray);
                             break;
                         case "gotoVaultFolder":
                             JavaScriptInterop?.gotoVaultFolder(mParametersArray);

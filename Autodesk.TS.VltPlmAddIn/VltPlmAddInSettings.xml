@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <!-- BaseUri -->
+  <FmExtensionUrl>https://www.plm.tools:9600/addins</FmExtensionUrl>
+  <AddOpenSpprtdExts>ipt, iam</AddOpenSpprtdExts>
+</settings>
