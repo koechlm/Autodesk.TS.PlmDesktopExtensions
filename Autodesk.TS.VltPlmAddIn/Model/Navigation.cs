@@ -22,7 +22,7 @@ namespace Autodesk.TS.VltPlmAddIn.Model
 
         public Navigation()
         {
-            _conn = VaultExplorerExtension.mConnection;
+            _conn = VaultExplorerExtension.conn;
             _application = VaultExplorerExtension.mApplication;
             _explorerUtil = Autodesk.Connectivity.Explorer.ExtensibilityTools.ExplorerLoader.GetExplorerUtil(_application);
         }
@@ -87,6 +87,7 @@ namespace Autodesk.TS.VltPlmAddIn.Model
                 try
                 {
                     item = _conn?.WebServiceManager.ItemService.GetItemsByFileIdAndLinkTypeOptions(long.Parse(parameters[1]), ACW.ItemFileLnkTypOpt.Primary).FirstOrDefault();
+                    item = _conn?.WebServiceManager.ItemService.GetItemsByFileId(long.Parse(parameters[1])).FirstOrDefault();
                     _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
                     return;
                 }

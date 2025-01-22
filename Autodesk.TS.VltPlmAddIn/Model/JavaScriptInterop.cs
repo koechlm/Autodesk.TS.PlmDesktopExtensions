@@ -64,33 +64,38 @@ namespace Autodesk.TS.VltPlmAddIn.Model
         // This method is called from JavaScript to navigate to the parameters in Vault
         public async Task gotoVaultFile(string[] parameters)
         {
+            VaultExplorerExtension.mSender = Autodesk.TS.VltPlmAddIn.NavigationSender.FMExtension;
             await Task.Run(() =>
             {
                 // Navigate to the related entity in Vault
                 if (_navigation == null)
                     _navigation = new Navigation();
+                
                 _navigation?.GotoVaultFile(parameters);
             });
+
+            //reset the sender
+            VaultExplorerExtension.mSender = Autodesk.TS.VltPlmAddIn.NavigationSender.Host;
         }
 
-        // This method is called from JavaScript to navigate to the parameters in Vault
-        //public async Task gotoVaultItem(string[] parameters)
-        //{
-        //    await Task.Run(() =>
-        //    {
-        //        // Navigate to the related entity in Vault
-        //        if (_navigation == null)
-        //            _navigation = new Navigation();
-        //        _navigation?.GotoVaultItem(parameters);
-        //    });
-        //}
-        public void gotoVaultItem(string[] parameters)
+        //This method is called from JavaScript to navigate to the parameters in Vault
+        public async Task gotoVaultItem(string[] parameters)
         {
+            await Task.Run(() =>
+            {
                 // Navigate to the related entity in Vault
                 if (_navigation == null)
                     _navigation = new Navigation();
-                _navigation?.GotoVaultItem(parameters);           
+                _navigation?.GotoVaultItem(parameters);
+            });
         }
+        //public void gotoVaultItem(string[] parameters)
+        //{
+        //        // Navigate to the related entity in Vault
+        //        if (_navigation == null)
+        //            _navigation = new Navigation();
+        //        _navigation?.GotoVaultItem(parameters);           
+        //}
 
         // This method is called from JavaScript to navigate to the change order in Vault
         public async Task gotoVaultECO(string[] parameters)

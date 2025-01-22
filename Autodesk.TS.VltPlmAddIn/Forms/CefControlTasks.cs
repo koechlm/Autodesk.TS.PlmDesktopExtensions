@@ -34,6 +34,9 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
             mBrowser = new CefSharp.WinForms.ChromiumWebBrowser("https://www.plm.tools:9600/addins/tasks?&theme=light");
             _ = mBrowser.WaitForInitialLoadAsync();
 
+            // Set the custom context menu handler
+            mBrowser.MenuHandler = new CustomContextMenuHandler();
+
             //register the JavaScript interoperability class
             JavaScriptInterop = new JavaScriptInterop(this);
             mBrowser.JavascriptObjectRepository.Settings.LegacyBindingEnabled = true;

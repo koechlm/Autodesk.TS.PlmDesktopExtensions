@@ -35,16 +35,15 @@ namespace Autodesk.TS.VltPlmAddIn
             mBrowser = new CefSharp.WinForms.ChromiumWebBrowser("");
             _ = mBrowser.WaitForInitialLoadAsync();
 
+            // Set the custom context menu handler
+            mBrowser.MenuHandler = new CustomContextMenuHandler();
+
             // Make the mBrowser fill the form
             mBrowser.Dock = DockStyle.Fill;
             mBrowser.Show();
+
             // Add the mBrowser to the form
             this.Controls.Add(mBrowser);
-
-            //register the JavaScript interoperability class
-            JavaScriptInterop = new JavaScriptInterop(this);
-            mBrowser.JavascriptObjectRepository.Register("plmAddin", JavaScriptInterop);
-
         }
 
         public void SetSelectedObject(object o)

@@ -82,4 +82,8 @@
     </None>
   </ItemGroup>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy /E /I /Y &quot;$(TargetDir)*&quot; &quot;C:\ProgramData\Autodesk\Vault 2026\Extensions\FusionManageExtension&quot;" />
+  </Target>
+
 </Project>

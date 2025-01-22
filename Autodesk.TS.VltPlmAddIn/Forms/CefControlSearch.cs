@@ -34,7 +34,10 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
             string? mURL = VaultExplorerExtension.mFmExtensionUrl + "/search?&theme=" + VaultExplorerExtension.mCurrentTheme.ToLower();
             // Create a new instance of the CefSharp mBrowser "https://www.plm.tools:9600/addins/search?&theme=light"
             mBrowser = new CefSharp.WinForms.ChromiumWebBrowser(mURL);
-            _ = mBrowser.WaitForInitialLoadAsync();                   
+            _ = mBrowser.WaitForInitialLoadAsync();
+
+            // Set the custom context menu handler
+            mBrowser.MenuHandler = new CustomContextMenuHandler();
 
             // Make the mBrowser fill the form
             mBrowser.Dock = DockStyle.Fill;
@@ -54,7 +57,7 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
 
         private void ChromeBrowser_JavascriptMessageReceived(object? sender, JavascriptMessageReceivedEventArgs e)
         {   
-            MessageBox.Show(e.Message?.ToString());
+            //MessageBox.Show(e.Message?.ToString());
 
             if (!String.IsNullOrEmpty(e.Message?.ToString()))
             {
