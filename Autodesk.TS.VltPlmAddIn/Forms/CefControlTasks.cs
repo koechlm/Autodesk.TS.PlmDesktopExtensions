@@ -53,14 +53,12 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
 
         private void TaskBrowser_JavascriptMessageReceived(object? sender, JavascriptMessageReceivedEventArgs e)
         {
-            if (!String.IsNullOrEmpty(e.Message?.ToString()))
+            //MessageBox.Show(e.Message?.ToString());
+
+            var message = e.Message?.ToString();
+            if (!String.IsNullOrEmpty(message))
             {
-                String[]? mMessageArray = e.Message?.ToString()?.Split(":");
-                if (mMessageArray?.Length > 1)
-                {
-                    // Call the method from the JavaScriptInterop class
-                    JavaScriptInterop?.gotoVaultFolder(mMessageArray);
-                }
+                JavaScriptInterop?.handleJsMessage(message);
             }
         }
     }

@@ -133,7 +133,7 @@ namespace Autodesk.TS.VltPlmAddIn
             mCurrentTheme = VDF.Forms.Library.CurrentTheme.ToString().ToLower();
         }
 
-        private void mPanelItemDetails_SelectionChanged(object? sender, DockPanelSelectionChangedEventArgs? e)
+        private async void mPanelItemDetails_SelectionChanged(object? sender, DockPanelSelectionChangedEventArgs? e)
         {
             if (mSender as NavigationSender? == NavigationSender.FMExtension)
             {
@@ -206,7 +206,7 @@ namespace Autodesk.TS.VltPlmAddIn
                     if (mCefControl != null)
                     {
                         string mUrl = mFmExtensionUrl + "/Item?number=" + mItemNumber + "&theme=" + mCurrentTheme.ToLower();
-                        mCefControl.NavigateToUrl(mUrl);
+                        await mCefControl.NavigateToUrlAsync(mUrl);
                     }
                 }
                 catch (Exception ex)

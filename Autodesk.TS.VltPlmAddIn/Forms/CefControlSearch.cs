@@ -46,52 +46,23 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
             //register the JavaScript interoperability class
             JavaScriptInterop = new JavaScriptInterop(this);
             mBrowser.JavascriptObjectRepository.Settings.LegacyBindingEnabled = true;
-            mBrowser.JavascriptObjectRepository.Register("JavaScriptInterop", JavaScriptInterop, options:BindingOptions.DefaultBinder );
+            mBrowser.JavascriptObjectRepository.Register("JavaScriptInterop", JavaScriptInterop, options: BindingOptions.DefaultBinder);
 
-            mBrowser.JavascriptMessageReceived += ChromeBrowser_JavascriptMessageReceived;
+            mBrowser.JavascriptMessageReceived += SearchBrowser_JavascriptMessageReceived;
 
             // Add the mBrowser to the form
             this.Controls.Add(mBrowser);
         }
 
 
-        private void ChromeBrowser_JavascriptMessageReceived(object? sender, JavascriptMessageReceivedEventArgs e)
-        {   
+        private void SearchBrowser_JavascriptMessageReceived(object? sender, JavascriptMessageReceivedEventArgs e)
+        {
             //MessageBox.Show(e.Message?.ToString());
 
-            if (!String.IsNullOrEmpty(e.Message?.ToString()))
+            var message = e.Message?.ToString();
+            if (!String.IsNullOrEmpty(message))
             {
-                String[]? mMessageArray = e.Message?.ToString()?.Split(":");
-                if (mMessageArray?.Length > 1)
-                {
-                    String mCommand = mMessageArray[0];
-                    String mParameters = mMessageArray[1];
-                    String[] mParametersArray = mParameters.Split(";");
-
-                    switch (mCommand)
-                    {
-                        case "addComponent":
-                            JavaScriptInterop?.addComponent(mParametersArray);
-                            break;
-                        case "openComponents":
-                            JavaScriptInterop?.openComponent(mParametersArray);
-                            break;
-                        case "gotoVaultFolder":
-                            JavaScriptInterop?.gotoVaultFolder(mParametersArray);
-                            break;
-                        case "gotoVaultFile":
-                            JavaScriptInterop?.gotoVaultFile(mParametersArray);
-                            break;
-                        case "gotoVaultItem":
-                            JavaScriptInterop?.gotoVaultItem(mParametersArray);
-                            break;
-                        case "gotoVaultECO":
-                            JavaScriptInterop?.gotoVaultECO(mParametersArray);
-                            break;
-                        default:
-                            break;
-                    }
-                }
+                JavaScriptInterop?.handleJsMessage(message);
             }
         }
     }

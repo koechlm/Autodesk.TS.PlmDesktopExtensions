@@ -31,6 +31,41 @@ namespace Autodesk.TS.VltPlmAddIn.Model
             _cefControlTaks = cefControlTaks;
         }
 
+        public void handleJsMessage(string message)
+        {
+            String[]? mMessageArray = message?.ToString()?.Split(":");
+            if (mMessageArray?.Length > 1)
+            {
+                String mCommand = mMessageArray[0];
+                String mParameters = mMessageArray[1];
+                String[] mParametersArray = mParameters.Split(";");
+
+                switch (mCommand)
+                {
+                    case "addComponent":
+                        addComponent(mParametersArray);
+                        break;
+                    case "openComponents":
+                        openComponent(mParametersArray);
+                        break;
+                    case "gotoVaultFolder":
+                        gotoVaultFolder(mParametersArray);
+                        break;
+                    case "gotoVaultFile":
+                        gotoVaultFile(mParametersArray);
+                        break;
+                    case "gotoVaultItem":
+                        gotoVaultItem(mParametersArray);
+                        break;
+                    case "gotoVaultECO":
+                        gotoVaultECO(mParametersArray);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
         // This method is called from JavaScript to add components to Inventor _application
         public async Task addComponent(string[] parameters)
         {
