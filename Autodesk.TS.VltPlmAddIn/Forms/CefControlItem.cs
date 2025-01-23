@@ -34,6 +34,7 @@ namespace Autodesk.TS.VltPlmAddIn
             // Create a new instance of the CefSharp mBrowser
             mBrowser = new CefSharp.WinForms.ChromiumWebBrowser("");
             _ = mBrowser.WaitForInitialLoadAsync();
+            _ = mBrowser.WaitForNavigationAsync();
 
             // Set the custom context menu handler
             mBrowser.MenuHandler = new CustomContextMenuHandler();
@@ -72,7 +73,7 @@ namespace Autodesk.TS.VltPlmAddIn
         //navigate to the specified URL
         public void NavigateToUrl(string url)
         {
-            mBrowser?.LoadUrlAsync(url);
+            mBrowser?.LoadUrl(url);
         }
 
         //navigate asynch to the specified URL
