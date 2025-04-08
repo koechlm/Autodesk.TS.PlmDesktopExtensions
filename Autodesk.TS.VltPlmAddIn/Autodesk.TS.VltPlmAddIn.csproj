@@ -2,21 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Platforms>x64</Platforms>
+    <OutputType>Library</OutputType>
     <UseWindowsForms>true</UseWindowsForms>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Platforms>AnyCPU;x64</Platforms>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DebugType>full</DebugType>
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <DebugType>full</DebugType>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DebugType>full</DebugType>
   </PropertyGroup>
 
@@ -25,16 +21,29 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Forms\CefControlItem.cs" />
+    <Compile Remove="Forms\CefControlItem.Designer.cs" />
+    <Compile Remove="Forms\CefControlSearch.cs" />
+    <Compile Remove="Forms\CefControlSearch.Designer.cs" />
+    <Compile Remove="Forms\CefControlTasks.cs" />
+    <Compile Remove="Forms\CefControlTasks.Designer.cs" />
+    <Compile Remove="Model\CefContextMenuHandler.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="Forms\CefControlItem.resx" />
+    <EmbeddedResource Remove="Forms\CefControlSearch.resx" />
+    <EmbeddedResource Remove="Forms\CefControlTasks.resx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="VltPlmAddInSettings.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CefSharp.Common.NETCore" Version="126.2.180" />
-    <PackageReference Include="CefSharp.WinForms.NETCore" Version="126.2.180" />
-    <PackageReference Include="chromiumembeddedframework.runtime.win-x64" Version="126.2.18" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1210.39" />
   </ItemGroup>
 
   <ItemGroup>
@@ -71,19 +80,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Forms\CefControlItem.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Autodesk.TS.VltPlmAddIn.vcet.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /E /I /Y &quot;$(TargetDir)*&quot; &quot;C:\ProgramData\Autodesk\Vault 2026\Extensions\FusionManageExtension&quot;" />
+    <!--<Exec Command="xcopy /E /I /Y &quot;$(TargetDir)*&quot; &quot;C:\ProgramData\Autodesk\Vault 2026\Extensions\FusionManageExtension&quot;" />-->
   </Target>
 
 </Project>

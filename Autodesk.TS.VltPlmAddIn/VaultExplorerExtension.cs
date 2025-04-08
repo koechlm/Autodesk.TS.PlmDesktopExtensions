@@ -9,6 +9,10 @@ using ACW = Autodesk.Connectivity.WebServices;
 using Autodesk.Connectivity.WebServices;
 using Autodesk.DataManagement.Client.Framework.Vault.Currency.Entities;
 using System.Drawing;
+using System.Collections.Generic;
+using System;
+using System.Linq;
+using System.Windows.Forms;
 
 // These 5 assembly attributes must be specified or your extension will not load. 
 //[assembly: AssemblyCompany("Autodesk")]
@@ -74,17 +78,17 @@ namespace Autodesk.TS.VltPlmAddIn
 
             // Create a dock panels for Vault/Fusion Manage Search, ITem/BOM and Tasks
             DockPanel? mPanelSearch = new DockPanel(Guid.Parse("E2B3E9C6-80B2-4FED-8DF5-08E8C830E31E"),
-                                                "FM Search", typeof(CefControlSearch));
+                                                "FM Search", typeof(WebViewFmSearch));
             mDockPanels.Add(mPanelSearch);
 
             DockPanel? mPanelItemDetails = new DockPanel(Guid.Parse("31DB4F79-84D5-4D67-A109-5807563BE133"),
-                                                "FM Item Details", typeof(CefControlItem));
+                                                "FM Item Details", typeof(WebViewFmItem));
             // Add event handler for selection changed event; the content of the panel needs to update accordingly.
             mPanelItemDetails.SelectionChanged += mPanelItemDetails_SelectionChanged;
             mDockPanels.Add(mPanelItemDetails);
 
             DockPanel? mPanelTasks = new DockPanel(Guid.Parse("7B5E20B1-C3FD-42FB-8955-A8D57D2015B2"),
-                                                "FM Tasks", typeof(CefControlTasks));
+                                                "FM Tasks", typeof(WebViewFmTasks));
             //no event handler for now: the content is the personal tasks of the user and not related to the selected object in Vault
             mDockPanels.Add(mPanelTasks);
 
@@ -92,7 +96,7 @@ namespace Autodesk.TS.VltPlmAddIn
             return mDockPanels;
         }
 
-        IEnumerable<string>? IExplorerExtension.HiddenCommands()
+        IEnumerable<string> IExplorerExtension.HiddenCommands()
         {
             return null;
         }
@@ -133,33 +137,33 @@ namespace Autodesk.TS.VltPlmAddIn
             mCurrentTheme = VDF.Forms.Library.CurrentTheme.ToString().ToLower();
         }
 
-        private async void mPanelItemDetails_SelectionChanged(object? sender, DockPanelSelectionChangedEventArgs? e)
+        private void mPanelItemDetails_SelectionChanged(object? sender, DockPanelSelectionChangedEventArgs? e)
         {
             if (mSender as NavigationSender? == NavigationSender.FMExtension)
             {
                 return;
             }
-            //mimic NavigationSelection changed handler, as the selection changed event is a general event and not specific to the navigation selection change
-            if (e?.Context?.NavSelectionSet?.Count() == 0)
-            {
-                return;
-            }
-            if (e?.Context?.SelectedObject == null)
-            {
-                return;
-            }
-            if (e.Context.NavSelectionSet.Count() == 0)
-            {
-                return;
-            }
-            if (e.Context.SelectedObject != null)
-            {
-                selection2 = e.Context.SelectedObject;
-            }
+            ////mimic NavigationSelection changed handler, as the selection changed event is a general event and not specific to the navigation selection change
+            //if (e?.Context?.NavSelectionSet.GetEnumerator().Current.Id == -1)
+            //{
+            //    return;
+            //}
+            //if (e?.Context?.SelectedObject == null)
+            //{
+            //    return;
+            //}
+            //if (e.Context.NavSelectionSet.Count() == 0)
+            //{
+            //    return;
+            //}
+            //if (e.Context.SelectedObject != null)
+            //{
+            //    selection2 = e.Context.SelectedObject;
+            //}
 
             //selection changed
-            if (selection1?.Id != selection2?.Id)
-            {
+            //if (selection1?.Id != selection2?.Id)
+            //{
                 // filter the selected entities for candidates to navigate to in the Item Details panel
                 if (selection2?.TypeId.EntityClassId is not "FILE" and not "ITEM")
                 {
@@ -200,26 +204,54 @@ namespace Autodesk.TS.VltPlmAddIn
                 try
                 {
                     // The event args has our custom panel object.  We need to cast it to our type.
-                    CefControlItem? mCefControl = e.Context.UserControl as CefControlItem;
+                    //CefControlItem? mCefControl = e.Context.UserControl as CefControlItem;
+                    WebViewFmItem mFmItemControl = e.Context.UserControl as WebViewFmItem;
 
-                    // build the Item's URL and navigate to the selected mItem in the CEF browser
-                    if (mCefControl != null)
+                // build the Item's URL and navigate to the selected mItem in the CEF browser
+                if (mFmItemControl != null)
                     {
                         string mUrl = mFmExtensionUrl + "/Item?number=" + mItemNumber + "&theme=" + mCurrentTheme.ToLower();
-                        await mCefControl.NavigateToUrlAsync(mUrl);
-                    }
+                    //await mCefControl.NavigateToUrlAsync(mUrl);
+                    mFmItemControl.Navigate(mUrl);
+                }
                 }
                 catch (Exception ex)
                 {
                     // If something goes wrong, we don't want the exception to bubble up to Vault Explorer.
                     MessageBox.Show("Error: " + ex.Message);
+                    
                 }
 
                 selection1 = selection2;
 
                 // Set the sender to FMExtension to avoid infinite loop
                 mSender = NavigationSender.Host;
-            }
+            //}
+        }
+
+        public IEnumerable<CommandSite> CommandSites()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public IEnumerable<DetailPaneTab> DetailTabs()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public IEnumerable<DockPanel> DockPanels()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public IEnumerable<CustomEntityHandler> CustomEntityHandlers()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public IEnumerable<string> HiddenCommands()
+        {
+            throw new System.NotImplementedException();
         }
 
         #endregion

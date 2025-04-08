@@ -222,7 +222,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DevExpress.Win.Design" Version="22.2.12" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2792.45" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1210.39" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.8" />
   </ItemGroup>
   <ItemGroup>

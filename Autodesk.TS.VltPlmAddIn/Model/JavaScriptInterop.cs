@@ -10,26 +10,26 @@ namespace Autodesk.TS.VltPlmAddIn.Model
 {
     internal class JavaScriptInterop
     {
-        private readonly CefControlItem? _cefControlItem;
-        private readonly CefControlSearch? _cefControlSearch;
-        private readonly CefControlTasks? _cefControlTaks;
+        //private readonly CefControlItem? _cefControlItem;
+        //private readonly CefControlSearch? _cefControlSearch;
+        //private readonly CefControlTasks? _cefControlTaks;
 
         private Navigation? _navigation;
 
-        public JavaScriptInterop(CefControlItem? cefControlItem)
-        {
-            _cefControlItem = cefControlItem;
-        }
+        //public JavaScriptInterop(CefControlItem? cefControlItem)
+        //{
+        //    _cefControlItem = cefControlItem;
+        //}
 
-        public JavaScriptInterop(CefControlSearch? cefControlSearch)
-        {
-            _cefControlSearch = cefControlSearch;
-        }
+        //public JavaScriptInterop(CefControlSearch? cefControlSearch)
+        //{
+        //    _cefControlSearch = cefControlSearch;
+        //}
 
-        public JavaScriptInterop(CefControlTasks? cefControlTaks)
-        {
-            _cefControlTaks = cefControlTaks;
-        }
+        //public JavaScriptInterop(CefControlTasks? cefControlTaks)
+        //{
+        //    _cefControlTaks = cefControlTaks;
+        //}
 
         public void handleJsMessage(string message)
         {
@@ -43,22 +43,22 @@ namespace Autodesk.TS.VltPlmAddIn.Model
                 switch (mCommand)
                 {
                     case "addComponent":
-                        addComponent(mParametersArray);
+                        _ = addComponent(mParametersArray);
                         break;
                     case "openComponents":
-                        openComponent(mParametersArray);
+                        _ = openComponent(mParametersArray);
                         break;
                     case "gotoVaultFolder":
-                        gotoVaultFolder(mParametersArray);
+                        _ = gotoVaultFolder(mParametersArray);
                         break;
                     case "gotoVaultFile":
-                        gotoVaultFile(mParametersArray);
+                        _ = gotoVaultFile(mParametersArray);
                         break;
                     case "gotoVaultItem":
-                        gotoVaultItem(mParametersArray);
+                        _ = gotoVaultItem(mParametersArray);
                         break;
                     case "gotoVaultECO":
-                        gotoVaultECO(mParametersArray);
+                        _ = gotoVaultECO(mParametersArray);
                         break;
                     default:
                         break;
