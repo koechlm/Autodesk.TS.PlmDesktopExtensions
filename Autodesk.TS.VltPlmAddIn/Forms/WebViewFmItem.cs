@@ -9,11 +9,15 @@ using System.Windows.Forms;
 using System.Windows.Threading;
 using Microsoft.Web.WebView2.Core;
 using System.Text.Json;
+using Autodesk.TS.VltPlmAddIn.Model;
 
 namespace Autodesk.TS.VltPlmAddIn.Forms
 {
     public partial class WebViewFmItem : UserControl
     {
+        //register the JavaScript interoperability class
+        internal JavaScriptInterop JavaScriptInterop { get; set; }
+
         public WebViewFmItem()
         {
             InitializeComponent();
@@ -32,6 +36,9 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
                 Dispatcher.PushFrame(frame);
             }
 
+            //register the JavaScript interoperability class
+            JavaScriptInterop = new JavaScriptInterop(this);
+
             FmItem.CoreWebView2.WebMessageReceived += FmItem_WebMessageReceived;
         }
 
@@ -45,8 +52,10 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
         {
             // Handle the message received from the web view
             string message = e.TryGetWebMessageAsString();
-
-            // Process the message as needed
+            if (!String.IsNullOrEmpty(message))
+            {
+                JavaScriptInterop?.handleJsMessage(message);
+            }
         }
     }
 }

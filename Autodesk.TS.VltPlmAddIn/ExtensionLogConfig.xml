@@ -1,0 +1,7 @@
+﻿<?xml version="1.0"?>
+<ExtensionLoggerConfiguration>
+  <BaseFileName>C:\ProgramData\Autodesk\Vault 2026\Extensions\TS.VaultPlmAddin</BaseFileName>
+  <DateFormat>_yyyyMMdd</DateFormat>
+  <KeepLogsFor>-1</KeepLogsFor>
+  <FileExtension>.log</FileExtension>
+</ExtensionLoggerConfiguration>

@@ -32,7 +32,7 @@ namespace Autodesk.TS.VltPlmAddIn.Model
             if (long.TryParse(parameters[1], out long folderId))
             {
                 ACW.Folder? folder = _conn?.WebServiceManager.DocumentService.GetFolderById(folderId);
-                _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.Folder(_conn, folder));
+                _explorerUtil.GoToEntity(new VDFV.Currency.Entities.Folder(_conn, folder));
             }
             else
             {
@@ -46,9 +46,12 @@ namespace Autodesk.TS.VltPlmAddIn.Model
             long fileId = -1;
             ACW.Item? mItem = null;
 
-            if (_navigationSource == "mItem")
+            // get the fileId from the parameters
+            // the FM Search panel may return Vault Items, Files or Fusion Manage Items
+
+            if (_navigationSource == "Item")
             {
-                // get the primary file of the mItem
+                // get the primary file of the Item
                 mItem = _conn?.WebServiceManager.ItemService.GetLatestItemByItemMasterId(long.Parse(parameters[1]));
                 ACW.ItemFileAssoc[]? itemFileAssocs = _conn?.WebServiceManager.ItemService.GetItemFileAssociationsByItemIds(new long[] { mItem.Id }, ACW.ItemFileLnkTypOpt.Primary);
                 if (itemFileAssocs != null && itemFileAssocs.Any())
@@ -62,32 +65,24 @@ namespace Autodesk.TS.VltPlmAddIn.Model
                 }
             }
 
-            if (_navigationSource == "plm-mItem")
+            if (_navigationSource == "plm-item")
             {
                 // try the direct path if the itemrevision is defined
                 if (parameters[1] != "undefined")
                 {
-                    try
-                    {
-                        mItem = _conn?.WebServiceManager.ItemService.GetItemsByIds(new long[] { long.Parse(parameters[1]) }).FirstOrDefault();
-                        _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, mItem));
-                        return;
-                    }
-                    catch (Exception)
-                    {
-                    }
+                    mItem = _conn?.WebServiceManager.ItemService.GetLatestItemByItemNumber(parameters[1]);
                 }
                 else
                 {
-                    try
+                    mItem = _conn?.WebServiceManager.ItemService.GetLatestItemByItemNumber(parameters[2].Split(" - ")[0]);
+                }
+                // get the primary file of the Item
+                if (mItem != null)
+                {
+                    ACW.ItemFileAssoc[]? itemFileAssocs = _conn?.WebServiceManager.ItemService.GetItemFileAssociationsByItemIds(new long[] { mItem.Id }, ACW.ItemFileLnkTypOpt.Primary);
+                    if (itemFileAssocs != null && itemFileAssocs.Any())
                     {
-                        mItem = _conn?.WebServiceManager.ItemService.GetLatestItemByItemNumber(parameters[2].Split(" - ")[0]);
-                        _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, mItem));
-                        return;
-                    }
-                    catch (Exception)
-                    {
-
+                        fileId = itemFileAssocs.First().CldFileId;
                     }
                 }
             }
@@ -97,14 +92,11 @@ namespace Autodesk.TS.VltPlmAddIn.Model
                 fileId = long.Parse(parameters[1]);
             }
 
-            try
+            // finally navigate to the file
+            if (fileId != -1)
             {
                 ACW.File? file = _conn?.WebServiceManager.DocumentService.GetFileById(fileId);
-                _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.FileIteration(_conn, file));
-            }
-            catch (Exception)
-            {
-                //todo: Vault error message;
+                _explorerUtil.GoToEntity(new VDFV.Currency.Entities.FileIteration(_conn, file));
             }
         }
 
@@ -120,7 +112,7 @@ namespace Autodesk.TS.VltPlmAddIn.Model
                 {
                     item = _conn?.WebServiceManager.ItemService.GetItemsByFileIdAndLinkTypeOptions(long.Parse(parameters[1]), ACW.ItemFileLnkTypOpt.Primary).FirstOrDefault();
                     item = _conn?.WebServiceManager.ItemService.GetItemsByFileId(long.Parse(parameters[1])).FirstOrDefault();
-                    _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
+                    _explorerUtil.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
                     return;
                 }
                 catch (Exception)
@@ -130,12 +122,12 @@ namespace Autodesk.TS.VltPlmAddIn.Model
             }
 
             // navigate to the mItem using itemrevision
-            if (_navigationSource == "mItem")
+            if (_navigationSource == "item")
             {
                 try
                 {
                     item = _conn?.WebServiceManager.ItemService.GetItemsByRevisionIds(new long[] { long.Parse(parameters[1]) }, true).FirstOrDefault();
-                    _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
+                    _explorerUtil.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
                     return;
                 }
                 catch (Exception)
@@ -145,15 +137,15 @@ namespace Autodesk.TS.VltPlmAddIn.Model
             }
 
             // navigate to the mItem using plm mItem number
-            if (_navigationSource == "plm-mItem")
+            if (_navigationSource == "plm-item")
             {
                 // try the direct path if the itemrevision is defined
                 if (parameters[1] != "undefined")
                 {
                     try
                     {
-                        item = _conn?.WebServiceManager.ItemService.GetItemsByIds(new long[] { long.Parse(parameters[1]) }).FirstOrDefault();
-                        _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
+                        item = _conn?.WebServiceManager.ItemService.GetLatestItemByItemNumber(parameters[1]);
+                        _explorerUtil.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
                         return;
                     }
                     catch (Exception)
@@ -165,7 +157,7 @@ namespace Autodesk.TS.VltPlmAddIn.Model
                     try
                     {
                         item = _conn?.WebServiceManager.ItemService.GetLatestItemByItemNumber(parameters[2].Split(" - ")[0]);
-                        _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
+                        _explorerUtil.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
                         return;
                     }
                     catch (Exception)

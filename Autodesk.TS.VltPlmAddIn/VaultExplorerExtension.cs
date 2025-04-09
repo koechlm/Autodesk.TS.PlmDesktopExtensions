@@ -15,9 +15,11 @@ using System.Linq;
 using System.Windows.Forms;
 
 // These 5 assembly attributes must be specified or your extension will not load. 
-//[assembly: AssemblyCompany("Autodesk")]
-//[assembly: AssemblyProduct("HelloWorldCommandExtension")]
 [assembly: AssemblyDescription("FM-Vault Extension")]
+[assembly: AssemblyCompany("Autodesk Technical Sales")]
+[assembly: AssemblyCopyright("Copyright © Autodesk, Technical Sales CE 2025")]
+[assembly: AssemblyTitle("FM-Vault Extension")]
+[assembly: AssemblyProduct("FM-Vault Extension")]
 
 // The extension ID needs to be unique for each extension.  
 // Make sure to generate your own ID when writing your own extension. 
@@ -29,13 +31,13 @@ using System.Windows.Forms;
 
 namespace Autodesk.TS.VltPlmAddIn
 {
-    
-        public enum NavigationSender
-        {
-            FMExtension,
-            Host
-        }
-    
+
+    public enum NavigationSender
+    {
+        FMExtension,
+        Host
+    }
+
 
     public class VaultExplorerExtension : IExplorerExtension
     {
@@ -131,7 +133,7 @@ namespace Autodesk.TS.VltPlmAddIn
         #endregion
 
         #region custom methods
-        
+
         private void ThemeChanged(object? sender, Library.UITheme e)
         {
             mCurrentTheme = VDF.Forms.Library.CurrentTheme.ToString().ToLower();
@@ -156,76 +158,82 @@ namespace Autodesk.TS.VltPlmAddIn
             //{
             //    return;
             //}
-            //if (e.Context.SelectedObject != null)
-            //{
-            //    selection2 = e.Context.SelectedObject;
-            //}
+            if (e.Context.SelectedObject != null)
+            {
+                selection2 = e.Context.SelectedObject;
+            }
+            else
+            {
+                selection2 = null;
+                return;
+            }
 
             //selection changed
             //if (selection1?.Id != selection2?.Id)
             //{
-                // filter the selected entities for candidates to navigate to in the Item Details panel
-                if (selection2?.TypeId.EntityClassId is not "FILE" and not "ITEM")
-                {
-                    return;
-                }
+            // filter the selected entities for candidates to navigate to in the Item Details panel
+            if (selection2?.TypeId.EntityClassId is not "FILE" and not "ITEM")
+            {
+                return;
+            }
 
-                string? mItemNumber = "";
+            string? mItemNumber = "";
 
-                if (selection2.TypeId.EntityClassId == "FILE")
+            if (selection2.TypeId.EntityClassId == "FILE")
+            {
+                // Look of the File object.  How we do this depends on what is selected.
+                Item? mItem = null;
+                if (selection2.TypeId == SelectionTypeId.File)
                 {
-                    // Look of the File object.  How we do this depends on what is selected.
-                    Item? mItem = null;
-                    if (selection2.TypeId == SelectionTypeId.File)
+                    // our ISelection.Id is really a File.MasterId
+                    var selectedFile = conn?.WebServiceManager.DocumentService.GetLatestFileByMasterId(selection2.Id);
+                    if (selectedFile != null)
                     {
-                        // our ISelection.Id is really a File.MasterId
-                        var selectedFile = conn?.WebServiceManager.DocumentService.GetLatestFileByMasterId(selection2.Id);
-                        if (selectedFile != null)
-                        {
-                            var items = conn?.WebServiceManager.ItemService.GetItemsByFileId(selectedFile.Id);
-                            mItem = items?.FirstOrDefault();
-                        }
-                    }
-                    else if (selection2.TypeId == SelectionTypeId.FileVersion)
-                    {
-                        // our ISelection.Id is really a File.Id
-                        var items = conn?.WebServiceManager.ItemService.GetItemsByFileId(selection2.Id);
+                        var items = conn?.WebServiceManager.ItemService.GetItemsByFileId(selectedFile.Id);
                         mItem = items?.FirstOrDefault();
                     }
-                    mItemNumber = mItem?.ItemNum;
                 }
-
-                if (selection2.TypeId.EntityClassId == "ITEM")
+                else if (selection2.TypeId == SelectionTypeId.FileVersion)
                 {
-                    ACW.Item? mItem = conn?.WebServiceManager.ItemService.GetLatestItemByItemMasterId(selection2.Id);
-                    mItemNumber = mItem?.ItemNum;
+                    // our ISelection.Id is really a File.Id
+                    var items = conn?.WebServiceManager.ItemService.GetItemsByFileId(selection2.Id);
+                    mItem = items?.FirstOrDefault();
                 }
+                mItemNumber = mItem?.ItemNum;
+            }
 
-                try
-                {
-                    // The event args has our custom panel object.  We need to cast it to our type.
-                    //CefControlItem? mCefControl = e.Context.UserControl as CefControlItem;
-                    WebViewFmItem mFmItemControl = e.Context.UserControl as WebViewFmItem;
+            if (selection2.TypeId.EntityClassId == "ITEM")
+            {
+                //ACW.Item? mItem = conn?.WebServiceManager.ItemService.GetLatestItemByItemMasterId(selection2.Id);
+                ACW.Item? mItem = conn?.WebServiceManager.ItemService.GetLatestItemByItemNumber(selection2.Label);
+                mItemNumber = mItem?.ItemNum;
+            }
+
+            try
+            {
+                // The event args has our custom panel object.  We need to cast it to our type.
+                //CefControlItem? mCefControl = e.Context.UserControl as CefControlItem;
+                WebViewFmItem mFmItemControl = e.Context.UserControl as WebViewFmItem;
 
                 // build the Item's URL and navigate to the selected mItem in the CEF browser
                 if (mFmItemControl != null)
-                    {
-                        string mUrl = mFmExtensionUrl + "/Item?number=" + mItemNumber + "&theme=" + mCurrentTheme.ToLower();
+                {
+                    string mUrl = mFmExtensionUrl + "/Item?number=" + mItemNumber + "&theme=" + mCurrentTheme.ToLower();
                     //await mCefControl.NavigateToUrlAsync(mUrl);
                     mFmItemControl.Navigate(mUrl);
                 }
-                }
-                catch (Exception ex)
-                {
-                    // If something goes wrong, we don't want the exception to bubble up to Vault Explorer.
-                    MessageBox.Show("Error: " + ex.Message);
-                    
-                }
+            }
+            catch (Exception ex)
+            {
+                // If something goes wrong, we don't want the exception to bubble up to Vault Explorer.
+                MessageBox.Show("Error: " + ex.Message);
 
-                selection1 = selection2;
+            }
 
-                // Set the sender to FMExtension to avoid infinite loop
-                mSender = NavigationSender.Host;
+            selection1 = selection2;
+
+            // Set the sender to FMExtension to avoid infinite loop
+            mSender = NavigationSender.Host;
             //}
         }
 

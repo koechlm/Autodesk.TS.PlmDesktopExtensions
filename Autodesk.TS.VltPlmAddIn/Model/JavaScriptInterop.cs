@@ -15,11 +15,12 @@ namespace Autodesk.TS.VltPlmAddIn.Model
         //private readonly CefControlTasks? _cefControlTaks;
 
         private Navigation? _navigation;
+        private WebViewFmItem webViewFmItem;
 
-        //public JavaScriptInterop(CefControlItem? cefControlItem)
-        //{
-        //    _cefControlItem = cefControlItem;
-        //}
+        public JavaScriptInterop(WebViewFmItem webViewFmItem)
+        {
+            this.webViewFmItem = webViewFmItem;
+        }
 
         //public JavaScriptInterop(CefControlSearch? cefControlSearch)
         //{
@@ -49,16 +50,16 @@ namespace Autodesk.TS.VltPlmAddIn.Model
                         _ = openComponent(mParametersArray);
                         break;
                     case "gotoVaultFolder":
-                        _ = gotoVaultFolder(mParametersArray);
+                        gotoVaultFolder(mParametersArray);
                         break;
                     case "gotoVaultFile":
-                        _ = gotoVaultFile(mParametersArray);
+                        gotoVaultFile(mParametersArray);
                         break;
                     case "gotoVaultItem":
-                        _ = gotoVaultItem(mParametersArray);
+                        gotoVaultItem(mParametersArray);
                         break;
                     case "gotoVaultECO":
-                        _ = gotoVaultECO(mParametersArray);
+                        gotoVaultECO(mParametersArray);
                         break;
                     default:
                         break;
@@ -85,63 +86,58 @@ namespace Autodesk.TS.VltPlmAddIn.Model
         }
 
         // This method is called from JavaScript to navigate to the parameters in Vault
-        public async Task gotoVaultFolder(string[] parameters)
-        {
-            await Task.Run(() =>
-            {
-                // Navigate to the related entity in Vault
-                if (_navigation == null)
-                    _navigation = new Navigation();
-                _navigation?.GotoVaultFolder(parameters);
-            });
-        }
-
-        // This method is called from JavaScript to navigate to the parameters in Vault
-        public async Task gotoVaultFile(string[] parameters)
+        public void gotoVaultFolder(string[] parameters)
         {
             VaultExplorerExtension.mSender = Autodesk.TS.VltPlmAddIn.NavigationSender.FMExtension;
-            await Task.Run(() =>
-            {
-                // Navigate to the related entity in Vault
-                if (_navigation == null)
-                    _navigation = new Navigation();
-                
-                _navigation?.GotoVaultFile(parameters);
-            });
+
+            // Navigate to the related entity in Vault
+            if (_navigation == null)
+                _navigation = new Navigation();
+            _navigation.GotoVaultFolder(parameters);
 
             //reset the sender
             VaultExplorerExtension.mSender = Autodesk.TS.VltPlmAddIn.NavigationSender.Host;
         }
 
-        //This method is called from JavaScript to navigate to the parameters in Vault
-        public async Task gotoVaultItem(string[] parameters)
+        // This method is called from JavaScript to navigate to the parameters in Vault
+        public void gotoVaultFile(string[] parameters)
         {
-            await Task.Run(() =>
-            {
-                // Navigate to the related entity in Vault
-                if (_navigation == null)
-                    _navigation = new Navigation();
-                _navigation?.GotoVaultItem(parameters);
-            });
-        }
-        //public void gotoVaultItem(string[] parameters)
-        //{
-        //        // Navigate to the related entity in Vault
-        //        if (_navigation == null)
-        //            _navigation = new Navigation();
-        //        _navigation?.GotoVaultItem(parameters);           
-        //}
+            VaultExplorerExtension.mSender = Autodesk.TS.VltPlmAddIn.NavigationSender.FMExtension;
 
-        // This method is called from JavaScript to navigate to the change order in Vault
-        public async Task gotoVaultECO(string[] parameters)
+            // Navigate to the related entity in Vault
+            if (_navigation == null)
+                _navigation = new Navigation();
+            _navigation.GotoVaultFile(parameters);
+
+            //reset the sender
+            VaultExplorerExtension.mSender = Autodesk.TS.VltPlmAddIn.NavigationSender.Host;
+        }
+
+        // This method is called from JavaScript to navigate to the parameters in Vault
+        public void gotoVaultItem(string[] parameters)
         {
-            await Task.Run(() =>
-            {
-                // Navigate to the related entity in Vault
-                if (_navigation == null)
-                    _navigation = new Navigation();
-                _navigation?.GotoVaultChangeOrder(parameters);
-            });
+            VaultExplorerExtension.mSender = Autodesk.TS.VltPlmAddIn.NavigationSender.FMExtension;
+
+            // Navigate to the related entity in Vault
+            if (_navigation == null)
+                _navigation = new Navigation();
+            _navigation.GotoVaultItem(parameters);
+
+            //reset the sender
+            VaultExplorerExtension.mSender = Autodesk.TS.VltPlmAddIn.NavigationSender.Host;
+        }
+
+        public void gotoVaultECO(string[] parameters)
+        {
+            VaultExplorerExtension.mSender = Autodesk.TS.VltPlmAddIn.NavigationSender.FMExtension;
+
+            // Navigate to the related entity in Vault
+            if (_navigation == null)
+                _navigation = new Navigation();
+            _navigation.GotoVaultChangeOrder(parameters);
+
+            //reset the sender
+            VaultExplorerExtension.mSender = Autodesk.TS.VltPlmAddIn.NavigationSender.Host;
         }
     }
 }
