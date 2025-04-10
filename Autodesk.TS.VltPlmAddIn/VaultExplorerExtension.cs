@@ -52,9 +52,7 @@ namespace Autodesk.TS.VltPlmAddIn
 
         internal static NavigationSender? mSender { get; set; }
 
-        ISelection? selection1 = null;
-        ISelection? selection2 = null;
-
+        ISelection? selection = null;
 
         #region IExplorerExtension Members
 
@@ -98,7 +96,7 @@ namespace Autodesk.TS.VltPlmAddIn
             return mDockPanels;
         }
 
-        IEnumerable<string> IExplorerExtension.HiddenCommands()
+        IEnumerable<string>? IExplorerExtension.HiddenCommands()
         {
             return null;
         }
@@ -145,96 +143,71 @@ namespace Autodesk.TS.VltPlmAddIn
             {
                 return;
             }
-            ////mimic NavigationSelection changed handler, as the selection changed event is a general event and not specific to the navigation selection change
-            //if (e?.Context?.NavSelectionSet.GetEnumerator().Current.Id == -1)
-            //{
-            //    return;
-            //}
-            //if (e?.Context?.SelectedObject == null)
-            //{
-            //    return;
-            //}
-            //if (e.Context.NavSelectionSet.Count() == 0)
-            //{
-            //    return;
-            //}
-            if (e.Context.SelectedObject != null)
+
+            if (e?.Context.SelectedObject != null)
             {
-                selection2 = e.Context.SelectedObject;
+                selection = e.Context.SelectedObject;
             }
             else
             {
-                selection2 = null;
+                selection = null;
                 return;
             }
 
-            //selection changed
-            //if (selection1?.Id != selection2?.Id)
-            //{
-            // filter the selected entities for candidates to navigate to in the Item Details panel
-            if (selection2?.TypeId.EntityClassId is not "FILE" and not "ITEM")
+            if (selection?.TypeId.EntityClassId is not "FILE" and not "ITEM")
             {
                 return;
             }
 
             string? mItemNumber = "";
 
-            if (selection2.TypeId.EntityClassId == "FILE")
+            if (selection.TypeId.EntityClassId == "FILE")
             {
                 // Look of the File object.  How we do this depends on what is selected.
                 Item? mItem = null;
-                if (selection2.TypeId == SelectionTypeId.File)
+                if (selection.TypeId == SelectionTypeId.File)
                 {
-                    // our ISelection.Id is really a File.MasterId
-                    var selectedFile = conn?.WebServiceManager.DocumentService.GetLatestFileByMasterId(selection2.Id);
+                    // our ISelection.Id is a File.MasterId
+                    var selectedFile = conn?.WebServiceManager.DocumentService.GetLatestFileByMasterId(selection.Id);
                     if (selectedFile != null)
                     {
                         var items = conn?.WebServiceManager.ItemService.GetItemsByFileId(selectedFile.Id);
                         mItem = items?.FirstOrDefault();
                     }
                 }
-                else if (selection2.TypeId == SelectionTypeId.FileVersion)
+                else if (selection.TypeId == SelectionTypeId.FileVersion)
                 {
-                    // our ISelection.Id is really a File.Id
-                    var items = conn?.WebServiceManager.ItemService.GetItemsByFileId(selection2.Id);
+                    // our ISelection.Id is a File.Id
+                    var items = conn?.WebServiceManager.ItemService.GetItemsByFileId(selection.Id);
                     mItem = items?.FirstOrDefault();
                 }
                 mItemNumber = mItem?.ItemNum;
             }
 
-            if (selection2.TypeId.EntityClassId == "ITEM")
+            if (selection.TypeId.EntityClassId == "ITEM")
             {
-                //ACW.Item? mItem = conn?.WebServiceManager.ItemService.GetLatestItemByItemMasterId(selection2.Id);
-                ACW.Item? mItem = conn?.WebServiceManager.ItemService.GetLatestItemByItemNumber(selection2.Label);
+                ACW.Item? mItem = conn?.WebServiceManager.ItemService.GetLatestItemByItemNumber(selection.Label);
                 mItemNumber = mItem?.ItemNum;
             }
 
             try
             {
-                // The event args has our custom panel object.  We need to cast it to our type.
-                //CefControlItem? mCefControl = e.Context.UserControl as CefControlItem;
-                WebViewFmItem mFmItemControl = e.Context.UserControl as WebViewFmItem;
-
-                // build the Item's URL and navigate to the selected mItem in the CEF browser
-                if (mFmItemControl != null)
+                // build the Item's URL and navigate to the selected Item in the browser
+                if (e.Context.UserControl is WebViewFmItem mFmItemControl)
                 {
                     string mUrl = mFmExtensionUrl + "/Item?number=" + mItemNumber + "&theme=" + mCurrentTheme.ToLower();
-                    //await mCefControl.NavigateToUrlAsync(mUrl);
                     mFmItemControl.Navigate(mUrl);
                 }
             }
             catch (Exception ex)
             {
-                // If something goes wrong, we don't want the exception to bubble up to Vault Explorer.
-                MessageBox.Show("Error: " + ex.Message);
-
+                // If something goes wrong, we don't want the exception to bubble up to Vault Explorer.                
+                VDF.Forms.Library.ShowError("The FM Panel Extensions not initiate to display related content of the current selections due to an unhandled exception. Please copy the message contacting your administrator:  " + ex.Message, "Fusion Manage Item Panel Error");
             }
-
-            selection1 = selection2;
 
             // Set the sender to FMExtension to avoid infinite loop
             mSender = NavigationSender.Host;
-            //}
+
         }
 
         public IEnumerable<CommandSite> CommandSites()
