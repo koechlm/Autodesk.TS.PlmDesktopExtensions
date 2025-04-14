@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Windows.Forms;
+using DevExpress.Utils.Extensions;
 
 // These 5 assembly attributes must be specified or your extension will not load. 
 [assembly: AssemblyDescription("FM-Vault Extension")]
@@ -54,6 +55,9 @@ namespace Autodesk.TS.VltPlmAddIn
 
         ISelection? selection = null;
 
+        // track the Autodesk Account login status
+        bool mIsLoggedIn = false;
+
         #region IExplorerExtension Members
 
         IEnumerable<CommandSite>? IExplorerExtension.CommandSites()
@@ -71,7 +75,7 @@ namespace Autodesk.TS.VltPlmAddIn
             return null;
         }
 
-        IEnumerable<DockPanel> IExplorerExtension.DockPanels()
+        IEnumerable<DockPanel>? IExplorerExtension.DockPanels()
         {
             // Create a DockPanel list to return from method
             List<DockPanel> mDockPanels = new List<DockPanel>();
@@ -126,6 +130,18 @@ namespace Autodesk.TS.VltPlmAddIn
             mFmExtensionUrl = mSettings.FmExtensionUrl;
 
             mSender = NavigationSender.Host;
+
+            // adding FM panels requires an Autodesk Account Login
+            XtraFormFmLogin mFmLogin = new XtraFormFmLogin(mCurrentTheme);
+            IWin32Window? mParent = mApplication as IWin32Window;
+            mFmLogin.StartPosition = FormStartPosition.CenterParent;
+            mFmLogin.TopMost = true;
+            mFmLogin.BringToFront();
+            mFmLogin.ShowDialog(mParent);
+            if (mFmLogin.DialogResult == DialogResult.OK)
+            {
+                mIsLoggedIn = true;
+            }
         }
 
         #endregion

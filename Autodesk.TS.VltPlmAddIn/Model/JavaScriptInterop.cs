@@ -10,27 +10,25 @@ namespace Autodesk.TS.VltPlmAddIn.Model
 {
     internal class JavaScriptInterop
     {
-        //private readonly CefControlItem? _cefControlItem;
-        //private readonly CefControlSearch? _cefControlSearch;
-        //private readonly CefControlTasks? _cefControlTaks;
-
         private Navigation? _navigation;
-        private WebViewFmItem webViewFmItem;
+        private WebViewFmItem? webViewFmItem;
+        private WebViewFmSearch? webViewFmSearch;
+        private WebViewFmTasks? webViewFmTasks;
 
         public JavaScriptInterop(WebViewFmItem webViewFmItem)
         {
             this.webViewFmItem = webViewFmItem;
         }
 
-        //public JavaScriptInterop(CefControlSearch? cefControlSearch)
-        //{
-        //    _cefControlSearch = cefControlSearch;
-        //}
+        public JavaScriptInterop(WebViewFmSearch webViewFmSearch)
+        {
+            this.webViewFmSearch = webViewFmSearch;
+        }
 
-        //public JavaScriptInterop(CefControlTasks? cefControlTaks)
-        //{
-        //    _cefControlTaks = cefControlTaks;
-        //}
+        public JavaScriptInterop(WebViewFmTasks webViewFmTasks)
+        {
+            this.webViewFmTasks = webViewFmTasks;
+        }
 
         public void handleJsMessage(string message)
         {

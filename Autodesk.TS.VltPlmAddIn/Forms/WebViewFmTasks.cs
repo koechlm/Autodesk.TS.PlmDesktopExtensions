@@ -9,15 +9,27 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Web.WebView2.Core;
 using System.Windows.Threading;
+using Autodesk.TS.VltPlmAddIn.Model;
 
 namespace Autodesk.TS.VltPlmAddIn.Forms
 {
-    public partial class WebViewFmTasks: UserControl
+    public partial class WebViewFmTasks : UserControl
     {
+        private static string mRelURL = "/tasks?&theme=";
+
+        //register the JavaScript interoperability class
+        internal JavaScriptInterop? JavaScriptInterop { get; set; }
+
         public WebViewFmTasks()
         {
             InitializeComponent();
+
+            // Initialize the WebView2 control
             InitializeWebView();
+
+            // Set the URL to navigate to and navigate
+            String mURL = VaultExplorerExtension.mFmExtensionUrl + mRelURL + VaultExplorerExtension.mCurrentTheme.ToLower();
+            Navigate(mURL);
         }
 
         private void InitializeWebView()
@@ -32,7 +44,18 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
                 Dispatcher.PushFrame(frame);
             }
 
-            FmTasks.CoreWebView2.WebMessageReceived += FmItem_WebMessageReceived;
+            //register the JavaScript interoperability class
+            JavaScriptInterop = new JavaScriptInterop(this);
+
+            FmTasks.GotFocus += FmTasks_GotFocus;
+
+            FmTasks.CoreWebView2.WebMessageReceived += FmTasks_WebMessageReceived;
+        }
+
+        private void FmTasks_GotFocus(object? sender, EventArgs e)
+        {
+            String mURL = VaultExplorerExtension.mFmExtensionUrl + mRelURL + VaultExplorerExtension.mCurrentTheme.ToLower();
+            Navigate(mURL);
         }
 
         public void Navigate(string mUrl)
@@ -41,12 +64,14 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
             FmTasks.Source = uri;
         }
 
-        private void FmItem_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
+        private void FmTasks_WebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
             // Handle the message received from the web view
             string message = e.TryGetWebMessageAsString();
-
-            // Process the message as needed
+            if (!String.IsNullOrEmpty(message))
+            {
+                JavaScriptInterop?.handleJsMessage(message);
+            }
         }
     }
 }

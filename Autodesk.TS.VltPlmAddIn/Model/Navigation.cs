@@ -32,7 +32,7 @@ namespace Autodesk.TS.VltPlmAddIn.Model
             if (long.TryParse(parameters[1], out long folderId))
             {
                 ACW.Folder? folder = _conn?.WebServiceManager.DocumentService.GetFolderById(folderId);
-                _explorerUtil.GoToEntity(new VDFV.Currency.Entities.Folder(_conn, folder));
+                _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.Folder(_conn, folder));
             }
             else
             {
@@ -96,7 +96,7 @@ namespace Autodesk.TS.VltPlmAddIn.Model
             if (fileId != -1)
             {
                 ACW.File? file = _conn?.WebServiceManager.DocumentService.GetFileById(fileId);
-                _explorerUtil.GoToEntity(new VDFV.Currency.Entities.FileIteration(_conn, file));
+                _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.FileIteration(_conn, file));
             }
         }
 
@@ -112,7 +112,7 @@ namespace Autodesk.TS.VltPlmAddIn.Model
                 {
                     item = _conn?.WebServiceManager.ItemService.GetItemsByFileIdAndLinkTypeOptions(long.Parse(parameters[1]), ACW.ItemFileLnkTypOpt.Primary).FirstOrDefault();
                     item = _conn?.WebServiceManager.ItemService.GetItemsByFileId(long.Parse(parameters[1])).FirstOrDefault();
-                    _explorerUtil.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
+                    _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
                     return;
                 }
                 catch (Exception)
@@ -127,7 +127,7 @@ namespace Autodesk.TS.VltPlmAddIn.Model
                 try
                 {
                     item = _conn?.WebServiceManager.ItemService.GetItemsByRevisionIds(new long[] { long.Parse(parameters[1]) }, true).FirstOrDefault();
-                    _explorerUtil.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
+                    _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
                     return;
                 }
                 catch (Exception)
@@ -145,7 +145,7 @@ namespace Autodesk.TS.VltPlmAddIn.Model
                     try
                     {
                         item = _conn?.WebServiceManager.ItemService.GetLatestItemByItemNumber(parameters[1]);
-                        _explorerUtil.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
+                        _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
                         return;
                     }
                     catch (Exception)
@@ -157,7 +157,7 @@ namespace Autodesk.TS.VltPlmAddIn.Model
                     try
                     {
                         item = _conn?.WebServiceManager.ItemService.GetLatestItemByItemNumber(parameters[2].Split(" - ")[0]);
-                        _explorerUtil.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
+                        _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
                         return;
                     }
                     catch (Exception)
@@ -168,13 +168,12 @@ namespace Autodesk.TS.VltPlmAddIn.Model
         }
 
         internal void GotoVaultChangeOrder(string[] parameters)
-        {
-            var explorerUtil = Autodesk.Connectivity.Explorer.ExtensibilityTools.ExplorerLoader.GetExplorerUtil(_application);
+        {            
             if (!string.IsNullOrEmpty(parameters[1]))
             {
                 string changeOrderId = parameters[1];
                 ACW.ChangeOrder? changeOrder = _conn?.WebServiceManager.ChangeOrderService.GetChangeOrderByNumber(changeOrderId);
-                explorerUtil.GoToEntity(new VDFV.Currency.Entities.ChangeOrder(_conn, changeOrder));
+                _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ChangeOrder(_conn, changeOrder));
             }
             else
             {

@@ -45,6 +45,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1210.39" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.8" />
   </ItemGroup>
 
   <ItemGroup>
@@ -78,6 +79,87 @@
     <Reference Include="Autodesk.DataManagement.Client.Framework.Vault.Forms">
       <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\Autodesk.DataManagement.Client.Framework.Vault.Forms.dll</HintPath>
     </Reference>
+    <Reference Include="DevExpress.Data.Desktop.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Data.Desktop.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Data.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Data.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Docs.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Docs.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Drawing.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Drawing.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Images.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Images.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Office.v24.1.Core">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Office.v24.1.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Pdf.v24.1.Core">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Pdf.v24.1.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Pdf.v24.1.Drawing">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Pdf.v24.1.Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Printing.v24.1.Core">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Printing.v24.1.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.RichEdit.v24.1.Core">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.RichEdit.v24.1.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Sparkline.v24.1.Core">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Sparkline.v24.1.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Utils.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Utils.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraBars.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.XtraBars.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.XtraEditors.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraGrid.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.XtraGrid.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraLayout.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.XtraLayout.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraNavBar.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.XtraNavBar.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraPrinting.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.XtraPrinting.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraRichEdit.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.XtraRichEdit.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraTreeList.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.XtraTreeList.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraVerticalGrid.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.XtraVerticalGrid.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraWizard.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.XtraWizard.v24.1.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
