@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -39,9 +40,9 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
 
         private void InitializeWebView()
         {
-            var frame = new DispatcherFrame(); // This now resolves correctly
-            var env = CoreWebView2Environment.CreateAsync(null, Environment.GetEnvironmentVariable("TEMP"), null);
-
+            var frame = new DispatcherFrame();
+            string userDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Adsk.TS.Vault-FM-Panels");
+            var env = CoreWebView2Environment.CreateAsync(null, userDataFolder, null);
             using (var task = WebViewFmLogin.EnsureCoreWebView2Async(env.Result))
             {
                 task.ContinueWith((dummy) => frame.Continue = false);

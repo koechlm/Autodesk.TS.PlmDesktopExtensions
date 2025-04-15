@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -18,7 +19,7 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
         private static string mRelURL = "/pdm-search?&theme=";
 
         //register the JavaScript interoperability class
-        internal JavaScriptInterop? JavaScriptInterop { get; set; }
+        internal JavaScriptInterop? JavaScriptInterop { get; set; } = null;
 
         public WebViewFmSearch()
         {
@@ -34,8 +35,9 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
 
         private void InitializeWebView()
         {
-            var frame = new DispatcherFrame(); // This now resolves correctly
-            var env = CoreWebView2Environment.CreateAsync(null, Environment.GetEnvironmentVariable("TEMP"), null);
+            var frame = new DispatcherFrame();
+            string userDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Adsk.TS.Vault-FM-Panels");
+            var env = CoreWebView2Environment.CreateAsync(null, userDataFolder, null);
 
             using (var task = FmSearch.EnsureCoreWebView2Async(env.Result))
             {
