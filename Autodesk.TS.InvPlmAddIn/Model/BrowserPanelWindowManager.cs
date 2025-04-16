@@ -32,14 +32,14 @@ namespace InvPlmAddIn.Model
             {
                 InternalName = "Item",
                 WindowTitle = "PLM Item",
-                Url = mBaseUri.ToString() + "/item?partNumber={PartNumber}&theme={Theme}"
+                Url = mBaseUri.ToString() + "/item?number={PartNumber}&theme={Theme}"
             },
 
             new PanelOptions
             {
                 InternalName = "Context",
                 WindowTitle = "PLM Context",
-                Url = mBaseUri.ToString() + "/context?partNumber={PartNumber}&theme={Theme}"
+                Url = mBaseUri.ToString() + "/context?number={PartNumber}&theme={Theme}"
             },
         };
 
@@ -49,19 +49,19 @@ namespace InvPlmAddIn.Model
             {
                 InternalName = "plmTasksWindow",
                 WindowTitle = "PLM Tasks",
-                Url = mBaseUri.ToString() + "/tasks?theme={Theme}"
+                Url = mBaseUri.ToString() + "/tasks?&theme={Theme}"
             },
                         new PanelOptions
             {
                 InternalName = "plmNavigatorWindow",
                 WindowTitle = "PLM Navigator",
-                Url = mBaseUri.ToString() + "/navigate?theme={Theme}"
+                Url = mBaseUri.ToString() + "/navigate?&theme={Theme}"
             },
             new PanelOptions
             {
                 InternalName = "plmSearchWindow",
                 WindowTitle = "PLM Search",
-                Url = mBaseUri.ToString() + "/search?theme={Theme}"
+                Url = mBaseUri.ToString() + "/pdm-search?&theme={Theme}"
             }
         };
 

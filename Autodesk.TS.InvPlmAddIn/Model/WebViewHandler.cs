@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
@@ -21,8 +22,8 @@ namespace InvPlmAddIn.Model
 
 		public static async Task<CoreWebView2Environment> GetWebViewEnvironment()
 		{
-			var userDataFolder = System.IO.Path.GetTempPath();
-			return await CoreWebView2Environment.CreateAsync(null, userDataFolder);
+            string userDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Adsk.TS.Inventor-FM-Panels");            
+            return await CoreWebView2Environment.CreateAsync(null, userDataFolder, null);
 		}
 
 		public void Dispose()

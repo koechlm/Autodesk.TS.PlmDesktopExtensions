@@ -4,6 +4,7 @@ using InvPlmAddIn.Model;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -27,12 +28,14 @@ namespace InvPlmAddIn.Forms
     public partial class PlmExtensionLogin : DevExpress.XtraEditors.XtraForm
     {
         private static WebView2 webView;
+        private static string _currentTheme = "light";
 
         public PlmExtensionLogin(string currentTheme)
         {
             InitializeComponent();
 
             ApplyThemes(currentTheme);
+            _currentTheme = currentTheme;
 
             // Set the webview handler
             webView = new WebView2();
@@ -48,8 +51,9 @@ namespace InvPlmAddIn.Forms
         /// <param name="webView21"></param>
         private void mWebViewInit(WebView2 webView21)
         {
-            var frame = new DispatcherFrame();
-            var env = CoreWebView2Environment.CreateAsync(null, System.Environment.GetEnvironmentVariable("TEMP"), null);
+            var frame = new DispatcherFrame(); 
+            string userDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Adsk.TS.Inventor-FM-Panels");
+            var env = CoreWebView2Environment.CreateAsync(null, userDataFolder, null);
 
             using (var task = webView21.EnsureCoreWebView2Async(env.Result))
             {
@@ -82,7 +86,7 @@ namespace InvPlmAddIn.Forms
         /// <param name="e"></param>
         private void PlmExtensionLogin_Shown(object sender, EventArgs e)
         {
-            Uri uriRel = new Uri("/addins/login", UriKind.Relative);
+            Uri uriRel = new Uri("/addins/login?&theme=" + _currentTheme , UriKind.Relative);
             Uri uri = new Uri(InvPlmAddinSrv.mBaseUri, uriRel);
 
             webView.CoreWebView2.Navigate(uri.AbsoluteUri);

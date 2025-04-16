@@ -403,6 +403,11 @@ Autodesk.iLogic.Interfaces
  Gets or sets the value of ThisApplication.SilentOperation that should be used while this rule is being run.
  </summary>
 </member>
+<member name="P:Autodesk.iLogic.Interfaces.iLogicRule.IsCodeblocks">
+ <summary>
+ Gets a value that is True if this rule is a Codeblocks rule (edited with a Blockly UI).
+ </summary>
+</member>
 <member name="P:Autodesk.iLogic.Interfaces.iLogicRule.Text">
  <summary>
  Gets or sets the rule text (rule VB code).
@@ -3911,6 +3916,31 @@ Autodesk.iLogic.Interfaces
  <param name="intent">The type of GeometryIntent wanted.</param>
  <param name="nearPoint">If more than one drawing curve is found, chooses the one whose bounding box center is closest to this point.</param>
  <returns>The GeometryIntent that was created.</returns>
+</member>
+<member name="M:Autodesk.iLogic.Interfaces.IManagedDrawingView.GetIntentOrDefault(Autodesk.iLogic.Types.ComponentArgument,System.String,Inventor.PointIntentEnum,Autodesk.iLogic.Types.CurveChoiceSpec)">
+ <summary>
+ Gets an intent for a drawing curve created by model geometry which is in a component within the assembly document shown in the drawing view.
+ </summary>
+ <param name="component">The component within the model document</param>
+ <param name="entityName">The name of the model geometry (face, edge, vertex or work feature).</param>
+ <param name="intent">The type of GeometryIntent wanted.</param>
+ <param name="nearPoint">If more than one drawing curve is found, chooses the one whose bounding box center is closest to this point.</param>
+ <returns>
+ The GeometryIntent that was created, or Nothing if there was an error and it could not be created.
+ If you need more detail about the error, use the <see cref="M:Autodesk.iLogic.Interfaces.IManagedDrawingView.GetIntent(Autodesk.iLogic.Types.ComponentArgument,System.String,Inventor.PointIntentEnum,Autodesk.iLogic.Types.CurveChoiceSpec)"/> function.
+ </returns>
+</member>
+<member name="M:Autodesk.iLogic.Interfaces.IManagedDrawingView.GetIntentOrDefault(System.String,Inventor.PointIntentEnum,Autodesk.iLogic.Types.CurveChoiceSpec)">
+ <summary>
+ Gets an intent for a drawing curve created by model geometry which is in the model document shown in the drawing view.
+ </summary>
+ <param name="entityName">The name of the model geometry (face, edge, vertex or work feature).</param>
+ <param name="intent">The type of GeometryIntent wanted.</param>
+ <param name="nearPoint">If more than one drawing curve is found, chooses the one whose bounding box center is closest to this point.</param>
+ <returns>
+ The GeometryIntent that was created, or Nothing if there was an error and it could not be created.
+ If you need more detail about the error, use the <see cref="M:Autodesk.iLogic.Interfaces.IManagedDrawingView.GetIntent(System.String,Inventor.PointIntentEnum,Autodesk.iLogic.Types.CurveChoiceSpec)"/> function.
+ </returns>
 </member>
 <member name="M:Autodesk.iLogic.Interfaces.IManagedDrawingView.GetFeatureFaceIntent(Autodesk.iLogic.Types.ComponentArgument,System.String,Autodesk.iLogic.Types.FaceIndexArgument,Inventor.PointIntentEnum,Autodesk.iLogic.Types.CurveChoiceSpec)">
  <summary>
