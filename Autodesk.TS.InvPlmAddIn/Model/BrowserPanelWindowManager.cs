@@ -9,7 +9,7 @@ using System.Security.Policy;
 namespace InvPlmAddIn.Model
 {
     public class BrowserPanelWindowManager
-    {        
+    {
         private static Uri mBaseUri = InvPlmAddIn.InvPlmAddinSrv.mBaseUri;
 
         private HostObject AppContextHostObject;
@@ -31,16 +31,16 @@ namespace InvPlmAddIn.Model
             new PanelOptions
             {
                 InternalName = "Item",
-                WindowTitle = "PLM Item",
-                Url = mBaseUri.ToString() + "/item?number={PartNumber}&theme={Theme}"
+                WindowTitle = "Vault PLM Item",
+                Url = mBaseUri.ToString() + "/item?number={PartNumber}&theme={Theme}" + "&host=Inventor"
             },
 
-            new PanelOptions
-            {
-                InternalName = "Context",
-                WindowTitle = "PLM Context",
-                Url = mBaseUri.ToString() + "/context?number={PartNumber}&theme={Theme}"
-            },
+            //new PanelOptions
+            //{
+            //    InternalName = "Context",
+            //    WindowTitle = "Vault PLM Context",
+            //    Url = mBaseUri.ToString() + "/context?number={PartNumber}&theme={Theme}"
+            //},
         };
 
         private PanelOptions[] OptionsAppConnect { get; set; } =
@@ -48,20 +48,22 @@ namespace InvPlmAddIn.Model
             new PanelOptions
             {
                 InternalName = "plmTasksWindow",
-                WindowTitle = "PLM Tasks",
-                Url = mBaseUri.ToString() + "/tasks?&theme={Theme}"
+                WindowTitle = "Vault PLM Tasks",
+                Url = mBaseUri.ToString() + "/tasks?&theme={Theme}" + "&host=Inventor"
             },
-                        new PanelOptions
-            {
-                InternalName = "plmNavigatorWindow",
-                WindowTitle = "PLM Navigator",
-                Url = mBaseUri.ToString() + "/navigate?&theme={Theme}"
-            },
+            
+            //new PanelOptions
+            //{
+            //    InternalName = "plmNavigatorWindow",
+            //    WindowTitle = "Vault PLM Navigator",
+            //    Url = mBaseUri.ToString() + "/navigate?&theme={Theme}"
+            //},
+
             new PanelOptions
             {
                 InternalName = "plmSearchWindow",
-                WindowTitle = "PLM Search",
-                Url = mBaseUri.ToString() + "/pdm-search?&theme={Theme}"
+                WindowTitle = "Vault PLM Search",
+                Url = mBaseUri.ToString() + "/pdm-search?&theme={Theme}" + "&host=Inventor"
             }
         };
 
@@ -118,7 +120,7 @@ namespace InvPlmAddIn.Model
         public void SetActiveDocumentSet(Document document)
         {
             if (document == null)
-            {                
+            {
                 return;
             }
             var docSet = GetDocumentPanelSetForDocument(document);
@@ -260,8 +262,8 @@ namespace InvPlmAddIn.Model
                     docSet.DocumentsEvents.OnChangeSelectSet -= DocumentEvents_OnChangeSelectSet;
                 }
                 catch (Exception)
-                {}
-                
+                { }
+
                 panelSets.Remove(docSet);
                 docSet.Dispose();
             }

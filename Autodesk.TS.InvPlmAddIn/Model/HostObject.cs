@@ -97,7 +97,7 @@ namespace InvPlmAddIn.Model
             }
         }
 
-        public async Task addComponents(object[] numbers)
+        public async Task addComponent(object[] numbers)
         {
             //show wait form and wait cursor
             mWaitForm = new Forms.WaitForm1(InvPlmAddinSrv.mTheme, "Downloading Component(s)...");
@@ -136,7 +136,7 @@ namespace InvPlmAddIn.Model
             mWaitForm.Dispose();
         }
 
-        public async Task openComponents(object[] numbers)
+        public async Task openComponent(string parameters)
         {
             // Initialize the progress form
             mWaitForm = new Forms.WaitForm1(InvPlmAddinSrv.mTheme, "Downloading Component(s)...");
@@ -144,7 +144,7 @@ namespace InvPlmAddIn.Model
             Cursor.Current = Cursors.WaitCursor;
 
             var EntityIds = new Dictionary<string, mVaultEntity>();
-            EntityIds = mCastToDicOfVaultEntities(numbers);
+            EntityIds = mCastToDicOfVaultEntities(parameters);
 
             // download files from Vault
             List<string> mDownloadedFiles = VaultUtils.mDownloadRelatedFiles(EntityIds);

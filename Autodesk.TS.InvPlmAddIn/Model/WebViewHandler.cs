@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using System.Windows;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 
@@ -46,7 +47,20 @@ namespace InvPlmAddIn.Model
 
 			WebView.CoreWebView2.AddHostObjectToScript("plmAddin", hostObject);
 
+            // register the message handler
+            WebView.CoreWebView2.WebMessageReceived += WebView_MessageReceived;
+
 			LoadUrl();
 		}
+
+        private void WebView_MessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
+        {
+            // Handle the message received from the web view
+            string message = e.TryGetWebMessageAsString();
+            if (!String.IsNullOrEmpty(message))
+            {
+                
+            }
+        }
 	}
 }
