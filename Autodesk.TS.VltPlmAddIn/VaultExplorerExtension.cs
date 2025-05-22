@@ -82,17 +82,17 @@ namespace Autodesk.TS.VltPlmAddIn
 
             // Create a dock panels for Vault/Fusion Manage Search, ITem/BOM and Tasks
             DockPanel? mPanelSearch = new DockPanel(Guid.Parse("E2B3E9C6-80B2-4FED-8DF5-08E8C830E31E"),
-                                                "FM Search", typeof(WebViewFmSearch));
+                                                "Vault PLM | Search", typeof(WebViewFmSearch));
             mDockPanels.Add(mPanelSearch);
 
             DockPanel? mPanelItemDetails = new DockPanel(Guid.Parse("31DB4F79-84D5-4D67-A109-5807563BE133"),
-                                                "FM Item Details", typeof(WebViewFmItem));
+                                                "Vault PLM | Item Details", typeof(WebViewFmItem));
             // Add event handler for selection changed event; the content of the panel needs to update accordingly.
             mPanelItemDetails.SelectionChanged += mPanelItemDetails_SelectionChanged;
             mDockPanels.Add(mPanelItemDetails);
 
             DockPanel? mPanelTasks = new DockPanel(Guid.Parse("7B5E20B1-C3FD-42FB-8955-A8D57D2015B2"),
-                                                "FM Tasks", typeof(WebViewFmTasks));
+                                                "Vault PLM | Tasks", typeof(WebViewFmTasks));
             //no event handler for now: the content is the personal tasks of the user and not related to the selected object in Vault
             mDockPanels.Add(mPanelTasks);
 
@@ -134,7 +134,8 @@ namespace Autodesk.TS.VltPlmAddIn
             // adding FM panels requires an Autodesk Account Login
             XtraFormFmLogin mFmLogin = new XtraFormFmLogin(mCurrentTheme);
             IWin32Window? mParent = mApplication as IWin32Window;
-            mFmLogin.StartPosition = FormStartPosition.CenterParent;
+            mFmLogin.StartPosition = FormStartPosition.Manual;
+            mFmLogin.Location = new Point(0, 0);
             mFmLogin.TopMost = true;
             mFmLogin.BringToFront();
             mFmLogin.ShowDialog(mParent);
@@ -211,7 +212,7 @@ namespace Autodesk.TS.VltPlmAddIn
                 // build the Item's URL and navigate to the selected Item in the browser
                 if (e.Context.UserControl is WebViewFmItem mFmItemControl)
                 {
-                    string mUrl = mFmExtensionUrl + "/Item?number=" + mItemNumber + "&theme=" + mCurrentTheme.ToLower();
+                    string mUrl = mFmExtensionUrl + "/Item?number=" + mItemNumber + "&theme=" + mCurrentTheme.ToLower() + "&host=Vault";
                     mFmItemControl.Navigate(mUrl);
                 }
             }
@@ -224,31 +225,6 @@ namespace Autodesk.TS.VltPlmAddIn
             // Set the sender to FMExtension to avoid infinite loop
             mSender = NavigationSender.Host;
 
-        }
-
-        public IEnumerable<CommandSite> CommandSites()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public IEnumerable<DetailPaneTab> DetailTabs()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public IEnumerable<DockPanel> DockPanels()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public IEnumerable<CustomEntityHandler> CustomEntityHandlers()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public IEnumerable<string> HiddenCommands()
-        {
-            throw new System.NotImplementedException();
         }
 
         #endregion

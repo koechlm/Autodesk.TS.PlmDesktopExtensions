@@ -60,6 +60,9 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
             WebViewFmLogin.Source = uri;
 
             WebViewFmLogin.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
+
+            // To get the focus, simulate a click on the WebView control by invoking a JavaScript click event
+            // WebViewFmLogin.CoreWebView2.ExecuteScriptAsync("document.body.click();");
         }
 
         // The event handler to auto-close the login dialog when the login is successful

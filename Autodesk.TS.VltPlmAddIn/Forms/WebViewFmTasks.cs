@@ -56,7 +56,7 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
 
         private void FmTasks_GotFocus(object? sender, EventArgs e)
         {
-            String mURL = VaultExplorerExtension.mFmExtensionUrl + mRelURL + VaultExplorerExtension.mCurrentTheme.ToLower();
+            String mURL = VaultExplorerExtension.mFmExtensionUrl + mRelURL + VaultExplorerExtension.mCurrentTheme.ToLower() + "&host=Vault";
             Navigate(mURL);
         }
 

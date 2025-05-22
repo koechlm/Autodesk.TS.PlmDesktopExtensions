@@ -47,9 +47,6 @@ namespace Autodesk.TS.VltPlmAddIn.Model
                     case "openComponents":
                         _ = openComponent(mParametersArray);
                         break;
-                    case "gotoVaultFolder":
-                        gotoVaultFolder(mParametersArray);
-                        break;
                     case "gotoVaultFile":
                         gotoVaultFile(mParametersArray);
                         break;
@@ -81,20 +78,6 @@ namespace Autodesk.TS.VltPlmAddIn.Model
             {
                 // Open components from Inventor _application
             });
-        }
-
-        // This method is called from JavaScript to navigate to the parameters in Vault
-        public void gotoVaultFolder(string[] parameters)
-        {
-            VaultExplorerExtension.mSender = Autodesk.TS.VltPlmAddIn.NavigationSender.FMExtension;
-
-            // Navigate to the related entity in Vault
-            if (_navigation == null)
-                _navigation = new Navigation();
-            _navigation.GotoVaultFolder(parameters);
-
-            //reset the sender
-            VaultExplorerExtension.mSender = Autodesk.TS.VltPlmAddIn.NavigationSender.Host;
         }
 
         // This method is called from JavaScript to navigate to the parameters in Vault

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ACW = Autodesk.Connectivity.WebServices;
 using Autodesk.Connectivity.Explorer.Extensibility;
 using Autodesk.DataManagement.Client.Framework.Vault.Currency.Connections;
+using VDF = Autodesk.DataManagement.Client.Framework;
 using VDFV = Autodesk.DataManagement.Client.Framework.Vault;
 using Autodesk.Connectivity.Explorer.ExtensibilityTools;
 using System.Windows.Forms;
@@ -27,34 +28,15 @@ namespace Autodesk.TS.VltPlmAddIn.Model
             _explorerUtil = Autodesk.Connectivity.Explorer.ExtensibilityTools.ExplorerLoader.GetExplorerUtil(_application);
         }
 
-        internal void GotoVaultFolder(string[] parameters)
-        {
-            ACW.Folder? folder = null;
-
-            if (long.TryParse(parameters[1], out long folderId))
-            {
-                folder = _conn?.WebServiceManager.DocumentService.GetFolderById(folderId);
-            }
-            else
-            {
-                // leverage the folder path
-                folder = _conn?.WebServiceManager.DocumentService.GetFolderByPath(parameters[2]);
-            }
-
-            //navigate if possible
-            if (folder != null)
-            {
-                _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.Folder(_conn, folder));
-            }                        
-        }
-
         internal void GotoVaultFile(string[] parameters)
         {
             _navigationSource = parameters[0];
             long fileId = -1;
+            long fileMasterId = -1;
             ACW.Item? mItem = null;
+            ACW.File? mFile = null;
 
-            // get the fileId from the parameters
+            // get the fileId from the parameters; search for the file, if the fileId is not valid
             // the FM Search panel may return Vault Items, Files or Fusion Manage Items
 
             if (_navigationSource == "item")
@@ -67,6 +49,12 @@ namespace Autodesk.TS.VltPlmAddIn.Model
                     if (itemFileAssocs != null && itemFileAssocs.Any())
                     {
                         fileId = itemFileAssocs.First().CldFileId;
+                        mFile = _conn?.WebServiceManager.DocumentService.GetFileById(fileId);
+                        if (mFile != null)
+                        {
+                            fileMasterId = mFile.MasterId;
+                        }
+
                     }
                     else
                     {
@@ -99,6 +87,11 @@ namespace Autodesk.TS.VltPlmAddIn.Model
                     if (itemFileAssocs != null && itemFileAssocs.Any())
                     {
                         fileId = itemFileAssocs.First().CldFileId;
+                        mFile = _conn?.WebServiceManager.DocumentService.GetFileById(fileId);
+                        if (mFile != null)
+                        {
+                            fileMasterId = mFile.MasterId;
+                        }
                     }
                 }
             }
@@ -106,15 +99,26 @@ namespace Autodesk.TS.VltPlmAddIn.Model
             if (_navigationSource == "file")
             {
                 fileId = long.Parse(parameters[1]);
+                fileMasterId = long.Parse(parameters[3]);
             }
 
             // finally navigate to the file
             if (fileId != -1)
             {
-                ACW.File? file = _conn?.WebServiceManager.DocumentService.GetFileById(fileId);
-                if (file != null)
+                mFile = _conn?.WebServiceManager.DocumentService.GetFileById(fileId);
+                if (mFile != null)
                 {
-                    _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.FileIteration(_conn, file));
+                    _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.FileIteration(_conn, mFile));
+                }
+            }
+
+            // goto navigation targets the main view, so use the fileMasterId
+            if (fileMasterId != -1)
+            {
+                mFile = _conn?.WebServiceManager.DocumentService.GetLatestFileByMasterId(fileMasterId);
+                if (mFile != null)
+                {
+                    _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.FileIteration(_conn, mFile));
                 }
             }
         }
@@ -187,15 +191,24 @@ namespace Autodesk.TS.VltPlmAddIn.Model
         }
 
         internal void GotoVaultChangeOrder(string[] parameters)
-        {            
+        {
             if (!string.IsNullOrEmpty(parameters[1]))
             {
                 string changeOrderId = parameters[1];
-                ACW.ChangeOrder? changeOrder = _conn?.WebServiceManager.ChangeOrderService.GetChangeOrderByNumber(changeOrderId);
-                _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ChangeOrder(_conn, changeOrder));
+                try
+                {
+                    ACW.ChangeOrder? changeOrder = _conn?.WebServiceManager.ChangeOrderService.GetChangeOrderByNumber(changeOrderId);
+                    _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ChangeOrder(_conn, changeOrder));
+                }
+                catch (Exception)
+                {
+                    VDF.Forms.Library.ShowError("Unable to navigate to the Change Order. Please validate the Change Order ID (parameter).", "Vault PLM Extension"); 
+                }
+
             }
             else
             {
+                VDF.Forms.Library.ShowError("Unable to navigate to the Change Order. The Change Order ID (parameter) is empty.", "Vault PLM Extension");
             }
         }
     }
