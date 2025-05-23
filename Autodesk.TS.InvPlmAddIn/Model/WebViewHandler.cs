@@ -59,7 +59,7 @@ namespace InvPlmAddIn.Model
             string message = e.TryGetWebMessageAsString();
             if (!String.IsNullOrEmpty(message))
             {
-                
+                HostObject.HandleJsMessage(message);
             }
         }
 	}

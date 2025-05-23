@@ -1,6 +1,8 @@
-﻿using DevExpress.Data.Filtering.Helpers;
+﻿using DevExpress.CodeParser;
+using DevExpress.Data.Filtering.Helpers;
 using DevExpress.XtraEditors;
 using DevExpress.XtraPrinting.Preview;
+using Inventor;
 using InvPlmAddIn.Utils;
 using System;
 using System.Collections.Generic;
@@ -21,32 +23,32 @@ namespace InvPlmAddIn.Model
             ApplicationPanelSet = panelManager;
         }
 
-        public HostObject(DocumentPanelSet documentPanelSet)
+        public HostObject(DocumentPanelSet documentPanelSet = null)
         {
             DocumentPanelSet = documentPanelSet;
         }
 
         public bool IsChanged { get; set; }
 
-        private DocumentPanelSet DocumentPanelSet { get; set; }
+        private static DocumentPanelSet DocumentPanelSet { get; set; }
 
-        private BrowserPanelWindowManager ApplicationPanelSet { get; set; }
+        private static BrowserPanelWindowManager ApplicationPanelSet { get; set; }
 
-        private InvPlmAddIn.Forms.WaitForm1 mWaitForm;
+        private static InvPlmAddIn.Forms.WaitForm1 mWaitForm;
 
         public class mVaultEntity
         {
             // valid values: "file", "item", "plm-item"        
             public string entityType { get; set; }
 
-            // values represent per type: file = iterationId, item = ItemRevision, plm-item = NUMBER
+            // values represent per type: file = File.Id (Iteration), item = ItemRev.Id, plm-item = NUMBER
             public string id { get; set; }
 
-            // values represent per type: file = fileName (includes extension), item = Number, plm-item = linked Vault file name (including extension)
+            // values represent per type: file = fileName (includes extension), item = Number, plm-item = item descriptor + [Rev]
             public string name { get; set; }
 
-            // values represent per type: file = folderId, item = "", plm-item = LOCATION (folder path of linked file)
-            public string parentFolder { get; set; }
+            // values represent per type: file = File.MasterId, item = "", plm-item = urn
+            public string masterId { get; set; }
         }
 
         /// <summary>
@@ -102,7 +104,7 @@ namespace InvPlmAddIn.Model
             //show wait form and wait cursor
             mWaitForm = new Forms.WaitForm1(InvPlmAddinSrv.mTheme, "Downloading Component(s)...");
             mWaitForm.Show();
-            Cursor.Current = Cursors.WaitCursor;        
+            Cursor.Current = Cursors.WaitCursor;
 
             var EntityIds = new Dictionary<string, mVaultEntity>();
             EntityIds = mCastToDicOfVaultEntities(numbers);
@@ -136,7 +138,7 @@ namespace InvPlmAddIn.Model
             mWaitForm.Dispose();
         }
 
-        public async Task openComponent(string parameters)
+        public static async Task openComponent(string parameters)
         {
             // Initialize the progress form
             mWaitForm = new Forms.WaitForm1(InvPlmAddinSrv.mTheme, "Downloading Component(s)...");
@@ -242,7 +244,7 @@ namespace InvPlmAddIn.Model
             await Task.CompletedTask;
         }
 
-        private void CallILogic(string rule, ref Dictionary<string, object> dic)
+        private static void CallILogic(string rule, ref Dictionary<string, object> dic)
         {
             (DocumentPanelSet?.PanelManager ?? ApplicationPanelSet)?.CallILogic(rule, ref dic);
         }
@@ -251,7 +253,7 @@ namespace InvPlmAddIn.Model
             => (obj as object[])?.Select(x => x.ToString()).ToArray();
 
 
-        private Dictionary<string, mVaultEntity> mCastToDicOfVaultEntities(object obj)
+        private static Dictionary<string, mVaultEntity> mCastToDicOfVaultEntities(object obj)
         {
             Dictionary<string, mVaultEntity> dic = new Dictionary<string, mVaultEntity>();
 
@@ -330,5 +332,43 @@ namespace InvPlmAddIn.Model
             await Task.CompletedTask;
         }
 
+        public static void test(string parameters)
+        {
+            Cursor.Current = Cursors.WaitCursor;
+
+            var EntityIds = new Dictionary<string, mVaultEntity>();
+            EntityIds = mCastToDicOfVaultEntities(parameters);
+
+            // download files from Vault
+            List<string> mDownloadedFiles = VaultUtils.mDownloadRelatedFiles(EntityIds);
+
+            // check and feedback to user if the download was successful
+            if (mDownloadedFiles.Count == 0)
+            {
+                AdskTsVaultUtils.Messages.ShowError("No files were downloaded.", InvPlmAddinSrv.AddInName);
+
+                return;
+            }
+
+            //hand over file list (successfully downloaded files) to iLogic for insertion
+            var dic = new Dictionary<string, object>()
+            {
+                ["DownloadedFiles"] = mDownloadedFiles
+            };
+
+            CallILogic("OpenComponent", ref dic);
+
+            Cursor.Current = Cursors.Default;
+        }
+
+        internal static void HandleJsMessage(string message)
+        {
+            // call the task openComponent
+
+            string parameters = message.Substring(message.IndexOf(":") + 1);
+            string mNumber = "01-0290";
+
+            test(mNumber);
+        }
     }
 }

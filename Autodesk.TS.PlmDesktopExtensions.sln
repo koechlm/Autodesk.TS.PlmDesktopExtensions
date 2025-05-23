@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DF22BD72-3FD9-4066-B095-FABD13A0CCB0}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		Autodesk.TS.VaultPlmClientExtensions.pptx = Autodesk.TS.VaultPlmClientExtensions.pptx
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Autodesk.TS.VltPlmAddIn", "Autodesk.TS.VltPlmAddIn\Autodesk.TS.VltPlmAddIn.csproj", "{1EEB5A7C-6E3D-4F07-A4AD-89AAEC98E6A6}"
