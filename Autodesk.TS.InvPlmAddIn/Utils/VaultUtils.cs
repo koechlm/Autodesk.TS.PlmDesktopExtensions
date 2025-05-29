@@ -13,6 +13,9 @@ using System.ServiceModel.Syndication;
 using Autodesk.Connectivity.WebServices;
 using Autodesk.DataManagement.Client.Framework.Vault.Currency.Connections;
 using Autodesk.Connectivity.WebServicesTools;
+using DevExpress.XtraSpreadsheet.Model.CopyOperation;
+using DevExpress.Data.Async;
+using DevExpress.CodeParser;
 
 namespace InvPlmAddIn.Utils
 {
@@ -141,54 +144,84 @@ namespace InvPlmAddIn.Utils
             //get files from Vault entities
             foreach (HostObject.mVaultEntity item in mVaultEntities.Values)
             {
-                //get file full name from file id
+                //get file full name from file id - note: the cascade below is to support demo environments; production Vaults/FM tenants should have valid file master ids as minimum
                 if (item.entityType == "file")
                 {
-                    mFileId = mParse(item.id);
-                    if (mFileId != -1)
+                    try
                     {
-                        mFile = mWsMgr.DocumentService.GetFileById(mFileId);
-                    }
-                    if (mFile != null && mIsFileTypeSupported(mFile))
-                    {
-                        //get the latest version of the file
-                        mFile = mWsMgr.DocumentService.GetLatestFileByMasterId(mFile.MasterId);
+                        mFile = mWsMgr.DocumentService.GetFileById(mParse(item.id));
                         VDF.Vault.Currency.Entities.FileIteration mFileIt = new VDF.Vault.Currency.Entities.FileIteration(conn, mFile);
                         mVaultFiles.Add(mFileIt);
                     }
-                }
-                //get files from item => get file by ItemRevision's primary linked file iteration'
-                if (item.entityType == "item")
-                {
-                    mItemId = mParse(item.id);
-                    if (mItemId != -1)
+                    catch (Exception)
                     {
-                        mItem = mWsMgr.ItemService.GetItemsByIds(new long[] { mItemId }).FirstOrDefault();
-                        if (mItem != null)
+                        // try to get the file by its master id
+                        try
                         {
-                            ACW.ItemFileAssoc itemFileAssoc = mWsMgr.ItemService.GetItemFileAssociationsByItemIds(new long[] { mItem.Id }, ItemFileLnkTypOpt.Primary).FirstOrDefault();
-                            if (itemFileAssoc?.Cloaked == false)
+                            mFile = mWsMgr.DocumentService.GetLatestFileByMasterId(mParse(item.masterId));
+                            VDF.Vault.Currency.Entities.FileIteration mFileIt = new VDF.Vault.Currency.Entities.FileIteration(conn, mFile);
+                            mVaultFiles.Add(mFileIt);
+                        }
+                        catch (Exception)
+                        {
+                            //try to get the file searching its name
+                            mFile = GetFileBySearchCriteria(new Dictionary<string, string> { { "Name", item.name } }, true, false);
+                            if (mFile != null && mIsFileTypeSupported(mFile))
                             {
-                                mFile = mWsMgr.DocumentService.GetFileById(itemFileAssoc.CldFileId);
-                                if (mFile != null && mIsFileTypeSupported(mFile))
-                                {
-                                    //get the latest version of the file
-                                    mFile = mWsMgr.DocumentService.GetLatestFileByMasterId(mFile.MasterId);
-                                    VDF.Vault.Currency.Entities.FileIteration mFileIt = new VDF.Vault.Currency.Entities.FileIteration(conn, mFile);
-                                    mVaultFiles.Add(mFileIt);
-                                }
+                                VDF.Vault.Currency.Entities.FileIteration mFileIt = new VDF.Vault.Currency.Entities.FileIteration(conn, mFile);
+                                mVaultFiles.Add(mFileIt);
                             }
                         }
                     }
                 }
-                //get files from plm-item => get file by full file name (Vault path + file name)
-                if (item.entityType == "plm-item")
+
+                //get files from item => get file by ItemRevision's primary linked file iteration'
+                if (item.entityType == "item" || item.entityType == "plm-item")
                 {
-                    mFile = mWsMgr.DocumentService.FindLatestFilesByPaths(new string[] { item.parentFolder + "/" + item.name }).FirstOrDefault();
-                    if (mFile != null && mIsFileTypeSupported(mFile))
+                    if (item.entityType == "item")
                     {
-                        VDF.Vault.Currency.Entities.FileIteration mFileIt = new VDF.Vault.Currency.Entities.FileIteration(conn, mFile);
-                        mVaultFiles.Add(mFileIt);
+                        try
+                        {
+                            mItem = mWsMgr.ItemService.GetItemsByIds(new long[] { mParse(item.id) }).FirstOrDefault();
+                        }
+                        catch (Exception)
+                        {
+                            // an item revision may be purged or not existent in a demo Vault
+                            // try to get the latest Item by its number
+                            try
+                            {
+                                mItem = mWsMgr.ItemService.GetLatestItemByItemNumber(item.name);
+                            }
+                            catch (Exception)
+                            {
+                            }
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            mItem = mWsMgr.ItemService.GetLatestItemByItemNumber(item.id);
+                        }
+                        catch (Exception)
+                        {
+                        }
+                    }
+
+                    if (mItem != null)
+                    {
+                        ACW.ItemFileAssoc itemFileAssoc = mWsMgr.ItemService.GetItemFileAssociationsByItemIds(new long[] { mItem.Id }, ItemFileLnkTypOpt.Primary).FirstOrDefault();
+                        if (itemFileAssoc?.Cloaked == false)
+                        {
+                            mFile = mWsMgr.DocumentService.GetFileById(itemFileAssoc.CldFileId);
+                            if (mFile != null && mIsFileTypeSupported(mFile))
+                            {
+                                //get the latest version of the file
+                                mFile = mWsMgr.DocumentService.GetLatestFileByMasterId(mFile.MasterId);
+                                VDF.Vault.Currency.Entities.FileIteration mFileIt = new VDF.Vault.Currency.Entities.FileIteration(conn, mFile);
+                                mVaultFiles.Add(mFileIt);
+                            }
+                        }
                     }
                 }
             }
@@ -251,18 +284,10 @@ namespace InvPlmAddIn.Utils
                         }
                     }
                 }
-                //get file by full file name (Vault location + file name are PLM fields)
+
                 if (item.entityType == "plm-item")
                 {
-                    mFile = mWsMgr.DocumentService.FindLatestFilesByPaths(new string[] { item.parentFolder + "/" + item.name }).FirstOrDefault();
-                    if (mFile != null)
-                    {
-                        mPartNumber = mWsMgr.PropertyService.GetProperties("FILE", new long[] { mFile.Id }, new long[] { mPropDef.Id }).FirstOrDefault().Val.ToString();
-                        if (mPartNumber.IsNullOrEmpty() == false)
-                        {
-                            mPartNumbers.Add(mPartNumber);
-                        }
-                    }
+                    mPartNumbers.Add(item.id);
                 }
             }
 
@@ -292,7 +317,7 @@ namespace InvPlmAddIn.Utils
 
                 //download
                 VDF.Vault.Results.AcquireFilesResults results = conn.FileManager.AcquireFiles(settings);
-                
+
                 //capture primary file name for return (download may include children and attachments)
                 if (results.FileResults != null)
                 {
@@ -361,6 +386,80 @@ namespace InvPlmAddIn.Utils
                 return iterationId;
             }
             return -1;
+        }
+
+        /// <summary>
+        /// Search for a file by 1 to many search criteria as property/value pairs. 
+        /// Downloads the first file found, if the search result lists more than a single file. Dependents and attachments are included. Overwrites existing files.
+        /// Preset Search Operator Options: [Property] is (exactly) [Value]; multiple conditions link up using AND/OR condition, depending MatchAllCriteria = True/False
+        /// Returns the file name downloaded (does not return names of downloaded children and attachments). 
+        /// </summary>
+        /// <param name="SearchCriteria">Dictionary of property/value pairs</param>
+        /// <param name="MatchAllCriteria">Optional. Switches AND/OR conditions using multiple criterias. Default is true</param>
+        /// <param name="CheckOut">Optional. File downloaded does NOT check-out as default</param>
+        /// <param name="FoldersSearched">Optional. Limit search scope to given folder path(s).</param>
+        /// <returns>Webservice File Object</returns>
+        private static ACW.File GetFileBySearchCriteria(Dictionary<string, string> SearchCriteria, bool MatchAllCriteria = true, bool CheckOut = false, string[] FoldersSearched = null)
+        {
+            //FoldersSearched: Inventor files are expected in IPJ registered path's only. In case of null use these:
+            ACW.Folder[] mFldr;
+            List<long> mFolders = new List<long>();
+            if (FoldersSearched != null)
+            {
+                mFldr = conn.WebServiceManager.DocumentService.FindFoldersByPaths(FoldersSearched);
+                foreach (ACW.Folder folder in mFldr)
+                {
+                    if (folder.Id != -1) mFolders.Add(folder.Id);
+                }
+            }
+
+            List<String> mFilesFound = new List<string>();
+            List<String> mFilesDownloaded = new List<string>();
+            //combine all search criteria
+            List<ACW.SrchCond> mSrchConds = CreateSrchConds(SearchCriteria, MatchAllCriteria);
+            List<ACW.File> totalResults = new List<ACW.File>();
+            string bookmark = string.Empty;
+            ACW.SrchStatus status = null;
+
+            while (status == null || totalResults.Count < status.TotalHits)
+            {
+                ACW.File[] mSrchResults = conn.WebServiceManager.DocumentService.FindFilesBySearchConditions(
+                    mSrchConds.ToArray(), null, mFolders.ToArray(), true, true, ref bookmark, out status);
+                if (mSrchResults != null) totalResults.AddRange(mSrchResults);
+                else break;
+            }
+            //if results not empty
+            if (totalResults.Count >= 1)
+            {
+                ACW.File wsFile = totalResults.First<ACW.File>();
+                return wsFile;
+            }
+
+            return null;
+        }
+
+        private static List<ACW.SrchCond> CreateSrchConds(Dictionary<string, string> SearchCriteria, bool MatchAllCriteria)
+        {
+            ACW.PropDef[] mFilePropDefs = conn.WebServiceManager.PropertyService.GetPropertyDefinitionsByEntityClassId("FILE");
+            //iterate mSearchcriteria to get property definitions and build AWS search criteria
+            List<ACW.SrchCond> mSrchConds = new List<ACW.SrchCond>();
+            int i = 0;
+            foreach (var item in SearchCriteria)
+            {
+                ACW.PropDef mFilePropDef = mFilePropDefs.Single(n => n.DispName == item.Key);
+                ACW.SrchCond mSearchCond = new ACW.SrchCond();
+                {
+                    mSearchCond.PropDefId = mFilePropDef.Id;
+                    mSearchCond.PropTyp = ACW.PropertySearchType.SingleProperty;
+                    mSearchCond.SrchOper = 3; //equals
+                    if (MatchAllCriteria) mSearchCond.SrchRule = ACW.SearchRuleType.Must;
+                    else mSearchCond.SrchRule = ACW.SearchRuleType.May;
+                    mSearchCond.SrchTxt = item.Value;
+                }
+                mSrchConds.Add(mSearchCond);
+                i++;
+            }
+            return mSrchConds;
         }
 
     }

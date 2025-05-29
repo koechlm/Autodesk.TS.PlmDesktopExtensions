@@ -83,7 +83,7 @@ namespace InvPlmAddIn.Model
             var result = new List<string>();
 
             var dic = new Dictionary<string, object>();
-            //dic = mCastToDicOfVaultEntities(numbers);
+            //dic = mCastToDicOfVaultEntities(parameters);
 
             CallILogic("GetComponentsLocked", ref dic);
             await Task.FromResult(dic);
@@ -99,7 +99,7 @@ namespace InvPlmAddIn.Model
             }
         }
 
-        public async Task addComponent(object[] numbers)
+        public static async Task addComponent(string[] parameters)
         {
             //show wait form and wait cursor
             mWaitForm = new Forms.WaitForm1(InvPlmAddinSrv.mTheme, "Downloading Component(s)...");
@@ -107,10 +107,12 @@ namespace InvPlmAddIn.Model
             Cursor.Current = Cursors.WaitCursor;
 
             var EntityIds = new Dictionary<string, mVaultEntity>();
-            EntityIds = mCastToDicOfVaultEntities(numbers);
+            // legacy: parameters had been an array of Part Numbers //EntityIds = mCastToDicOfVaultEntities(parameters);
+            EntityIds.Add("0", mCastToVaultEntity(parameters));
 
             //download files from Vault
-            List<string> mDownloadedFiles = VaultUtils.mDownloadRelatedFiles(EntityIds);
+            List<string> mDownloadedFiles = new List<string>();
+            mDownloadedFiles = VaultUtils.mDownloadRelatedFiles(EntityIds);
 
             // check and feedback to user if the download was successful
             if (mDownloadedFiles.Count == 0)
@@ -138,7 +140,7 @@ namespace InvPlmAddIn.Model
             mWaitForm.Dispose();
         }
 
-        public static async Task openComponent(string parameters)
+        public static async Task openComponent(string[] parameters)
         {
             // Initialize the progress form
             mWaitForm = new Forms.WaitForm1(InvPlmAddinSrv.mTheme, "Downloading Component(s)...");
@@ -146,10 +148,12 @@ namespace InvPlmAddIn.Model
             Cursor.Current = Cursors.WaitCursor;
 
             var EntityIds = new Dictionary<string, mVaultEntity>();
-            EntityIds = mCastToDicOfVaultEntities(parameters);
+            // legacy: parameters had been an array of Part Numbers //EntityIds = mCastToDicOfVaultEntities(parameters);
+            EntityIds.Add("0", mCastToVaultEntity(parameters));
 
             // download files from Vault
-            List<string> mDownloadedFiles = VaultUtils.mDownloadRelatedFiles(EntityIds);
+            List<string> mDownloadedFiles = new List<string>();
+            mDownloadedFiles = VaultUtils.mDownloadRelatedFiles(EntityIds);
 
             // check and feedback to user if the download was successful
             if (mDownloadedFiles.Count == 0)
@@ -177,44 +181,53 @@ namespace InvPlmAddIn.Model
             mWaitForm.Dispose();
         }
 
-        public async Task selectComponents(object[] numbers)
+        public static async Task selectComponent(string[] parameters)
         {
             BrowserPanelWindowManager.mSelectionSender = "PLM";
 
             var EntityIds = new Dictionary<string, mVaultEntity>();
-            EntityIds = mCastToDicOfVaultEntities(numbers);
+            EntityIds.Add("0", mCastToVaultEntity(parameters));
 
             //get instance names (=file names, not extension) from Vault using mVaultEntity.entityType
-            List<string> mPartNumbers = VaultUtils.mGetPartNumbers(EntityIds);
+            List<string> mPartNumbers = new List<string>();
+            mPartNumbers = VaultUtils.mGetPartNumbers(EntityIds);
 
-            var dic = new Dictionary<string, object>
+            if (mPartNumbers.Count != 0)
             {
-                ["PartNumbers"] = mPartNumbers.ToArray()
-            };
+                var dic = new Dictionary<string, object>
+                {
+                    ["PartNumbers"] = mPartNumbers.ToArray()
+                };
 
-            CallILogic("SelectComponents", ref dic);
-            await Task.CompletedTask;
+                CallILogic("SelectComponents", ref dic);
+                await Task.CompletedTask;
+            }
 
             BrowserPanelWindowManager.mSelectionSender = "Inventor";
         }
 
-        public async Task isolateComponents(object[] numbers)
+        public static async Task isolateComponent(string[] parameters)
         {
             BrowserPanelWindowManager.mSelectionSender = "PLM";
 
             var EntityIds = new Dictionary<string, mVaultEntity>();
-            EntityIds = mCastToDicOfVaultEntities(numbers);
+            EntityIds.Add("0", mCastToVaultEntity(parameters));
 
             //get instance names (=file names, not extension) from Vault using mVaultEntity.entityType
-            List<string> mPartNumbers = VaultUtils.mGetPartNumbers(EntityIds);
+            List<string> mPartNumbers = new List<string>();
+            mPartNumbers = VaultUtils.mGetPartNumbers(EntityIds);
 
-            var dic = new Dictionary<string, object>
+            if (mPartNumbers.Count != 0)
             {
-                ["PartNumbers"] = mPartNumbers.ToArray()
-            };
 
-            CallILogic("IsolateComponents", ref dic);
-            await Task.CompletedTask;
+                var dic = new Dictionary<string, object>
+                {
+                    ["PartNumbers"] = mPartNumbers.ToArray()
+                };
+
+                CallILogic("IsolateComponents", ref dic);
+                await Task.CompletedTask;
+            }
 
             BrowserPanelWindowManager.mSelectionSender = "Inventor";
         }
@@ -269,11 +282,11 @@ namespace InvPlmAddIn.Model
                             entityType = mItems[0],
                             id = mItems[1],
                             name = mItems[2],
-                            parentFolder = mItems[3]
+                            masterId = mItems[3]
                         };
 
                         // Ensure all properties are not null before adding to the list
-                        if (number.entityType != null && number.id != null && number.name != null && number.parentFolder != null)
+                        if (number.entityType != null && number.id != null && number.name != null && number.masterId != null)
                         {
                             dic.Add(number.id, number);
                         }
@@ -288,6 +301,50 @@ namespace InvPlmAddIn.Model
             }
 
             return dic;
+        }
+
+        /// <summary>
+        /// Cast parameters to mVaultEntity objects.
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        private static mVaultEntity mCastToVaultEntity(string[] parameters)
+        {
+            if (parameters == null)
+            {
+                return null;
+            }
+
+            //parameters are expected to be in the format: "source(entitytype);id;name/number;masterId or URN"
+
+            switch (parameters[0])
+            {
+                case "file":
+                    return new mVaultEntity
+                    {
+                        entityType = "file",
+                        id = parameters[1],
+                        name = parameters[2],
+                        masterId = parameters[3]
+                    };
+                case "item":
+                    return new mVaultEntity
+                    {
+                        entityType = "item",
+                        id = parameters[1],
+                        name = parameters[2],
+                        masterId = string.Empty // Item does not have a masterId
+                    };
+                case "plm-item":
+                    return new mVaultEntity
+                    {
+                        entityType = "plm-item",
+                        id = parameters[1],
+                        name = parameters[2]
+                    };
+                default:
+                    return null;
+            }
         }
 
         /// <summary>
@@ -332,43 +389,44 @@ namespace InvPlmAddIn.Model
             await Task.CompletedTask;
         }
 
-        public static void test(string parameters)
-        {
-            Cursor.Current = Cursors.WaitCursor;
-
-            var EntityIds = new Dictionary<string, mVaultEntity>();
-            EntityIds = mCastToDicOfVaultEntities(parameters);
-
-            // download files from Vault
-            List<string> mDownloadedFiles = VaultUtils.mDownloadRelatedFiles(EntityIds);
-
-            // check and feedback to user if the download was successful
-            if (mDownloadedFiles.Count == 0)
-            {
-                AdskTsVaultUtils.Messages.ShowError("No files were downloaded.", InvPlmAddinSrv.AddInName);
-
-                return;
-            }
-
-            //hand over file list (successfully downloaded files) to iLogic for insertion
-            var dic = new Dictionary<string, object>()
-            {
-                ["DownloadedFiles"] = mDownloadedFiles
-            };
-
-            CallILogic("OpenComponent", ref dic);
-
-            Cursor.Current = Cursors.Default;
-        }
-
         internal static void HandleJsMessage(string message)
         {
             // call the task openComponent
 
-            string parameters = message.Substring(message.IndexOf(":") + 1);
-            string mNumber = "01-0290";
+            String[]? mMessageArray = message?.ToString()?.Split(":");
+            if (mMessageArray?.Length > 1)
+            {
+                String mCommand = mMessageArray[0];
+                String mParameters = mMessageArray[1];
+                String[] mParametersArray = mParameters.Split(";");
 
-            test(mNumber);
+                switch (mCommand)
+                {
+                    case "addComponent":
+                        _ = addComponent(mParametersArray);
+                        break;
+                    case "openComponent":
+                        _ = openComponent(mParametersArray);
+                        break;
+                    case "selectComponent":
+                        _ = selectComponent(mParametersArray);
+                        break;
+                    case "isolateComponent":
+                        _ = isolateComponent(mParametersArray);
+                        break;
+                    case "gotoVaultFile":
+                        //gotoVaultFile(mParametersArray);
+                        break;
+                    case "gotoVaultItem":
+                        //gotoVaultItem(mParametersArray);
+                        break;
+                    case "gotoVaultECO":
+                        //gotoVaultECO(mParametersArray);
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     }
 }
