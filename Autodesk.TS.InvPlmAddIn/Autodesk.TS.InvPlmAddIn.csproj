@@ -115,9 +115,9 @@
     <Content Include="Resources\autodesk-vault-plm-16x16.png" />
     <Content Include="Resources\autodesk-vault-plm-32x32.ico" />
     <Content Include="Resources\autodesk-vault-plm-32x32.png" />
-    <Content Include="SDK Refs\Adsk.Ts.VaultUtils.xml" />
-    <Content Include="SDK Refs\Autodesk.iLogic.Interfaces.xml" />
-    <Content Include="SDK Refs\Autodesk.Inventor.Interop.xml" />
+    <Content Include="..\SDK Refs\Adsk.Ts.VaultUtils.xml" />
+    <Content Include="..\SDK Refs\Autodesk.iLogic.Interfaces.xml" />
+    <Content Include="..\SDK Refs\Autodesk.Inventor.Interop.xml" />
     <Content Include="InvPlmAddInSettings.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -209,16 +209,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.txt" />
-    <None Include="SDK Refs\Adsk.Ts.VaultUtils.Core.dll" />
-    <None Include="SDK Refs\Adsk.Ts.VaultUtils.dll" />
-    <None Include="SDK Refs\Autodesk.Connectivity.WebServices.dll" />
-    <None Include="SDK Refs\Autodesk.DataManagement.Client.Framework.dll" />
-    <None Include="SDK Refs\Autodesk.DataManagement.Client.Framework.Forms.dll" />
-    <None Include="SDK Refs\Autodesk.DataManagement.Client.Framework.Vault.dll" />
-    <None Include="SDK Refs\Autodesk.DataManagement.Client.Framework.Vault.Forms.dll" />
-    <None Include="SDK Refs\Autodesk.iLogic.Automation.dll" />
-    <None Include="SDK Refs\Autodesk.iLogic.Interfaces.dll" />
-    <None Include="SDK Refs\Autodesk.Inventor.Interop.dll" />
+    <None Include="..\SDK Refs\Adsk.Ts.VaultUtils.Core.dll" />
+    <None Include="..\SDK Refs\Adsk.Ts.VaultUtils.dll" />
+    <None Include="..\SDK Refs\Autodesk.Connectivity.WebServices.dll" />
+    <None Include="..\SDK Refs\Autodesk.DataManagement.Client.Framework.dll" />
+    <None Include="..\SDK Refs\Autodesk.DataManagement.Client.Framework.Forms.dll" />
+    <None Include="..\SDK Refs\Autodesk.DataManagement.Client.Framework.Vault.dll" />
+    <None Include="..\SDK Refs\Autodesk.DataManagement.Client.Framework.Vault.Forms.dll" />
+    <None Include="..\SDK Refs\Autodesk.iLogic.Automation.dll" />
+    <None Include="..\SDK Refs\Autodesk.iLogic.Interfaces.dll" />
+    <None Include="..\SDK Refs\Autodesk.Inventor.Interop.dll" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DevExpress.Win.Design" Version="24.1.6" />
@@ -227,36 +227,36 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Adsk.Ts.VaultUtils">
-      <HintPath>SDK Refs\Adsk.Ts.VaultUtils.dll</HintPath>
+      <HintPath>..\SDK Refs\Adsk.Ts.VaultUtils.dll</HintPath>
       <Private>True</Private>
       <EmbedInteropTypes></EmbedInteropTypes>
     </Reference>
     <Reference Include="Autodesk.Connectivity.Explorer.Extensibility">
-      <HintPath>SDK Refs\Autodesk.Connectivity.Explorer.Extensibility.dll</HintPath>
+      <HintPath>..\SDK Refs\Autodesk.Connectivity.Explorer.Extensibility.dll</HintPath>
     </Reference>
     <Reference Include="Autodesk.Connectivity.Explorer.ExtensibilityTools">
-      <HintPath>SDK Refs\Autodesk.Connectivity.Explorer.ExtensibilityTools.dll</HintPath>
+      <HintPath>..\SDK Refs\Autodesk.Connectivity.Explorer.ExtensibilityTools.dll</HintPath>
     </Reference>
     <Reference Include="Autodesk.Connectivity.WebServices">
-      <HintPath>SDK Refs\Autodesk.Connectivity.WebServices.dll</HintPath>
+      <HintPath>..\SDK Refs\Autodesk.Connectivity.WebServices.dll</HintPath>
     </Reference>
     <Reference Include="Autodesk.DataManagement.Client.Framework">
-      <HintPath>SDK Refs\Autodesk.DataManagement.Client.Framework.dll</HintPath>
+      <HintPath>..\SDK Refs\Autodesk.DataManagement.Client.Framework.dll</HintPath>
     </Reference>
     <Reference Include="Autodesk.DataManagement.Client.Framework.Forms">
-      <HintPath>SDK Refs\Autodesk.DataManagement.Client.Framework.Forms.dll</HintPath>
+      <HintPath>..\SDK Refs\Autodesk.DataManagement.Client.Framework.Forms.dll</HintPath>
     </Reference>
     <Reference Include="Autodesk.DataManagement.Client.Framework.Vault">
-      <HintPath>SDK Refs\Autodesk.DataManagement.Client.Framework.Vault.dll</HintPath>
+      <HintPath>..\SDK Refs\Autodesk.DataManagement.Client.Framework.Vault.dll</HintPath>
     </Reference>
     <Reference Include="Autodesk.DataManagement.Client.Framework.Vault.Forms">
-      <HintPath>SDK Refs\Autodesk.DataManagement.Client.Framework.Vault.Forms.dll</HintPath>
+      <HintPath>..\SDK Refs\Autodesk.DataManagement.Client.Framework.Vault.Forms.dll</HintPath>
     </Reference>
     <Reference Include="Autodesk.iLogic.Automation">
-      <HintPath>SDK Refs\Autodesk.iLogic.Automation.dll</HintPath>
+      <HintPath>..\SDK Refs\Autodesk.iLogic.Automation.dll</HintPath>
     </Reference>
     <Reference Include="Autodesk.iLogic.Interfaces">
-      <HintPath>SDK Refs\Autodesk.iLogic.Interfaces.dll</HintPath>
+      <HintPath>..\SDK Refs\Autodesk.iLogic.Interfaces.dll</HintPath>
     </Reference>
     <Reference Include="Autodesk.Inventor.Interop">
       <HintPath Condition="Exists('$(programfiles)\Autodesk\Inventor 2025\Bin')">$(programfiles)\Autodesk\Inventor 2025\Bin\Autodesk.Inventor.Interop.dll</HintPath>
@@ -264,7 +264,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Connectivity.Application.VaultBase">
-      <HintPath>SDK Refs\Connectivity.Application.VaultBase.dll</HintPath>
+      <HintPath>..\SDK Refs\Connectivity.Application.VaultBase.dll</HintPath>
     </Reference>
     <Reference Include="DevExpress.Data.Desktop.v24.1">
       <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Data.Desktop.v24.1.dll</HintPath>
