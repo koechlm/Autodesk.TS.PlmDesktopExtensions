@@ -66,7 +66,7 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
         }
 
         // The event handler to auto-close the login dialog when the login is successful
-        private void CoreWebView2_WebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
+        private void CoreWebView2_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
             string message = e.TryGetWebMessageAsString();
             if (message == "Login successful")

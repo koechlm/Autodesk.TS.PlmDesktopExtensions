@@ -32,7 +32,7 @@ namespace Autodesk.TS.VltPlmAddIn.Utils
     [XmlRoot("settings")]
     public class Settings
     {
-        private static string? mOptionName = null;
+        private static string mOptionName = null;
 
         [XmlElement("FmExtensionUrl")]
         public string FmExtensionUrl;

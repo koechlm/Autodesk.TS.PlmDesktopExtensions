@@ -19,7 +19,7 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
         private static string mRelURL = "/tasks?&theme=";
 
         //register the JavaScript interoperability class
-        internal JavaScriptInterop? JavaScriptInterop { get; set; } = null;
+        internal JavaScriptInterop JavaScriptInterop { get; set; } = null;
 
         public WebViewFmTasks()
         {
@@ -54,7 +54,7 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
             FmTasks.CoreWebView2.WebMessageReceived += FmTasks_WebMessageReceived;
         }
 
-        private void FmTasks_GotFocus(object? sender, EventArgs e)
+        private void FmTasks_GotFocus(object sender, EventArgs e)
         {
             String mURL = VaultExplorerExtension.mFmExtensionUrl + mRelURL + VaultExplorerExtension.mCurrentTheme.ToLower() + "&host=Vault";
             Navigate(mURL);
@@ -66,7 +66,7 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
             FmTasks.Source = uri;
         }
 
-        private void FmTasks_WebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
+        private void FmTasks_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
             // Handle the message received from the web view
             string message = e.TryGetWebMessageAsString();

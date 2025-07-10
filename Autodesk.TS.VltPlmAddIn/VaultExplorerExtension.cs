@@ -45,53 +45,53 @@ namespace Autodesk.TS.VltPlmAddIn
         // Capture the current theme on startup
         internal static string mCurrentTheme = "light";
 
-        internal static Connection? conn { get; set; }
+        internal static Connection conn { get; set; }
 
-        internal static IApplication? mApplication { get; set; }
+        internal static IApplication mApplication { get; set; }
 
-        internal static string? mFmExtensionUrl { get; set; }
+        internal static string mFmExtensionUrl { get; set; }
 
         internal static NavigationSender? mSender { get; set; }
 
-        ISelection? selection = null;
+        ISelection selection = null;
 
         // track the Autodesk Account login status
         bool mIsLoggedIn = false;
 
         #region IExplorerExtension Members
 
-        IEnumerable<CommandSite>? IExplorerExtension.CommandSites()
+        IEnumerable<CommandSite> IExplorerExtension.CommandSites()
         {
             return null;
         }
 
-        IEnumerable<CustomEntityHandler>? IExplorerExtension.CustomEntityHandlers()
+        IEnumerable<CustomEntityHandler> IExplorerExtension.CustomEntityHandlers()
         {
             return null;
         }
 
-        IEnumerable<DetailPaneTab>? IExplorerExtension.DetailTabs()
+        IEnumerable<DetailPaneTab> IExplorerExtension.DetailTabs()
         {
             return null;
         }
 
-        IEnumerable<DockPanel>? IExplorerExtension.DockPanels()
+        IEnumerable<DockPanel> IExplorerExtension.DockPanels()
         {
             // Create a DockPanel list to return from method
             List<DockPanel> mDockPanels = new List<DockPanel>();
 
             // Create a dock panels for Vault/Fusion Manage Search, ITem/BOM and Tasks
-            DockPanel? mPanelSearch = new DockPanel(Guid.Parse("E2B3E9C6-80B2-4FED-8DF5-08E8C830E31E"),
+            DockPanel mPanelSearch = new DockPanel(Guid.Parse("E2B3E9C6-80B2-4FED-8DF5-08E8C830E31E"),
                                                 "Vault PLM | Search", typeof(WebViewFmSearch));
             mDockPanels.Add(mPanelSearch);
 
-            DockPanel? mPanelItemDetails = new DockPanel(Guid.Parse("31DB4F79-84D5-4D67-A109-5807563BE133"),
+            DockPanel mPanelItemDetails = new DockPanel(Guid.Parse("31DB4F79-84D5-4D67-A109-5807563BE133"),
                                                 "Vault PLM | Item Details", typeof(WebViewFmItem));
             // Add event handler for selection changed event; the content of the panel needs to update accordingly.
             mPanelItemDetails.SelectionChanged += mPanelItemDetails_SelectionChanged;
             mDockPanels.Add(mPanelItemDetails);
 
-            DockPanel? mPanelTasks = new DockPanel(Guid.Parse("7B5E20B1-C3FD-42FB-8955-A8D57D2015B2"),
+            DockPanel mPanelTasks = new DockPanel(Guid.Parse("7B5E20B1-C3FD-42FB-8955-A8D57D2015B2"),
                                                 "Vault PLM | Tasks", typeof(WebViewFmTasks));
             //no event handler for now: the content is the personal tasks of the user and not related to the selected object in Vault
             mDockPanels.Add(mPanelTasks);
@@ -100,7 +100,7 @@ namespace Autodesk.TS.VltPlmAddIn
             return mDockPanels;
         }
 
-        IEnumerable<string>? IExplorerExtension.HiddenCommands()
+        IEnumerable<string> IExplorerExtension.HiddenCommands()
         {
             return null;
         }
@@ -133,7 +133,7 @@ namespace Autodesk.TS.VltPlmAddIn
 
             // adding FM panels requires an Autodesk Account Login
             XtraFormFmLogin mFmLogin = new XtraFormFmLogin(mCurrentTheme);
-            IWin32Window? mParent = mApplication as IWin32Window;
+            IWin32Window mParent = mApplication as IWin32Window;
             mFmLogin.StartPosition = FormStartPosition.Manual;
             mFmLogin.Location = new Point(0, 0);
             mFmLogin.TopMost = true;
@@ -149,12 +149,12 @@ namespace Autodesk.TS.VltPlmAddIn
 
         #region custom methods
 
-        private void ThemeChanged(object? sender, Library.UITheme e)
+        private void ThemeChanged(object sender, Library.UITheme e)
         {
             mCurrentTheme = VDF.Forms.Library.CurrentTheme.ToString().ToLower();
         }
 
-        private void mPanelItemDetails_SelectionChanged(object? sender, DockPanelSelectionChangedEventArgs? e)
+        private void mPanelItemDetails_SelectionChanged(object sender, DockPanelSelectionChangedEventArgs e)
         {
             if (mSender as NavigationSender? == NavigationSender.FMExtension)
             {
@@ -176,12 +176,12 @@ namespace Autodesk.TS.VltPlmAddIn
                 return;
             }
 
-            string? mItemNumber = "";
+            string mItemNumber = "";
 
             if (selection.TypeId.EntityClassId == "FILE")
             {
                 // Look of the File object.  How we do this depends on what is selected.
-                Item? mItem = null;
+                Item mItem = null;
                 if (selection.TypeId == SelectionTypeId.File)
                 {
                     // our ISelection.Id is a File.MasterId
@@ -203,7 +203,7 @@ namespace Autodesk.TS.VltPlmAddIn
 
             if (selection.TypeId.EntityClassId == "ITEM")
             {
-                ACW.Item? mItem = conn?.WebServiceManager.ItemService.GetLatestItemByItemNumber(selection.Label);
+                ACW.Item mItem = conn?.WebServiceManager.ItemService.GetLatestItemByItemNumber(selection.Label);
                 mItemNumber = mItem?.ItemNum;
             }
 

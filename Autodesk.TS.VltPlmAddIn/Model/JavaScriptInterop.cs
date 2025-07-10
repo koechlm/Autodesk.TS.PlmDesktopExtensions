@@ -10,10 +10,10 @@ namespace Autodesk.TS.VltPlmAddIn.Model
 {
     internal class JavaScriptInterop
     {
-        private Navigation? _navigation;
-        private WebViewFmItem? webViewFmItem;
-        private WebViewFmSearch? webViewFmSearch;
-        private WebViewFmTasks? webViewFmTasks;
+        private Navigation _navigation;
+        private WebViewFmItem webViewFmItem;
+        private WebViewFmSearch webViewFmSearch;
+        private WebViewFmTasks webViewFmTasks;
 
         public JavaScriptInterop(WebViewFmItem webViewFmItem)
         {
@@ -32,7 +32,7 @@ namespace Autodesk.TS.VltPlmAddIn.Model
 
         public void handleJsMessage(string message)
         {
-            String[]? mMessageArray = message?.ToString()?.Split(":");
+            String[] mMessageArray = message?.ToString()?.Split(":");
             if (mMessageArray?.Length > 1)
             {
                 String mCommand = mMessageArray[0];
@@ -42,10 +42,10 @@ namespace Autodesk.TS.VltPlmAddIn.Model
                 switch (mCommand)
                 {
                     case "addComponent":
-                        _ = addComponent(mParametersArray);
+                        addComponent(mParametersArray);
                         break;
-                    case "openComponents":
-                        _ = openComponent(mParametersArray);
+                    case "openComponent":
+                        openComponent(mParametersArray);
                         break;
                     case "gotoVaultFile":
                         gotoVaultFile(mParametersArray);
@@ -63,21 +63,19 @@ namespace Autodesk.TS.VltPlmAddIn.Model
         }
 
         // This method is called from JavaScript to add components to Inventor _application
-        public async Task addComponent(string[] parameters)
+        public void addComponent(string[] parameters)
         {
-            await Task.Run(() =>
-            {
-                // Add components to Inventor _application
-            });
+                if (_navigation == null)
+                    _navigation = new Navigation();
+                _navigation.addComponent(parameters);
         }
 
         // This method is called from JavaScript to open components from Inventor _application
-        public async Task openComponent(string[] parameters)
+        public void openComponent(string[] parameters)
         {
-            await Task.Run(() =>
-            {
-                // Open components from Inventor _application
-            });
+                if (_navigation == null)
+                    _navigation = new Navigation();
+                _navigation.openComponent(parameters);
         }
 
         // This method is called from JavaScript to navigate to the parameters in Vault

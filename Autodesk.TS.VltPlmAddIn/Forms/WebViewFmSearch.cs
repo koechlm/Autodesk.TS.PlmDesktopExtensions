@@ -19,7 +19,7 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
         private static string mRelURL = "/pdm-search?&theme=";
 
         //register the JavaScript interoperability class
-        internal JavaScriptInterop? JavaScriptInterop { get; set; } = null;
+        internal JavaScriptInterop JavaScriptInterop { get; set; } = null;
 
         public WebViewFmSearch()
         {
@@ -54,7 +54,7 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
             FmSearch.CoreWebView2.WebMessageReceived += FmSearch_WebMessageReceived;
         }
 
-        private void FmSearch_GotFocus(object? sender, EventArgs e)
+        private void FmSearch_GotFocus(object sender, EventArgs e)
         {
             String mURL = VaultExplorerExtension.mFmExtensionUrl + mRelURL + VaultExplorerExtension.mCurrentTheme.ToLower() + "&host=Vault";
             Navigate(mURL);
@@ -66,7 +66,7 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
             FmSearch.Source = uri;
         }
 
-        private void FmSearch_WebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
+        private void FmSearch_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
             // Handle the message received from the web view
             string message = e.TryGetWebMessageAsString();

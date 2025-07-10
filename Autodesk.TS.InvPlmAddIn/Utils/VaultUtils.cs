@@ -305,7 +305,7 @@ namespace InvPlmAddIn.Utils
             return false;
         }
 
-        private static List<string> DownloadFiles(List<VDF.Vault.Currency.Entities.FileIteration> mVaultFiles)
+        internal static List<string> DownloadFiles(List<VDF.Vault.Currency.Entities.FileIteration> mVaultFiles)
         {
             List<String> mFilesDownloaded = new List<string>();
 

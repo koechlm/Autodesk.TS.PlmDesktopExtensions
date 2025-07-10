@@ -50,7 +50,7 @@ namespace Autodesk.TS.VltPlmAddIn.Forms
             FmItem.Source = uri;
         }
 
-        private void FmItem_WebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
+        private void FmItem_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
             // Handle the message received from the web view
             string message = e.TryGetWebMessageAsString();
