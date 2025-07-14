@@ -11,6 +11,14 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ACW = Autodesk.Connectivity.WebServices;
+using Autodesk.Connectivity.Explorer.Extensibility;
+using Autodesk.Connectivity.Explorer.ExtensibilityTools;
+using VDF = Autodesk.DataManagement.Client.Framework;
+using VDFV = Autodesk.DataManagement.Client.Framework.Vault;
+using VltBase = Connectivity.Application.VaultBase;
+using static DevExpress.XtraPrinting.Native.ExportOptionsPropertiesNames;
+
 
 namespace InvPlmAddIn.Model
 {
@@ -18,9 +26,17 @@ namespace InvPlmAddIn.Model
     [ComVisible(true)]
     public class HostObject
     {
+
+        private static VDF.Vault.Currency.Connections.Connection _conn = null;
+        private static IExplorerUtil _explorerUtil = null;
+        private static string _navigationSource = null;
+
         public HostObject(BrowserPanelWindowManager panelManager)
         {
             ApplicationPanelSet = panelManager;
+
+            _conn = VltBase.ConnectionManager.Instance.Connection;
+            _explorerUtil = ExplorerLoader.LoadExplorerUtil(_conn.Server, _conn.Vault, _conn.UserID, _conn.Ticket);
         }
 
         public HostObject(DocumentPanelSet documentPanelSet = null)
@@ -50,6 +66,7 @@ namespace InvPlmAddIn.Model
             // values represent per type: file = File.MasterId, item = "", plm-item = urn
             public string masterId { get; set; }
         }
+
 
         /// <summary>
         /// PLM call to query active document; optionally check against contextId
@@ -230,6 +247,115 @@ namespace InvPlmAddIn.Model
             }
 
             BrowserPanelWindowManager.mSelectionSender = "Inventor";
+        }
+
+        public static async Task selectInstance(string[] parameters)
+        {
+            // reserved for future use
+            // This method is currently not implemented in the iLogic rule.
+            // It can be used to select a specific instance of a component in the assembly.
+            // For now, it simply returns without doing anything.
+            var dic = new Dictionary<string, object>
+            {
+                ["Parameters"] = parameters
+            };
+            //CallILogic("SelectInstance", ref dic);
+            await Task.CompletedTask;
+        }
+
+        public static async Task isolateInstance(string[] parameters)
+        {
+            // reserved for future use
+            // This method is currently not implemented in the iLogic rule.
+            // It can be used to isolate a specific instance of a component in the assembly.
+            // For now, it simply returns without doing anything.
+            var dic = new Dictionary<string, object>
+            {
+                ["Parameters"] = parameters
+            };
+            //CallILogic("IsolateInstance", ref dic);
+            await Task.CompletedTask;
+        }
+
+        public static void gotoVaultFile(string[] parameters)
+        {
+            ACW.File mFile = null;
+
+            // get the fileId from the parameters; search for the file, if the fileId is not valid
+            mFile = GetFileByParameters(parameters);
+
+            // finally navigate to the file, goto navigation targets the main view, mFile should be the tip version
+            if (mFile != null)
+            {
+                _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.FileIteration(_conn, mFile));
+            }
+        }
+
+        public static void gotoVaultItem(string[] parameters)
+        {
+            _navigationSource = parameters[0];
+            ACW.Item item = null;
+
+            if (_navigationSource == "file")
+            {
+                //get the mItem of the file
+                try
+                {
+                    //item = _conn?.WebServiceManager.ItemService.GetItemsByFileIdAndLinkTypeOptions(long.Parse(parameters[1]), ACW.ItemFileLnkTypOpt.Primary).FirstOrDefault();
+                    item = _conn?.WebServiceManager.ItemService.GetItemsByFileId(long.Parse(parameters[1])).FirstOrDefault();
+                    _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
+                    return;
+                }
+                catch (Exception)
+                {
+                    // todo: Vault error message;
+                }
+            }
+
+            // navigate to the mItem using itemrevision
+            if (_navigationSource == "item")
+            {
+                try
+                {
+                    item = _conn?.WebServiceManager.ItemService.GetLatestItemByItemNumber(parameters[2]);
+                    _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
+                    return;
+                }
+                catch (Exception)
+                {
+                    // todo: Vault error message;
+                }
+            }
+
+            // navigate to the mItem using plm mItem number
+            if (_navigationSource == "plm-item")
+            {
+                // try the direct path if the itemrevision is defined
+                if (parameters[1] != "undefined")
+                {
+                    try
+                    {
+                        item = _conn?.WebServiceManager.ItemService.GetLatestItemByItemNumber(parameters[1]);
+                        _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
+                        return;
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        item = _conn?.WebServiceManager.ItemService.GetLatestItemByItemNumber(parameters[2].Split(" - ")[0]);
+                        _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
+                        return;
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+            }
         }
 
         public async Task setLifecycleState(string folderName, string targetStateName)
@@ -415,10 +541,10 @@ namespace InvPlmAddIn.Model
                         _ = isolateComponent(mParametersArray);
                         break;
                     case "gotoVaultFile":
-                        //gotoVaultFile(mParametersArray);
+                        gotoVaultFile(mParametersArray);
                         break;
                     case "gotoVaultItem":
-                        //gotoVaultItem(mParametersArray);
+                        gotoVaultItem(mParametersArray);
                         break;
                     case "gotoVaultECO":
                         //gotoVaultECO(mParametersArray);
@@ -426,6 +552,98 @@ namespace InvPlmAddIn.Model
                     default:
                         break;
                 }
+            }
+        }
+
+        internal static ACW.File GetFileByParameters(string[] parameters)
+        {
+            _navigationSource = parameters[0];
+            long fileId = -1;
+            long fileMasterId = -1;
+            ACW.File mFile = null;
+
+            // get the fileId from the parameters; search for the file, if the fileId is not valid
+            // the FM Search panel may return Vault Items, Files or Fusion Manage Items
+            if (_navigationSource == "item")
+            {
+                mFile = GetPrimaryFile(parameters[2]);
+                mFile = _conn?.WebServiceManager.DocumentService.GetLatestFileByMasterId(mFile.MasterId);
+            }
+            if (_navigationSource == "plm-item")
+            {
+                // try the direct path if the itemrevision is defined
+                if (parameters[1] != "undefined")
+                {
+                    ACW.Item mItem = _conn?.WebServiceManager.ItemService.GetLatestItemByItemNumber(parameters[1]);
+                    mFile = GetPrimaryFile(mItem.ItemNum);
+                    mFile = _conn?.WebServiceManager.DocumentService.GetLatestFileByMasterId(mFile.MasterId);
+                }
+                else
+                {
+                    ACW.Item mItem = _conn?.WebServiceManager.ItemService.GetLatestItemByItemNumber(parameters[2].Split(" - ")[0]);
+                    mFile = GetPrimaryFile(mItem.ItemNum);
+                    mFile = _conn?.WebServiceManager.DocumentService.GetLatestFileByMasterId(mFile.MasterId);
+                }
+            }
+            if (_navigationSource == "file")
+            {
+                fileId = long.Parse(parameters[1]);
+                fileMasterId = long.Parse(parameters[3]);
+                if (fileId != -1)
+                {
+                    try
+                    {
+                        mFile = _conn?.WebServiceManager.DocumentService.GetFileById(fileId);
+                        if (mFile == null)
+                        {
+                            // try to get the latest file by masterId
+                            mFile = _conn?.WebServiceManager.DocumentService.GetLatestFileByMasterId(mFile.MasterId);
+                        }
+                        return mFile;
+                    }
+                    catch (Exception)
+                    {
+                        if (fileMasterId != -1)
+                        {
+                            try
+                            {
+                                mFile = _conn?.WebServiceManager.DocumentService.GetLatestFileByMasterId(fileMasterId);
+                                return mFile;
+                            }
+                            catch (Exception)
+                            {
+                                return null;
+                            }
+                        }
+                    }
+                }
+                return null;
+            }
+            return mFile;
+        }
+
+        internal static ACW.File GetPrimaryFile(string ItemNumber)
+        {
+            ACW.Item mItem = null;
+            ACW.File mFile = null;
+            mItem = _conn.WebServiceManager.ItemService.GetLatestItemByItemNumber(ItemNumber);
+            if (mItem != null)
+            {
+                ACW.ItemFileAssoc[] itemFileAssocs = _conn?.WebServiceManager.ItemService.GetItemFileAssociationsByItemIds(new long[] { mItem.Id }, ACW.ItemFileLnkTypOpt.Primary);
+                if (itemFileAssocs != null && itemFileAssocs.Any())
+                {
+                    long fileId = itemFileAssocs.First().CldFileId;
+                    mFile = _conn?.WebServiceManager.DocumentService.GetFileById(fileId);
+                    return mFile;
+                }
+
+                // todo: Vault error message no primary file
+                return null;
+            }
+            else
+            {
+                // todo: Vault error message no item ;
+                return null;
             }
         }
     }

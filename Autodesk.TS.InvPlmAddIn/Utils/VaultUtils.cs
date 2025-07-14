@@ -98,7 +98,7 @@ namespace InvPlmAddIn.Utils
             }
         }
 
-        internal static WebServiceManager GetConnection()
+        internal static WebServiceManager GetWebSrvMgr()
         {
             WebServiceManager webServiceManager = null;
             conn = VltBase.ConnectionManager.Instance.Connection;
@@ -118,7 +118,7 @@ namespace InvPlmAddIn.Utils
         {
             if (conn == null || conn?.Ticket == "" || mWsMgr == null)
             {
-                mWsMgr = GetConnection();
+                mWsMgr = GetWebSrvMgr();
                 if (mWsMgr == null)
                 {
                     AdskTsVaultUtils.Messages.ShowWarning("The AddIn could not reuse the Vault connection. \n Unload/Load the Inventor Vault plm Addin and try again.", InvPlmAddinSrv.AddInName);
