@@ -277,87 +277,6 @@ namespace InvPlmAddIn.Model
             await Task.CompletedTask;
         }
 
-        public static void gotoVaultFile(string[] parameters)
-        {
-            ACW.File mFile = null;
-
-            // get the fileId from the parameters; search for the file, if the fileId is not valid
-            mFile = GetFileByParameters(parameters);
-
-            // finally navigate to the file, goto navigation targets the main view, mFile should be the tip version
-            if (mFile != null)
-            {
-                _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.FileIteration(_conn, mFile));
-            }
-        }
-
-        public static void gotoVaultItem(string[] parameters)
-        {
-            _navigationSource = parameters[0];
-            ACW.Item item = null;
-
-            if (_navigationSource == "file")
-            {
-                //get the mItem of the file
-                try
-                {
-                    //item = _conn?.WebServiceManager.ItemService.GetItemsByFileIdAndLinkTypeOptions(long.Parse(parameters[1]), ACW.ItemFileLnkTypOpt.Primary).FirstOrDefault();
-                    item = _conn?.WebServiceManager.ItemService.GetItemsByFileId(long.Parse(parameters[1])).FirstOrDefault();
-                    _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
-                    return;
-                }
-                catch (Exception)
-                {
-                    // todo: Vault error message;
-                }
-            }
-
-            // navigate to the mItem using itemrevision
-            if (_navigationSource == "item")
-            {
-                try
-                {
-                    item = _conn?.WebServiceManager.ItemService.GetLatestItemByItemNumber(parameters[2]);
-                    _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
-                    return;
-                }
-                catch (Exception)
-                {
-                    // todo: Vault error message;
-                }
-            }
-
-            // navigate to the mItem using plm mItem number
-            if (_navigationSource == "plm-item")
-            {
-                // try the direct path if the itemrevision is defined
-                if (parameters[1] != "undefined")
-                {
-                    try
-                    {
-                        item = _conn?.WebServiceManager.ItemService.GetLatestItemByItemNumber(parameters[1]);
-                        _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
-                        return;
-                    }
-                    catch (Exception)
-                    {
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        item = _conn?.WebServiceManager.ItemService.GetLatestItemByItemNumber(parameters[2].Split(" - ")[0]);
-                        _explorerUtil?.GoToEntity(new VDFV.Currency.Entities.ItemRevision(_conn, item));
-                        return;
-                    }
-                    catch (Exception)
-                    {
-                    }
-                }
-            }
-        }
-
         public async Task setLifecycleState(string folderName, string targetStateName)
         {
             var dic = new Dictionary<string, object>
@@ -541,13 +460,13 @@ namespace InvPlmAddIn.Model
                         _ = isolateComponent(mParametersArray);
                         break;
                     case "gotoVaultFile":
-                        gotoVaultFile(mParametersArray);
+                        // GoToEntity() targets the Vault client context only
                         break;
                     case "gotoVaultItem":
-                        gotoVaultItem(mParametersArray);
+                        // GoToEntity() targets the Vault client context only
                         break;
                     case "gotoVaultECO":
-                        //gotoVaultECO(mParametersArray);
+                        // GoToEntity() targets the Vault client context only
                         break;
                     default:
                         break;
