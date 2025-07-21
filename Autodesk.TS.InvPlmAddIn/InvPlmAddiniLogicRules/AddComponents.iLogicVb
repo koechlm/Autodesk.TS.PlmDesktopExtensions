@@ -68,47 +68,15 @@ Public Class AddComponents
             Exit Sub
         End If
 
-        'use cases 1 and 2.x expect an assembly context
-        If ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kAssemblyDocumentObject Then
-            mAsmDoc = ThisApplication.ActiveDocument
+        If mDownloadedFiles.Count > 0 Then
 
-            'use case 1
-            If mDownloadedFiles.Count > 0 Then
+            Dim result As Boolean = False
+            result = mProcessFiles(mDownloadedFiles)
+            If result = False Then
+                AdskTsVaultUtils.Messages.ShowError("The rule 'AddComponents' finished with errors providing all components for interactive placement. " + vbLf + vbLf + "Please review the iLogic Log Panel for details. ", "iLogic-Vault")
+            End If
 
-                Dim result As Boolean = False
-                result = mProcessFiles(mDownloadedFiles)
-                If result = False Then
-                    AdskTsVaultUtils.Messages.ShowError("The rule 'AddComponents' finished with errors providing all components for interactive placement. " + vbLf + vbLf + "Please review the iLogic Log Panel for details. ", "iLogic-Vault")
-                End If
-
-            End If 'use case 1
-
-            'moved to separate rule; use case 2: (Mindmap: Type InstancePath)
-            'moved to separate rule; use case 2.1 (Mindmap: Type PartnumberPath)
-
-            Exit Sub
-        End If  'assembly context for use cases 1 and 2
-
-        'use case 3: expecting part context
-        If ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kPartDocumentObject Then
-            mPrtDoc = ThisApplication.ActiveDocument
-
-            Exit Sub
-        End If 'use case 3
-
-        'use case 4:
-        If ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kPresentationDocumentObject Then
-            Dim mIpnDoc As Inventor.Document = ThisApplication.ActiveDocument
-
-            Exit Sub
-        End If 'use case 4
-
-        'use case 5:
-        If ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kDrawingDocumentObject Then
-            Dim mDrwDoc As Inventor.Document = ThisApplication.ActiveDocument
-
-            Exit Sub
-        End If 'use case 5
+        End If
 
     End Sub
 
@@ -122,7 +90,38 @@ Public Class AddComponents
         Dim mDone As Boolean
 
         For Each mFile As String In mLocalFiles
-            mDone = mInteractiveAdd(mFile)
+
+            'use cases 1 and 2.x expect an assembly context
+            If ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kAssemblyDocumentObject Then
+
+                mDone = mAsmPlaceComp(mFile)
+
+            End If  'assembly context for use cases 1 and 2
+
+            'use case 3: expecting part context
+            If ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kPartDocumentObject Then
+
+                mDone = mPartInsertDerivedComp(mFile)
+
+            End If 'use case 3
+
+            'use case 4:
+            If ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kPresentationDocumentObject Then
+
+                'only the file extension IAM is supported for the presentation place component command
+                If mFile.EndsWith(".iam", StringComparison.OrdinalIgnoreCase) Then
+                    mDone = mPresPlaceComp(mFile)
+                End If
+
+            End If 'use case 4
+
+            'use case 5:
+            If ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kDrawingDocumentObject Then
+
+                mDone = mDrawPlaceView(mFile)
+
+            End If 'use case 5
+
             If mDone <> True Then Logger.Error("The user interactive component placement for component [" + mFile + "] stopped unhandled.")
         Next
 
@@ -131,7 +130,7 @@ Public Class AddComponents
     End Function
 
     'function to call Inventor place component command as user interaction
-    Function mInteractiveAdd(LocalFullFileName As String) As Boolean
+    Function mAsmPlaceComp(LocalFullFileName As String) As Boolean
 
         Dim mCmdMgr As Inventor.CommandManager = ThisApplication.CommandManager
         mCmdMgr.PostPrivateEvent(Inventor.PrivateEventTypeEnum.kFileNameEvent, LocalFullFileName)
@@ -140,7 +139,71 @@ Public Class AddComponents
         mCtrlDef.Execute2(True)
 
         Return True
+    End Function
 
+    'function to call Inventor derive component command as user interaction
+    Function mPartInsertDerivedComp(LocalFullFileName As String) As Boolean
+
+        Dim mCmdMgr As Inventor.CommandManager = ThisApplication.CommandManager
+        mCmdMgr.PostPrivateEvent(Inventor.PrivateEventTypeEnum.kFileNameEvent, LocalFullFileName)
+
+        Dim mCtrlDef As Inventor.ControlDefinition = mCmdMgr.ControlDefinitions("PartDerivedComponentCmd")
+        mCtrlDef.Execute2(True)
+
+        Return True
+    End Function
+
+    'function to call Inventor place component in presentation command as user interaction
+    Function mPresPlaceComp(LocalFullFileName As String) As Boolean
+
+        Dim mCmdMgr As Inventor.CommandManager = ThisApplication.CommandManager
+        mCmdMgr.PostPrivateEvent(Inventor.PrivateEventTypeEnum.kFileNameEvent, LocalFullFileName)
+
+        ' only the file extension IAM is supported for the presentation place component command
+        If Not LocalFullFileName.EndsWith(".iam", StringComparison.OrdinalIgnoreCase) Then
+            Dim mMessage As String = "The file [" + LocalFullFileName + "] is not a valid assembly file for the presentation place component command. Only .iam files are supported."
+            Logger.Error(mMessage)
+            AdskTsVaultUtils.Messages.ShowError(mMessage, "iLogic-Vault")
+            Return False
+        End If
+
+        'add the component to the active scene, if the top model is null, otherwise create a new scene
+        Dim mPresDoc As PresentationDocument = ThisApplication.ActiveDocument
+        Dim mSceneComp As PresentationComponent
+        Dim mTopScnCompExists As Boolean = False
+        Try
+            mSceneComp = mPresDoc.ActiveScene.TopSceneComponent
+            mTopScnCompExists = True
+        Catch ex As Exception
+            mTopScnCompExists = False
+        End Try
+        If mTopScnCompExists = False Then
+            'Insert the model into the current scene'
+            mCtrlDef = mCmdMgr.ControlDefinitions("PublisherInsertModelCmd")
+        Else
+            'insert the model into a new scene
+            mCtrlDef = mCmdMgr.ControlDefinitions("PublisherCreatePublicationCmd")
+        End If
+        'execute the insertion
+        mCtrlDef.Execute2(True)
+
+        'zoom all
+        mCtrlDef = mCmdMgr.ControlDefinitions("AppSteeringWheelFitWindowCmd")
+        mCtrlDef.Execute2(True)
+
+        Return True
+    End Function
+
+    'function to call Inventor place view command as user interaction
+    Function mDrawPlaceView(LocalFullFileName As String) As Boolean
+
+        Dim mCmdMgr As Inventor.CommandManager = ThisApplication.CommandManager
+        mCmdMgr.PostPrivateEvent(Inventor.PrivateEventTypeEnum.kFileNameEvent, LocalFullFileName)
+
+        Dim mCtrlDef As Inventor.ControlDefinition = mCmdMgr.ControlDefinitions("DrawingBaseViewCmd")
+        mCtrlDef.Execute2(True)
+
+        Return True
     End Function
 
 #End Region
