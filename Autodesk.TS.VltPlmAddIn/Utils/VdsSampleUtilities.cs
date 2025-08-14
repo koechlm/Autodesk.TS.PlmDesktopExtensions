@@ -613,7 +613,7 @@ namespace Autodesk.TS.VltPlmAddIn.Utils
             // Try to get an active instance of Inventor
             try
             {
-                return  MarshalCore.GetActiveObject("Inventor.Application") as Inventor.Application;
+                return MarshalCore.GetActiveObject("Inventor.Application") as Inventor.Application;
             }
             catch
             {
@@ -650,25 +650,80 @@ namespace Autodesk.TS.VltPlmAddIn.Utils
         public static void m_PlaceComponent(object m_InvApp, String m_CompFullFileName)
         {
             m_Inv = (Inventor.Application)m_InvApp;
-            if (m_Inv.ActiveDocumentType == DocumentTypeEnum.kAssemblyDocumentObject)
-            {
-                try
-                {
-                    m_InvCmdMgr = m_Inv.CommandManager;
-                    m_InvCmdMgr.PostPrivateEvent(PrivateEventTypeEnum.kFileNameEvent, m_CompFullFileName);
-                    Inventor.ControlDefinition m_InvCtrlDef = (ControlDefinition)m_InvCmdMgr.ControlDefinitions["AssemblyPlaceComponentCmd"];
-                    //bring Inventor to front
-                    IntPtr mWinPt = (IntPtr)m_Inv.MainFrameHWND;
-                    SwitchToThisWindow(mWinPt, true);
-                    m_InvCtrlDef.Execute();
-                }
-                catch
-                {
+            Inventor.ControlDefinition m_InvCtrlDef = null;
 
+            if (m_Inv != null)
+            {
+                m_InvCmdMgr = m_Inv.CommandManager;
+                m_InvCmdMgr.PostPrivateEvent(PrivateEventTypeEnum.kFileNameEvent, m_CompFullFileName);
+
+                // insert components IPT or IAM into active assembly document
+                if (m_Inv.ActiveDocumentType == DocumentTypeEnum.kAssemblyDocumentObject)
+                {
+                    m_InvCtrlDef = (ControlDefinition)m_InvCmdMgr.ControlDefinitions["AssemblyPlaceComponentCmd"];
+                }
+
+                // insert components to part environments as derived components
+                if (m_Inv.ActiveDocumentType == DocumentTypeEnum.kPartDocumentObject)
+                {
+                    m_InvCtrlDef = (ControlDefinition)m_InvCmdMgr.ControlDefinitions["PartDerivedComponentCmd"];
+                }
+
+                // insert components to presentation environments scene model
+                if (m_Inv.ActiveDocumentType == DocumentTypeEnum.kPresentationDocumentObject)
+                {
+                    Inventor.PresentationDocument mPresDoc = (Inventor.PresentationDocument)m_Inv.ActiveDocument;
+                    Inventor.PresentationComponent mSceneComp;
+                    bool mSceneCompExists = false;
+
+                    // check that the current scene model is not empty
+                    try
+                    {
+                        mSceneComp = mPresDoc.ActiveScene.TopSceneComponent;
+                        mSceneCompExists = true;
+                    }
+                    catch (Exception)
+                    {
+                        mSceneCompExists = false;
+                    }
+                    if (mSceneCompExists == false)
+                    {
+                        // insert the model into the current scene
+                        m_InvCtrlDef = (ControlDefinition)m_InvCmdMgr.ControlDefinitions["PublisherInsertModelCmd"];
+                    }
+                    else
+                    {
+                        // insert the model into a new scene
+                        m_InvCtrlDef = (ControlDefinition)m_InvCmdMgr.ControlDefinitions["PublisherCreatePublicationCmd"];
+                    }                        
+                }
+
+                // insert components as new base view for drawing documents
+                if (m_Inv.ActiveDocumentType == DocumentTypeEnum.kDrawingDocumentObject)
+                {
+                    m_InvCtrlDef = (ControlDefinition)m_InvCmdMgr.ControlDefinitions["DrawingBaseViewCmd"];
+                }
+
+                //bring Inventor to front and run the user command
+                if (m_InvCtrlDef == null)
+                {
+                    try
+                    {
+                        IntPtr mWinPt = (IntPtr)m_Inv.MainFrameHWND;
+                        SwitchToThisWindow(mWinPt, true);
+                        m_InvCtrlDef.Execute();
+
+                        // zoom all
+                        m_InvCtrlDef = (ControlDefinition)m_InvCmdMgr.ControlDefinitions["AppSteeringWheelFitWindowCmd"];
+                        m_InvCtrlDef.Execute();
+                    }
+                    catch (Exception ex)
+                    {
+                        // Vault AddIn will catch the exception and display it in the VDF Error dialog                        
+                    }
                 }
             }
         }
-
 
         /// <summary>
         /// validate active Factory Design Utility AddIn
