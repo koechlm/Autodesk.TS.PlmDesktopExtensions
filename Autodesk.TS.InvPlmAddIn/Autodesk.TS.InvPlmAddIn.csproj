@@ -111,6 +111,9 @@
     <Compile Include="Utils\VaultUtils.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="autodesk-vault-plm-16x16.ico">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\autodesk-vault-plm-16x16.ico" />
     <Content Include="Resources\autodesk-vault-plm-16x16.png" />
     <Content Include="Resources\autodesk-vault-plm-32x32.ico" />
