@@ -28,7 +28,7 @@ namespace InvPlmAddIn.Model
     {
 
         private static VDF.Vault.Currency.Connections.Connection _conn = null;
-        private static IExplorerUtil _explorerUtil = null;
+        //private static IExplorerUtil _explorerUtil = null;
         private static string _navigationSource = null;
 
         public HostObject(BrowserPanelWindowManager panelManager)
@@ -36,7 +36,7 @@ namespace InvPlmAddIn.Model
             ApplicationPanelSet = panelManager;
 
             _conn = VltBase.ConnectionManager.Instance.Connection;
-            _explorerUtil = ExplorerLoader.LoadExplorerUtil(_conn.Server, _conn.Vault, _conn.UserID, _conn.Ticket);
+            //_explorerUtil = ExplorerLoader.LoadExplorerUtil(_conn.Server, _conn.Vault, _conn.UserID, _conn.Ticket);
         }
 
         public HostObject(DocumentPanelSet documentPanelSet = null)
