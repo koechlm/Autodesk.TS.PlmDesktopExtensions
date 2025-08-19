@@ -1,0 +1,19 @@
+﻿Public Sub Main
+	break
+	Dim mContext As String = RuleArguments("contextId")
+	If mContext <> Nothing
+		'build file->folder links for change tasks found in Vault
+		Dim mContextNr As String = mContext.Split(" - ").FirstOrDefault()
+		If mContextNr .StartsWith("CT-")
+			Dim map As Inventor.NameValueMap = ThisApplication.TransientObjects.CreateNameValueMap()
+			map.Add("TargetFolder", mContextNr)
+			iLogicVb.RunExternalRule("createFileLink", map)
+		End If
+	End If
+
+	Dim mActiveDoc As Inventor.Document = ThisApplication.ActiveDocument
+	If mActiveDoc.DocumentType = Inventor.DocumentTypeEnum.kAssemblyDocumentObject Or mActiveDoc.DocumentType = Inventor.DocumentTypeEnum.kPartDocumentObject then
+		RuleArguments.Arguments.Add("Result", iProperties.Value("Project", "Part Number"))
+	End If
+
+End Sub

@@ -1,0 +1,203 @@
+﻿AddReference "Adsk.Ts.VaultUtils.dll"
+AddReference "System.XML"
+'use case 1: active document = Assembly, mDownloadedFiles provides local full file names: start the Insert the component command allowing user interactive positioning or iMate consumption
+'use case 2: moved to rule AddComponentsBy4x4Matrix
+' - ToDo: use case 3: active document = part: start the insert derived component workflow
+' - ToDo: use case 4: active document = presentation: add the component to the active scene
+' - ToDo: use case 5: active document = drawing: insert new drawing view of the given component
+
+Public Class AddComponents
+#Region "global declaration"
+
+    Private mPath As String
+    Private mFileName As String
+    Private mCounter As Long = 0
+    Private mLastNode, mParentNode As Xml.XmlElement
+    Private mXmlDoc As New Xml.XmlDocument
+    Private mXmlFileName As String
+    Private mPrtDoc As PartDocument
+    Private mAsmDoc As AssemblyDocument
+
+    'variables to build an occurrence cache
+    Private mCacheFullFileName As String 'local full filename for assemblies = name of SharedVariable for the cached occurrences
+    'Private mOccAll As List(Of Inventor.ComponentOccurrence)
+    Private mPartNumOccs As New Dictionary(Of String, List(Of Inventor.ComponentOccurrence)) 'lists of occurrences linked to an individual part number;
+
+    Private mCompPrtNums As List(Of String) = New List(Of String)
+    Private mInstancePaths As List(Of String) = New List(Of String)
+    Private mPrtNumPaths As List(Of String) = New List(Of String)
+
+    Private Class mOccData
+        Public Property Name As String 'browser name as Inventor naming default: = file name/number:x
+        Public Property PartNumber As String 'iProperty Part Number
+        Public Property ModelState As String 'model state name
+        Public Property Path As String 'assembly path of an instance, e.g. Assembly1 | Subassy2:3; Path + InstName reflect the full path of an individual instance proxy			
+        Public Matrix As Inventor.Matrix  '4x4 transformation matrix in database units = [cm]
+    End Class
+
+    Private Class mBomRow
+        Public Property InstName As String
+        Public Property PartNumber As String
+        Public Property Qty As Integer
+        Public Property Pos As String
+        Public Property Path As String
+        Public Property InstMatrix As Inventor.Matrix 'in database units = [cm]
+    End Class
+
+#End Region
+
+    Public Sub main()
+        break
+
+        Dim mDownloadedFiles As List(Of String) = RuleArguments("DownloadedFiles")
+        Dim mDialogCaption As String = "Vault plm Inventor/iLogic Rule 'AddComponents'"
+        Dim mMessage As String = Nothing
+
+        If mDownloadedFiles Is NothingThen Then 'Or mDownloadedFiles.Length = 0 Then
+            mMessage = "Missing RuleArgument value(s) [DownloadedFiles]"
+            Logger.Error(mMessage)
+            AdskTsVaultUtils.Messages.ShowError(mMessage, mDialogCaption)
+            Exit Sub
+        End If
+
+        'Validate user's login state
+        If iLogicVault.LoggedIn = False Then
+            mMessage = "Not Logged In to Vault! - Login first and repeat your last command calling this rule."
+            Logger.Error(mMessage)
+            AdskTsVaultUtils.Messages.ShowError(mMessage, mDialogCaption)
+            Exit Sub
+        End If
+
+        If mDownloadedFiles.Count > 0 Then
+
+            Dim result As Boolean = False
+            result = mProcessFiles(mDownloadedFiles)
+            If result = False Then
+                AdskTsVaultUtils.Messages.ShowError("The rule 'AddComponents' finished with errors providing all components for interactive placement. " + vbLf + vbLf + "Please review the iLogic Log Panel for details. ", "iLogic-Vault")
+            End If
+
+        End If
+
+    End Sub
+
+
+#Region "Interactive placement of components"
+
+    'function to process the downloaded files for interactive placement
+    Function mProcessFiles(mLocalFiles As List(Of String)) As Boolean
+
+        Dim success As Boolean = True
+        Dim mDone As Boolean
+
+        For Each mFile As String In mLocalFiles
+
+            'use cases 1 and 2.x expect an assembly context
+            If ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kAssemblyDocumentObject Then
+
+                mDone = mAsmPlaceComp(mFile)
+
+            End If  'assembly context for use cases 1 and 2
+
+            'use case 3: expecting part context
+            If ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kPartDocumentObject Then
+
+                mDone = mPartInsertDerivedComp(mFile)
+
+            End If 'use case 3
+
+            'use case 4:
+            If ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kPresentationDocumentObject Then
+
+                'only the file extension IAM is supported for the presentation place component command
+                If mFile.EndsWith(".iam", StringComparison.OrdinalIgnoreCase) Then
+                    mDone = mPresPlaceComp(mFile)
+                End If
+
+            End If 'use case 4
+
+            'use case 5:
+            If ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kDrawingDocumentObject Then
+
+                mDone = mDrawPlaceView(mFile)
+
+            End If 'use case 5
+
+            If mDone <> True Then Logger.Error("The user interactive component placement for component [" + mFile + "] stopped unhandled.")
+        Next
+
+        Return success
+
+    End Function
+
+    'function to call Inventor place component command as user interaction
+    Function mAsmPlaceComp(LocalFullFileName As String) As Boolean
+
+        Dim mCmdMgr As Inventor.CommandManager = ThisApplication.CommandManager
+        mCmdMgr.PostPrivateEvent(Inventor.PrivateEventTypeEnum.kFileNameEvent, LocalFullFileName)
+
+        Dim mCtrlDef As Inventor.ControlDefinition = mCmdMgr.ControlDefinitions("AssemblyPlaceComponentCmd")
+        mCtrlDef.Execute2(True)
+
+        Return True
+    End Function
+
+    'function to call Inventor derive component command as user interaction
+    Function mPartInsertDerivedComp(LocalFullFileName As String) As Boolean
+
+        Dim mCmdMgr As Inventor.CommandManager = ThisApplication.CommandManager
+        mCmdMgr.PostPrivateEvent(Inventor.PrivateEventTypeEnum.kFileNameEvent, LocalFullFileName)
+
+        Dim mCtrlDef As Inventor.ControlDefinition = mCmdMgr.ControlDefinitions("PartDerivedComponentCmd")
+        mCtrlDef.Execute2(True)
+
+        Return True
+    End Function
+
+    'function to call Inventor place component in presentation command as user interaction
+    Function mPresPlaceComp(LocalFullFileName As String) As Boolean
+
+        Dim mCmdMgr As Inventor.CommandManager = ThisApplication.CommandManager
+        mCmdMgr.PostPrivateEvent(Inventor.PrivateEventTypeEnum.kFileNameEvent, LocalFullFileName)
+
+        'add the component to the active scene, if the top model is null, otherwise create a new scene
+        Dim mPresDoc As PresentationDocument = ThisApplication.ActiveDocument
+        Dim mSceneComp As PresentationComponent
+        Dim mTopScnCompExists As Boolean = False
+        Try
+            mSceneComp = mPresDoc.ActiveScene.TopSceneComponent
+            mTopScnCompExists = True
+        Catch ex As Exception
+            mTopScnCompExists = False
+        End Try
+        If mTopScnCompExists = False Then
+            'Insert the model into the current scene'
+            mCtrlDef = mCmdMgr.ControlDefinitions("PublisherInsertModelCmd")
+        Else
+            'insert the model into a new scene
+            mCtrlDef = mCmdMgr.ControlDefinitions("PublisherCreatePublicationCmd")
+        End If
+        'execute the insertion
+        mCtrlDef.Execute2(True)
+
+        'zoom all
+        mCtrlDef = mCmdMgr.ControlDefinitions("AppSteeringWheelFitWindowCmd")
+        mCtrlDef.Execute2(True)
+
+        Return True
+    End Function
+
+    'function to call Inventor place view command as user interaction
+    Function mDrawPlaceView(LocalFullFileName As String) As Boolean
+
+        Dim mCmdMgr As Inventor.CommandManager = ThisApplication.CommandManager
+        mCmdMgr.PostPrivateEvent(Inventor.PrivateEventTypeEnum.kFileNameEvent, LocalFullFileName)
+
+        Dim mCtrlDef As Inventor.ControlDefinition = mCmdMgr.ControlDefinitions("DrawingBaseViewCmd")
+        mCtrlDef.Execute2(True)
+
+        Return True
+    End Function
+
+#End Region
+
+End Class

@@ -88,25 +88,45 @@
   <ItemGroup>
     <Compile Include="Forms\DockableWindowWebView.cs" />
     <Compile Include="Forms\DockableWindowWebView.Designer.cs" />
-    <Compile Include="StandardAddInServer.cs" />
+    <Compile Include="Forms\PlmExtensionLogin.cs" />
+    <Compile Include="Forms\PlmExtensionLogin.Designer.cs" />
+    <Compile Include="Forms\WaitForm1.cs" />
+    <Compile Include="Forms\WaitForm1.Designer.cs" />
+    <Compile Include="Model\BrowserPanelWindow.cs" />
+    <Compile Include="Model\BrowserPanelWindowManager.cs" />
+    <Compile Include="Model\BrowserPanelWindowOptions.cs" />
+    <Compile Include="Model\DocumentPanelSet.cs" />
+    <Compile Include="Model\HostObject.cs" />
+    <Compile Include="Model\KeyValue.cs" />
+    <Compile Include="Model\PanelOptions.cs" />
+    <Compile Include="Model\UpdateProperties.cs" />
+    <Compile Include="Model\WebViewHandler.cs" />
+    <Compile Include="InvPlmAddinSrv.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Utils\iLogicUtil.cs" />
     <Compile Include="Utils\Settings.cs" />
     <Compile Include="Utils\Util.cs" />
+    <Compile Include="Utils\VaultUtils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Forms\plmExtensionAddInError.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <Content Include="autodesk-vault-plm-16x16.ico">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
-    <Content Include="SDK Refs\Autodesk.iLogic.Interfaces.xml" />
-    <Content Include="SDK Refs\Autodesk.Inventor.Interop.xml" />
+    <Content Include="Resources\autodesk-vault-plm-16x16.ico" />
+    <Content Include="Resources\autodesk-vault-plm-16x16.png" />
+    <Content Include="Resources\autodesk-vault-plm-32x32.ico" />
+    <Content Include="Resources\autodesk-vault-plm-32x32.png" />
+    <Content Include="..\SDK Refs\Adsk.Ts.VaultUtils.xml" />
     <Content Include="InvPlmAddInSettings.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Forms\DockableWindowWebView.resx" />
+    <EmbeddedResource Include="Forms\PlmExtensionLogin.resx" />
+    <EmbeddedResource Include="Forms\WaitForm1.resx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Autodesk.TS.InvPlmAddIn.X.manifest" />
@@ -115,56 +135,210 @@
     <None Include="Autodesk.Autodesk.TS.InvPlmAddIn.Inventor.addin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="InvPlmAddiniLogicRules\AddComponentsBy4x4Matrix.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\AddComponents.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\assignMaterial.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\CaptureMatrix4x4-First-Level.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\createFileLink.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\getActiveDocument.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\GetComponentsLocked.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\GetOccCache.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\getSelectedComponentPaths.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\IsolateComponents.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\ManageAssemblyOnOff.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\OnDocumentClose.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\OnDocumentOpen.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\OpenComponent.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\SelectComponents.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\SetLifecycleState.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\UndoIsolateComponents.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\UpdateOccurrenceCache.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\UpdateProperties.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\_Emulate_AddComponents.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\_Emulate_GetComponentsLocked.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\_Emulate_GetOccCache.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\_InteractiveAddComp.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\_QA_callRuleWithArguments.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Readme.txt" />
-    <None Include="SDK Refs\Adsk.Ts.VaultUtils.Core.dll" />
-    <None Include="SDK Refs\Autodesk.Connectivity.WebServices.dll" />
-    <None Include="SDK Refs\Autodesk.DataManagement.Client.Framework.dll" />
-    <None Include="SDK Refs\Autodesk.DataManagement.Client.Framework.Forms.dll" />
-    <None Include="SDK Refs\Autodesk.DataManagement.Client.Framework.Vault.dll" />
-    <None Include="SDK Refs\Autodesk.DataManagement.Client.Framework.Vault.Forms.dll" />
-    <None Include="SDK Refs\Autodesk.iLogic.Automation.dll" />
-    <None Include="SDK Refs\Autodesk.iLogic.Interfaces.dll" />
-    <None Include="SDK Refs\Autodesk.Inventor.Interop.dll" />
+    <None Include="..\SDK Refs\Adsk.Ts.VaultUtils.Core.dll" />
+    <None Include="..\SDK Refs\Adsk.Ts.VaultUtils.dll" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DevExpress.Win.Design" Version="22.2.12" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2792.45" />
+    <PackageReference Include="DevExpress.Win.Design" Version="24.1.6" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1210.39" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.8" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Adsk.Ts.VaultUtils.Core">
-      <HintPath>SDK Refs\Adsk.Ts.VaultUtils.Core.dll</HintPath>
+    <Reference Include="Adsk.Ts.VaultUtils">
+      <HintPath>..\SDK Refs\Adsk.Ts.VaultUtils.dll</HintPath>
+      <Private>True</Private>
+      <EmbedInteropTypes></EmbedInteropTypes>
     </Reference>
-    <Reference Include="Autodesk.Connectivity.WebServices">
-      <HintPath>SDK Refs\Autodesk.Connectivity.WebServices.dll</HintPath>
-    </Reference>
-    <Reference Include="Autodesk.DataManagement.Client.Framework">
-      <HintPath>SDK Refs\Autodesk.DataManagement.Client.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="Autodesk.DataManagement.Client.Framework.Forms">
-      <HintPath>SDK Refs\Autodesk.DataManagement.Client.Framework.Forms.dll</HintPath>
-    </Reference>
-    <Reference Include="Autodesk.DataManagement.Client.Framework.Vault">
-      <HintPath>SDK Refs\Autodesk.DataManagement.Client.Framework.Vault.dll</HintPath>
-    </Reference>
-    <Reference Include="Autodesk.DataManagement.Client.Framework.Vault.Forms">
-      <HintPath>SDK Refs\Autodesk.DataManagement.Client.Framework.Vault.Forms.dll</HintPath>
-    </Reference>
-    <Reference Include="Autodesk.iLogic.Automation">
-      <HintPath>SDK Refs\Autodesk.iLogic.Automation.dll</HintPath>
-    </Reference>
-    <Reference Include="Autodesk.iLogic.Interfaces">
-      <HintPath>SDK Refs\Autodesk.iLogic.Interfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="Autodesk.Inventor.Interop">
-      <HintPath Condition="Exists('$(programfiles)\Autodesk\Inventor 2025\Bin')">$(programfiles)\Autodesk\Inventor 2025\Bin\Autodesk.Inventor.Interop.dll</HintPath>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
+    <Reference Include="Autodesk.Connectivity.Explorer.Extensibility">
+      <HintPath>..\SDK Refs\Autodesk.Connectivity.Explorer.Extensibility.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Autodesk.Connectivity.Explorer.ExtensibilityTools">
+      <HintPath>..\SDK Refs\Autodesk.Connectivity.Explorer.ExtensibilityTools.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Autodesk.Connectivity.WebServices">
+      <HintPath>..\SDK Refs\Autodesk.Connectivity.WebServices.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Autodesk.DataManagement.Client.Framework">
+      <HintPath>..\SDK Refs\Autodesk.DataManagement.Client.Framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Autodesk.DataManagement.Client.Framework.Forms">
+      <HintPath>..\SDK Refs\Autodesk.DataManagement.Client.Framework.Forms.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Autodesk.DataManagement.Client.Framework.Vault">
+      <HintPath>..\SDK Refs\Autodesk.DataManagement.Client.Framework.Vault.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Autodesk.DataManagement.Client.Framework.Vault.Forms">
+      <HintPath>..\SDK Refs\Autodesk.DataManagement.Client.Framework.Vault.Forms.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Autodesk.iLogic.Automation">
+      <HintPath>..\SDK Refs\Autodesk.iLogic.Automation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Autodesk.iLogic.Interfaces">
+      <HintPath>..\SDK Refs\Autodesk.iLogic.Interfaces.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Autodesk.Inventor.Interop">
+      <HintPath>..\SDK Refs\Autodesk.Inventor.Interop.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Connectivity.Application.VaultBase">
+      <HintPath>..\SDK Refs\Connectivity.Application.VaultBase.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="DevExpress.Data.Desktop.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Data.Desktop.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Data.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Data.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Docs.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Docs.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Drawing.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Drawing.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Images.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Images.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Office.v24.1.Core">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Office.v24.1.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Pdf.v24.1.Core">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Pdf.v24.1.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Pdf.v24.1.Drawing">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Pdf.v24.1.Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Printing.v24.1.Core">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Printing.v24.1.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.RichEdit.v24.1.Core">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.RichEdit.v24.1.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Sparkline.v24.1.Core">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Sparkline.v24.1.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Utils.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.Utils.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraBars.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.XtraBars.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.XtraEditors.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraGrid.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.XtraGrid.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraLayout.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.XtraLayout.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraNavBar.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.XtraNavBar.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraPrinting.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.XtraPrinting.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraRichEdit.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.XtraRichEdit.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraTreeList.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.XtraTreeList.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraVerticalGrid.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.XtraVerticalGrid.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraVerticalGrid.v24.1.Design">
+      <HintPath>..\..\..\..\..\..\Program Files\DevExpress 24.1\Components\Bin\NetCore\Design\DevExpress.XtraVerticalGrid.v24.1.Design.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraWizard.v24.1">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Autodesk Vault 2026 SDK\bin\x64\core\DevExpress.XtraWizard.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraWizard.v24.1.Design">
+      <HintPath>..\..\..\..\..\..\Program Files\DevExpress 24.1\Components\Bin\NetCore\Design\DevExpress.XtraWizard.v24.1.Design.dll</HintPath>
+    </Reference>
   </ItemGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="WHERE MT.EXE&#xD;&#xA;IF ERRORLEVEL 1 call &quot;$(DevEnvDir)..\..\VC\Auxiliary\Build\vcvarsall.bat&quot; amd64&#xD;&#xA;mt.exe -manifest &quot;$(ProjectDir)Autodesk.TS.InvPlmAddIn.X.manifest&quot; -outputresource:&quot;$(TargetPath)&quot;;#2" />
-  </Target>
 </Project>

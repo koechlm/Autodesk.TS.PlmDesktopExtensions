@@ -1,0 +1,4 @@
+﻿
+Dim map As Inventor.NameValueMap = ThisApplication.TransientObjects.CreateNameValueMap()
+map.Add("Partnumber", "CAD_30000013")
+iLogicVb.RunExternalRule("AddComponent", map)

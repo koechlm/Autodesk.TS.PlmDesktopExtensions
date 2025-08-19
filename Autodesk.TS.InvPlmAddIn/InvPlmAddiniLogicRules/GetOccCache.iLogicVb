@@ -1,0 +1,6 @@
+﻿break
+Dim mDoc As Inventor.Document = ThisApplication.ActiveDocument
+Dim mCache As String = mDoc.FullDocumentName
+If SharedVariable.Exists(mCache) = True
+	RuleArguments.Arguments.Add("Result", SharedVariable(mCache))
+End If

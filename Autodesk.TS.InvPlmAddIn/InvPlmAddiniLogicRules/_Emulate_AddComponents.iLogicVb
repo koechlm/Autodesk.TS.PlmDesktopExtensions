@@ -1,0 +1,8 @@
+﻿'--------------- use case emulation for dev ------------
+'Dim mComponentsToAdd As String() = {"CAD_30000242", "CAD_30000243" }
+Dim mComponentsToAdd As String() = {"CAD_30000237|CAD_30000240:1|CAD_30000250:1|CAD_30000287:1"}
+'Dim mComponentsToAdd As String() = {"CAD_30000000|CAD_30000026|CAD_30000067|CAD_30000074" }
+'--------------- use case emulation for dev ------------
+Dim map As Inventor.NameValueMap = ThisApplication.TransientObjects.CreateNameValueMap()
+map.Add("Partnumbers", mComponentsToAdd)
+iLogicVb.RunExternalRule("AddComponents", map)

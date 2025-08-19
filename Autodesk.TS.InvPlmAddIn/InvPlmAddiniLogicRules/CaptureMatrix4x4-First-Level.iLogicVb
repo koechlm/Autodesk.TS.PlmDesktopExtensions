@@ -1,0 +1,203 @@
+﻿AddReference "System.XML"
+''' <summary>
+''' Capture first level occurrences' transformation
+''' </summary>
+Public Class CaptureMatrix4x4
+
+	Public mPath As String
+	Public mFileName As String
+	Public mCounter As Long = 0
+	Public mLastNode, mParentNode As Xml.XmlElement
+	Public mXmlDoc As New Xml.XmlDocument
+	Public mXmlFileName As String
+
+	''' <summary>
+	''' Create/Update XML Documentation file storing all 1st level occurrences 3D Transformation Matrices
+	''' </summary>
+	Public Sub Main
+
+		'capture rule runtime
+		Dim mStart As Date = Date.Now
+
+		break
+
+		Dim mAsm As Inventor.AssemblyDocument
+		Dim mAsmComp As Inventor.AssemblyComponentDefinition
+		Dim mTG As Inventor.TransientGeometry = ThisApplication.TransientGeometry
+
+		If ThisDoc.Document.DocumentType = Inventor.DocumentTypeEnum.kAssemblyDocumentObject Then
+			mPath = ThisDoc.Path
+			mFileName = ThisDoc.FileName(False)
+			mAsm = ThisDoc.Document
+			mAsmComp = mAsm.ComponentDefinition
+		Else
+			Logger.Info("Rule & " & iLogicVb.RuleName & "exited without action; this rule runs in assembly context only.")
+			Exit Sub
+		End If
+
+		'create/update XML companion file
+		Dim mXmlExists As Boolean = mCreateTransformXML(mPath, mFileName)
+
+		If mXmlExists = True
+			mXmlDoc.Load(mXmlFileName)
+			mParentNode = mXmlDoc.DocumentElement 'the docelement is the starting point only once, the first time appending nodes
+			mLastNode = mXmlDoc.DocumentElement 'the docelement is the starting point only once, the first time appending nodes
+
+			'read/write the transformation 
+			For Each mOcc As Inventor.ComponentOccurrence In mAsmComp.Occurrences
+				mGetMatrix(mOcc)
+			Next
+
+			'save the xml file
+			mXmlDoc.Save(mXmlFileName)
+
+			'upload file as new or incremental file iteration and attach to thisdoc in Vault
+
+			If iLogicVault.LoggedIn = False
+				Logger.Error("Not Logged In to Vault! - Login first and repeat executing this rule.")
+				Exit Sub
+			End If
+
+			Dim mVaultPath As String = iLogicVault.ConvertLocalPathToVaultPath(mXmlFileName)
+			success = iLogicVault.AddFile(mXmlFileName, mVaultPath, True)
+			If (success <> True) Then
+				Logger.Error("Failed to add/update 4x4xml file to Vault")
+			Else
+				Logger.Info("Successfully created/updated 4x4xml file [" + mXmlFileName + "] and uploaded to Vault.")
+			End If
+		Else
+			Logger.Error("Rule & " & iLogicVb.RuleName & " failed to create/replace the 4x4xml file")
+		End If
+
+		'capture rule runtime
+		Dim mFinish As Date = Date.Now
+		Dim mRuntime As System.TimeSpan = mFinish.Subtract(mStart)
+		Logger.Info("Runtime Rule: " + mRuntime.Hours.ToString + ":" + mRuntime.Minutes.ToString + ":" + mRuntime.Seconds.ToString + ":" + mRuntime.Milliseconds.ToString + " [HH:mm:ss:ms]")
+
+	End Sub
+
+	''' <summary>
+	''' Create/Update XML file.
+	''' </summary>
+	''' <param name="mPath">Path of Inventor assembly file</param>
+	''' <param name="mFileName">Inventor assembly file name</param>
+	''' <returns>True/False on success/failure</returns>
+	Private Function mCreateTransformXML(ByVal mPath As String, ByVal mFileName As String) As Boolean
+		'Dim mXmlDoc As New Xml.XmlDocument
+		mXmlFileName = mPath & "\" & mFileName & ".4x4xml"
+		'clean local working folder; existing files in Vault update a new iteration
+		success = mCleanWfFile(mXmlFileName)
+		Try
+			Dim mXmlDeclaration As Xml.XmlDeclaration = mXmlDoc.CreateXmlDeclaration("1.0", "UTF-8", Nothing) 'the usual declaration header
+			' the root element reflects the Inventor file
+			Dim mRoot As Xml.XmlElement = mXmlDoc.CreateElement("InvFile_" & mFileName)
+			mXmlDoc.InsertBefore(mXmlDeclaration, mXmlDoc.DocumentElement)
+			mXmlDoc.AppendChild(mRoot)
+			mXmlDoc.Save(mXmlFileName)
+			If IO.File.Exists(mXmlFileName) Then mCreateTransformXML = True
+		Catch ex As Exception
+			mCreateTransformXML = False
+		End Try
+	End Function
+
+	''' <summary>
+	''' Deletes existing file as checked-in files may prevent overwrite.
+	''' </summary>
+	''' <param name="mFile">Filename including full path</param>
+	''' <returns>True/False on success/failure</returns>
+	Private Function mCleanWfFile(mFile As String) As Boolean
+		'Delete existing file to avoid overwrite restrictions
+		Dim oFileInfo As New System.IO.FileInfo(mFile)
+		Try
+			If oFileInfo.Exists = True Then
+				If (oFileInfo.Attributes) Then
+					oFileInfo.Attributes = (oFileInfo.Attributes And Not oFileInfo.Attributes.ReadOnly)
+					System.IO.File.Delete(mFile)
+				End If
+			End If
+			Return True
+		Catch
+			Return False
+		End Try
+	End Function
+
+	Private Function mGetMatrix(ByVal mOcc As Inventor.ComponentOccurrence) As Boolean
+		'		Dim mInvMatrix As Inventor.Matrix = mOcc.Transformation		
+		'		Dim mMatrixValues(15) As Double
+		'		Call mInvMatrix.GetMatrixData(mMatrixValues)
+		'		Dim mMatrix = ThisDoc.Geometry.Matrix()
+		'		mMatrix.InDatabaseUnits = mInvMatrix
+		Dim mMatrix As Inventor.Matrix = mOcc.Transformation
+		Dim mMatrixValues(15) As Double
+		Call mMatrix.GetMatrixData(mMatrixValues)
+
+		'write xml node for each occurrence, except virtual components
+		If mOcc.Suppressed <> True And mOcc.ReferencedDocumentDescriptor IsNot Nothing
+			mLastNode = mWrite3DTransform(mOcc, mMatrixValues) 'bear in mind, that Inventor's default unit is cm: x10 each value
+		Else
+			'logger.Info("Virtual Component: " + mOcc.Name)
+			Exit Function
+		End If
+		'		ToDo: handle mLastNode Is Nothing
+		If Not mLastNode Is Nothing
+			'			If mOcc.SubOccurrences.Count > 0 Then 'for subassemblies recursively call the sub oChk3Dtransform
+			'				Dim mSubOcc As Inventor.ComponentOccurrence = mOcc
+			'				Dim mChild As Inventor.ComponentOccurrence
+			'				'as we go deeper we need to save the parent node (XML)
+			'				Dim mLastParent As Xml.XmlElement = mLastNode.ParentNode
+			'				For Each mChild In mSubOcc.SubOccurrences
+			'					mGetMatrix(mChild)
+			'				Next
+			'				mLastNode = mLastParent
+			'			Else
+			mLastNode = mLastNode.ParentNode 'if the last node hasn't been an assembly, but a part, we need to step back one level
+			'			End If
+		Else
+			Logger.Error("Error writing transformation for " & mOcc.Name)
+			Return False
+		End If
+
+		Return True
+	End Function
+
+	Private Function mWrite3DTransform(ByVal mOcc As Inventor.ComponentOccurrence, ByVal mTransformation() As Double) As Xml.XmlElement
+		Try
+			'create node and insert
+			Dim mNode As Xml.XmlElement = mXmlDoc.CreateElement("Occurrence")
+			mNode.SetAttribute("Name", mOcc.Name)
+			'Part Number' needs to check for model state specific values
+			Try
+				mNode.SetAttribute("PartNumber", mOcc.OccurrencePropertySets.Item(1).Item("Part Number").Value)
+			Catch
+				Dim mOccDoc As Inventor.Document = mOcc.Definition.Document
+				mNode.SetAttribute("PartNumber", mOccDoc.PropertySets.Item("Design Tracking Properties").Item("Part Number").Value)
+			End Try
+			mNode.SetAttribute("ModelState", mOcc.ActiveModelState)
+			mNode.SetAttribute("C11", Math.Round(mTransformation(0), 3).ToString)
+			mNode.SetAttribute("C12", Math.Round(mTransformation(1), 3).ToString)
+			mNode.SetAttribute("C13", Math.Round(mTransformation(2), 3).ToString)
+			mNode.SetAttribute("C14", Math.Round(mTransformation(3), 3).ToString)
+			mNode.SetAttribute("C21", Math.Round(mTransformation(4), 3).ToString)
+			mNode.SetAttribute("C22", Math.Round(mTransformation(5), 3).ToString)
+			mNode.SetAttribute("C23", Math.Round(mTransformation(6), 3).ToString)
+			mNode.SetAttribute("C24", Math.Round(mTransformation(7), 3).ToString)
+			mNode.SetAttribute("C31", Math.Round(mTransformation(8), 3).ToString)
+			mNode.SetAttribute("C32", Math.Round(mTransformation(9), 3).ToString)
+			mNode.SetAttribute("C33", Math.Round(mTransformation(10), 3).ToString)
+			mNode.SetAttribute("C34", Math.Round(mTransformation(11), 3).ToString)
+			mNode.SetAttribute("C41", Math.Round(mTransformation(12), 3).ToString)
+			mNode.SetAttribute("C42", Math.Round(mTransformation(13), 3).ToString)
+			mNode.SetAttribute("C43", Math.Round(mTransformation(14), 3).ToString)
+			mNode.SetAttribute("C44", Math.Round(mTransformation(15), 3).ToString)
+
+			mLastNode.AppendChild(mNode)
+			mWrite3DTransform = mNode
+
+		Catch ex As Exception
+			Logger.Error("mWrite3DTransformation failed for Node " & mOcc.Name & ": " & ex.Message)
+			mWrite3DTransform = Nothing
+		End Try
+
+	End Function
+
+End Class

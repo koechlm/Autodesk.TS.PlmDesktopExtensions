@@ -1,0 +1,83 @@
+﻿AddReference "Adsk.Ts.VaultUtils.dll"
+Sub main
+	break
+
+	Dim mPartnumbers As String() = RuleArguments("Partnumbers")
+	Dim mPrtnmbrsLocked As List(Of String) = New List(Of String)
+
+	If mPartnumbers Is Nothing
+		Logger.Error("Rule exits due to missing rule argument 'Partnumber'")
+		AdskTsVaultUtils.Messages.ShowError("Rule exits due to missing rule argument [Partnumbers].", "iLogic-Vault")
+		Exit Sub
+	End If
+
+	'start with all partnumbers to be validated
+	mPrtnmbrsLocked.AddRange(mPartnumbers)
+
+	'Validate user's login state
+	If iLogicVault.LoggedIn = False
+		Logger.Error("Not Logged In to Vault! - Login first and repeat executing this rule.")
+		Exit Sub
+	End If
+
+
+	' a PLM BOM may reference a multi-body part - we need to handle iam and ipt differently
+	' in assembly, check the status via occurrence(s)
+	If (ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kAssemblyDocumentObject) Then
+
+		'get the current assembly's occurrence cache
+		Dim mDoc As Inventor.AssemblyDocument = ThisDoc.Document
+		If Not SharedVariable.Exists(mDoc.FullDocumentName)
+			Logger.Error("Shared Variable for Occurrence Cache not found: " + mDoc.FullDocumentName)
+			Return
+		End If
+		Dim mOccurenceCache As Dictionary(Of String, List(Of ComponentOccurrence)) = SharedVariable(mDoc.FullDocumentName)
+
+		'check each part number's related document is either checked out or available for check-out
+		Dim mUnLockedNmbrs As List(Of String) = New List(Of String)
+		For Each mNumber As String In mPrtnmbrsLocked
+			If mOccurenceCache.ContainsKey(mNumber)
+				Dim mOccDoc As Inventor.Document = mOccurenceCache.Item(mNumber).FirstOrDefault().Definition.Document
+				mLocalFileName = mOccDoc.FullDocumentName
+
+				'check the Vault status of the local file
+				Dim mDocVaultStatus As New Dictionary(Of String, String)
+				mDocVaultStatus = iLogicVault.GetVaultFileStatus(mLocalFileName)
+				If mDocVaultStatus.Item("ErrorState") = "None"
+					'validate that the file is available for check out
+					If mDocVaultStatus.Item("LockState") = "Unlocked"
+						'the file is available for check-out but not checked out
+						If mDocVaultStatus.Item("CheckOutState") = "NotCheckedOut"
+							'check out first
+						End If
+						If mDocVaultStatus.Item("CheckOutState") = "CheckedOutByCurrentUser"
+							mUnLockedNmbrs.Add(mNumber)
+						End If
+					End If
+				Else
+					Logger.Error("ErrorState = " + mDocVaultStatus.Item("ErrorState"))
+					Logger.Error("CheckOutState = " + mDocVaultStatus.Item("CheckOutState"))
+					Logger.Error("ConsumableState = " + mDocVaultStatus.Item("ConsumableState"))
+					Logger.Error("LocalEditsState = " + mDocVaultStatus.Item("LocalEditsState"))
+					Logger.Error("LockState = " + mDocVaultStatus.Item("LockState"))
+					Logger.Error("RevisionState = " + mDocVaultStatus.Item("RevisionState"))
+					Logger.Error("VersionState = " + mDocVaultStatus.Item("VersionState"))
+				End If
+			End If
+		Next
+
+		'remove all part numbers available for checkout
+		For Each mNumber In mUnLockedNmbrs
+			mPrtnmbrsLocked.Remove(mNumber)
+		Next
+
+	End If 'assembly document
+
+	'handle multi-body part file accordingly	
+	If (ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kPartDocumentObject)
+	End If
+
+	'return the remaining locked part numbers
+	RuleArguments.Arguments.Add("Result", mPrtnmbrsLocked)
+
+End Sub

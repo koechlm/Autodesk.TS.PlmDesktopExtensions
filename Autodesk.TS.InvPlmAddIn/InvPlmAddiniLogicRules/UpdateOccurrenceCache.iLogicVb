@@ -1,0 +1,4 @@
+﻿Dim mPartNumber = iProperties.Value("Project", "Part Number")
+Dim map As Inventor.NameValueMap = ThisApplication.TransientObjects.CreateNameValueMap()
+map.Add("Partnumber", mPartNumber)
+iLogicVb.RunExternalRule("OnDocumentOpen", map)

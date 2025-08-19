@@ -1,0 +1,75 @@
+﻿AddReference "Adsk.Ts.VaultUtils.dll"
+'use case: assign material to surface body in multi-body part; condition is raw material item descriptor vs. part number
+
+Public Sub Main
+	break
+
+	Dim mMaterialName As String = RuleArguments("Designator")
+	Dim mDoc As Inventor.Document = ThisApplication.ActiveDocument
+
+	If mMaterialName Is Nothing
+		Logger.Error("Rule exits due to missing rule argument 'Designator")
+		AdskTsVaultUtils.Messages.ShowError("Rule exits due to missing rule argument [Designator].", "iLogic-Vault")
+		Exit Sub
+	End If
+
+	If (ThisApplication.ActiveDocumentType <> Inventor.DocumentTypeEnum.kPartDocumentObject) 
+		Logger.Error("Rule assignMaterial is compatible with Part document type only.")
+		Exit Sub
+	End If
+	
+		Dim mPrtDoc As PartDocument = mDoc
+		Dim mCompDef As Inventor.PartComponentDefinition = mPrtDoc.ComponentDefinition
+		Dim mBodyCache As Dictionary(Of String, List(Of SurfaceBody))
+		
+		' region for Multi-Body part components
+		If mCompDef.SurfaceBodies.Count > 1 Then
+			Dim mIsRm As Boolean = mIsRawMaterial(mMaterialName)
+			If mIsRm = False Then
+				AdskTsVaultUtils.Messages.ShowError("The selected Material Designator is incompliant." + vbLf + vbLf + "Review the rule checking its compliance.", "iLogic-Vault")
+			Else
+				i = mGetNextPos(mPrtDoc.ComponentDefinition.SurfaceBodies)
+				For Each item As Object In mPrtDoc.SelectSet
+					Dim mSelectedBody As SurfaceBody
+					mSelectedBody = TryCast(item, Inventor.SurfaceBody)
+					mSelectedBody.Name = i.ToString() + "_" + mMaterialName
+					i += 10
+				Next
+			End If
+		End If	' end region Mulit-Body selection
+
+End Sub
+
+Private Function mExtractPartNumFromBodyName(Name As String)
+	Dim mNameSubStrings As String() = Name.Split("_")
+	'the name convention is: Pos_'CAD'_Number_Title_LxBxH
+	If mNameSubStrings.Length >= 3
+		Return mNameSubStrings(1) + "_" + mNameSubStrings(2)
+	End If
+	Return Nothing
+End Function
+
+Private Function mIsRawMaterial(Value As String) As Boolean
+	Dim mValueSubStrings As String() = Value.Split("-")
+	Dim mResult As Boolean = False
+	If mValueSubStrings.Length = 2
+		Return True
+	Else
+		Return False
+	End If
+End Function
+
+Private Function mGetNextPos(Bodies As Inventor.SurfaceBodies) As Integer
+	Dim mPosNumbers As System.Collections.Generic.SortedDictionary(Of String, Inventor.SurfaceBody) = New System.Collections.Generic.SortedDictionary(Of String, Inventor.SurfaceBody)
+
+	For Each mBody In Bodies
+		Dim mNameSubStrings As String() = mBody.Name.Split("_")
+		'the name convention is: Pos_'CAD'_Number_Title_LxBxH
+		If mNameSubStrings(1) = "CAD"
+			mPosNumbers.Add(mNameSubstrings(0), mBody)
+		End If
+	Next
+
+	Return CInt(mPosNumbers.LastOrDefault().Key) + 10
+
+End Function

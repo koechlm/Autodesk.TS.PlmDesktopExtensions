@@ -1,0 +1,34 @@
+﻿Imports System.Collections.Generic
+
+AddReference "Adsk.Ts.VaultUtils.dll"
+Sub main()
+
+    Dim mDownloadedFiles As List(Of String) = RuleArguments("DownloadedFiles")
+    Dim mDialogCaption As String = "Vault plm Inventor/iLogic Rule 'OpenComponents'"
+    Dim mMessage As String = Nothing
+
+    If mDownloadedFiles Is NothingThen Then 'Or mDownloadedFiles.Length = 0 Then
+        mMessage = "Missing or empty RuleArgument value(s) [DownloadedFiles]."
+        Logger.Error(mMessage)
+        AdskTsVaultUtils.Messages.ShowError(mMessage, mDialogCaption)
+        Exit Sub
+    End If
+
+    'Validate user's login state
+    If iLogicVault.LoggedIn = False Then
+        mMessage = "Not Logged In to Vault! - Login first and repeat your last command calling this rule."
+        Logger.Error(mMessage)
+        AdskTsVaultUtils.Messages.ShowError(mMessage, mDialogCaption)
+        Exit Sub
+    End If
+
+
+    If mDownloadedFiles.Count > 0 Then
+        Dim mFileList As String
+        For Each mFile As String In mDownloadedFiles
+            mFileList += mFile & vbCr
+            ThisApplication.Documents.Open(mFile, True)
+        Next
+    End If
+
+End Sub
