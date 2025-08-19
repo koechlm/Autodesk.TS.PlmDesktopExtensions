@@ -1,14 +1,14 @@
 <Addin Type="Standard">
-  <!--Created for Autodesk Inventor Version 29.0-->
+  <!--Created for Autodesk Inventor Version 30.0-->
   <ClassId>{08b0dcaa-5757-4a40-a785-c79fae87efea}</ClassId>
   <ClientId>{08b0dcaa-5757-4a40-a785-c79fae87efea}</ClientId>
   <DisplayName>Vault plm Addin for Inventor</DisplayName>
   <Description>Vault plm workflow integration for Inventor</Description>
   <Assembly>Autodesk.TS.InvPlmAddIn.dll</Assembly>
-  <LoadOnStartUp>1</LoadOnStartUp>
+  <LoadOnStartUp>0</LoadOnStartUp>
   <UserUnloadable>1</UserUnloadable>
   <Hidden>0</Hidden>
-  <SupportedSoftwareVersionGreaterThan>28..</SupportedSoftwareVersionGreaterThan>
+  <SupportedSoftwareVersionGreaterThan>29..</SupportedSoftwareVersionGreaterThan>
   <DataVersion>1</DataVersion>
   <UserInterfaceVersion>1</UserInterfaceVersion>
 </Addin>
