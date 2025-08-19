@@ -1,0 +1,64 @@
+﻿AddReference "Adsk.Ts.VaultUtils.dll"
+Public Sub Main
+	break
+	'validate that the rule is called with arguments
+	If RuleArguments.Exists("contextId") = False
+		Logger.Error("Missing RuleArgument value [contextId]")
+		AdskTsVaultUtils.Messages.ShowError("Missing rule argument [contextId] - This rule must be run by Inventor PLM providing this argument", "iLogic-Vault")
+		Exit Sub
+	End If
+
+	Dim mSelectionSet As SelectSet = ThisApplication.ActiveDocument.SelectSet
+
+	'Assembly context: filter the current selection set and build the occurrence path for each valid selection
+	If (ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kAssemblyDocumentObject)
+		Dim mSelectedComponentPaths As New List(Of String)
+		Dim mRootNumber as String = iProperties.Value("Project", "Part Number")
+
+		For Each mItem As Object In mSelectionSet
+			Dim mOcc As Inventor.ComponentOccurrence = TryCast(mItem, ComponentOccurrence)
+
+			If mOcc IsNot Nothing
+				Dim mOccPath As String = mOcc.Name
+				Dim mOccParent As Inventor.ComponentOccurrence = mOcc.ParentOccurrence
+				While mOccParent IsNot Nothing
+					mOccPath = mOccParent.Name + "|" + mOccPath
+					mOccParent = mOccParent.ParentOccurrence
+				End While
+				mOccPath = mRootNumber + "|" + mOccPath
+				mSelectedComponentPaths.Add(mOccPath)
+			End If
+		Next
+
+		RuleArguments.Arguments.Add("Result", mSelectedComponentPaths)
+	End If ' assembly context
+
+	'Multibody context: filter current selection set and return extracted part numbers of bodies
+	If (ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kPartDocumentObject)
+		Dim mPrtDoc As PartDocument = ThisApplication.ActiveDocument
+		Dim mCompDef As Inventor.PartComponentDefinition = mPrtDoc.ComponentDefinition
+		Dim mBodies As New List(Of String)
+
+		For Each mItem As Object In mSelectionSet
+			Dim mBody As SurfaceBody = TryCast(mItem, SurfaceBody)
+			Dim mBodyPartNumber As String = mExtractPartNumFromBodyName(mBody.Name)
+			If mBodyPartNumber <> Nothing Then
+				mBodies.Add(mBodyPartNumber)
+			End If
+		Next
+
+		RuleArguments.Arguments.Add("Result", mBodies)
+
+	End If ' multibody context
+
+End Sub
+
+
+Private Function mExtractPartNumFromBodyName(Name As String)
+	Dim mNameSubStrings As String() = Name.Split("_")
+	'the name convention is: Pos_'CAD'_Number_Title_LxBxH
+	If mNameSubStrings.Length >= 3
+		Return mNameSubStrings(1) + "_" + mNameSubStrings(2)
+	End If
+	Return Nothing
+End Function

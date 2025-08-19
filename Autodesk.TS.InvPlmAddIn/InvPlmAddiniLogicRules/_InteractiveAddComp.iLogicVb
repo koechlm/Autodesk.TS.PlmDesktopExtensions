@@ -1,0 +1,10 @@
+﻿	break
+	Dim LocalFullFileName As String = RuleArguments("mFile")
+	
+	Dim mAsmDoc As Inventor.Document = ThisApplication.ActiveDocument
+
+				Dim mCmdMgr As Inventor.CommandManager = ThisApplication.CommandManager
+				mCmdMgr.PostPrivateEvent(Inventor.PrivateEventTypeEnum.kFileNameEvent, LocalFullFileName)
+				Dim mCtrlDef As Inventor.ControlDefinition = mCmdMgr.ControlDefinitions("AssemblyPlaceComponentCmd")
+				mCtrlDef.Execute()
+		Rulearguments.Arguments.Add("test", "TEST")

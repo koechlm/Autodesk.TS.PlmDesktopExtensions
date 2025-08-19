@@ -1,0 +1,13 @@
+﻿AddReference "Adsk.Ts.VaultUtils.dll"
+Public Sub main
+	Dim ManageAssembly As Boolean = True
+
+
+	Dim result As Double = AdskTsVaultUtils.Messages.ShowMessage("Do you want to activate iLogic Managed Assembly?", "iLogic-Vault", AdskTsVaultUtils.Messages.Buttons.YesNo)
+	If result = 3
+		SharedVariable("ManageAssembly") = True
+	Else
+		SharedVariable("ManageAssembly") = False
+	End If
+
+End Sub

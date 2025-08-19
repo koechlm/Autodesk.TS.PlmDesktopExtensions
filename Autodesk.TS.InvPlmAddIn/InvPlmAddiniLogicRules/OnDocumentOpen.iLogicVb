@@ -1,0 +1,82 @@
+﻿'rule to cache all occurrences per part number in iLogic session
+Public Class OnDocumentOpen
+
+	Private mOccAll As List(Of Inventor.ComponentOccurrence)
+	Private mPartNumOccs As System.Collections.Generic.Dictionary(Of String, List(Of Inventor.ComponentOccurrence)) = New System.Collections.Generic.Dictionary(Of String, List(Of Inventor.ComponentOccurrence))
+
+	Sub main
+
+		Dim mDoc As Inventor.Document = ThisDoc.Document
+		Dim mAsmDoc As Inventor.AssemblyDocument
+		Dim mProp As Inventor.Property
+		Dim mPropSet As Inventor.PropertySet
+
+		break
+
+		'this ruled is called with window activation; action is needed on first run only, but not for new files
+		If mDoc.FileSaveCounter = 0
+			Exit Sub
+		ElseIf SharedVariable.Exists(mDoc.FullDocumentName) = True
+			'Exit Sub
+		End If
+		
+		'this rule is applicable to assemblies only
+		If ThisDoc.Document.DocumentType = Inventor.DocumentTypeEnum.kAssemblyDocumentObject Then
+			mAsmDoc = mDoc
+
+			'recursively iterate all assembly occurrences and register a list of occurrences for each individual partnumber
+			For Each mOcc As Inventor.ComponentOccurrence In mAsmDoc.ComponentDefinition.Occurrences
+				
+				If mOcc.Suppressed = True Then Continue For
+				'start recursive call for subassembly occurrence
+				If mOcc.SubOccurrences.Count > 0 Then mOccAdd(mOcc.SubOccurrences)
+
+				'continue to register in new or existing list of occurrences and add to this assembly's dictionary
+				mDoc = mOcc.Definition.Document
+				mPropSet = mDoc.PropertySets("Design Tracking Properties")
+				mProp = mPropSet("Part Number")
+
+				If mPartNumOccs.ContainsKey(mProp.Value.ToString()) Then
+					mPartNumOccs(mProp.Value.ToString()).Add(mOcc)
+				Else
+					mOccAll = New List(Of Inventor.ComponentOccurrence)
+					mOccAll.Add(mOcc)
+					mPartNumOccs.Add(mProp.Value.ToString(), mOccAll)
+				End If
+			Next
+
+			'store the assembly's dictionary as iLogic Shared Variable
+			SharedVariable(mAsmDoc.FullDocumentName) = mPartNumOccs
+		End If
+
+	End Sub
+
+	Private Sub mOccAdd(Occurrences As Inventor.ComponentOccurrences)
+
+		Dim mDoc As Inventor.Document
+		Dim mProp As Inventor.Property
+		Dim mPropSet As Inventor.PropertySet
+
+		For Each mOcc As Inventor.ComponentOccurrence In Occurrences
+			'skip if an occurrence is suppressed for now;
+			If mOcc.Suppressed = True
+				continue for
+				'TODO open suboccurrences for suppressed instances either by activating modelstates, or opening the assembly
+				'mDoc = ThisApplication.Documents.Open(mOcc.ReferencedDocumentDescriptor.FullDocumentName, False)
+			End If 
+			If mOcc.SubOccurrences.Count > 0 Then mOccAdd(mOcc.SubOccurrences)
+			mDoc = mOcc.Definition.Document
+			mPropSet = mDoc.PropertySets("Design Tracking Properties")
+			mProp = mPropSet("Part Number")
+			If mPartNumOccs.ContainsKey(mProp.Value.ToString())
+				mPartNumOccs(mProp.Value.ToString()).Add(mOcc)
+			Else
+				mOccAll = New List(Of Inventor.ComponentOccurrence)
+				mOccAll.Add(mOcc)
+				mPartNumOccs.Add(mProp.Value.ToString(), mOccAll)
+			End If
+		Next
+
+	End Sub
+
+End Class

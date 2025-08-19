@@ -1,0 +1,43 @@
+﻿AddReference "Adsk.Ts.VaultUtils.dll"
+AddReference "Autodesk.Connectivity.WebServices"
+AddReference "Autodesk.DataManagement.Client.Framework.Vault"
+Private Class createFileLink
+	
+	Private mDigits As Integer = 3 'determines the number of files per folder, e.g. "3" limits to 999 files whereas "4" allows 9999 files per folder
+	Private mWS As String 'read Inventor Workspace folder
+	Private mCTRoot As String = "###-CT" 'the root for numbered structured folders for Change Tasks (Folder Category)	
+	Private mPath As String 'target folder location - calculated by number or preset by rule argument
+	Private mTargetFldrId As System.Int64 'target folder location for links to new created files
+	Private mCreateLinks As Boolean  'true will save files within the ### root structure and create a link to the TargetLinkFolder
+
+	Private Sub main
+		break
+		'
+		Dim mLocalFileName As String = ThisDoc.Document.FullDocumentName
+		Dim mVaultFileName As String
+		Dim mFile As Autodesk.Connectivity.WebServices.File
+		Dim mFolder As Autodesk.Connectivity.WebServices.Folder
+		Dim mDocSrvc As Autodesk.Connectivity.WebServices.DocumentService
+		Dim ex As New Exception
+
+		Try
+		If RuleArguments.Exists("TargetFolder")
+			mTargetFldr = RuleArguments("TargetFolder")
+		End If
+
+		If mTargetFldr <> Nothing
+			mDocSrvc = (iLogicVault.GetVaultConnection).WebServiceManager.DocumentService
+			mVaultFileName = iLogicVault.ConvertLocalPathToVaultPath(mLocalFileName) + "/" + ThisDoc.FileName(true)
+			mFile = mDocSrvc.FindLatestFilesByPaths({mVaultFileName }).FirstOrDefault()
+			'toDo: replace GeFolderBy path with Utility method searching for it
+			mFolder = mDocSrvc.GetFolderByPath("$/Designs/" + mTargetFldr)
+			Dim mLink As Autodesk.Connectivity.WebServices.Lnk = mDocSrvc.AddLink(mFolder.Id, "FILE", mFile.Id, "FileLinkInFolder")
+		End If 'mPath is filled
+		
+	Catch ex
+			Logger.Error(iLogicVb.RuleName + " exited with unhandled exception: " + ex.Message)
+		End Try
+
+	End Sub
+
+End Class

@@ -1,0 +1,11 @@
+{
+    "profiles": {
+        "VltPlmAddin": {
+            "nativeDebugging": true,
+            "commandName": "Executable",
+            "executablePath": "C:\\Program Files\\Autodesk\\Vault Client 2026\\Explorer\\Connectivity.VaultPro.exe",
+            "commandLineArgs": "",
+            "workingDirectory": ""
+        }
+    }
+}

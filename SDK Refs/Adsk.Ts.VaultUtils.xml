@@ -1,0 +1,298 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Adsk.Ts.VaultUtils</name>
+    </assembly>
+    <members>
+        <member name="T:AdskTsVaultUtils.Messages">
+            <summary>
+            Wrapper library providing simplified access to Vault messaging with/without user interaction.
+            </summary>
+        </member>
+        <member name="T:AdskTsVaultUtils.Messages.Buttons">
+            <summary>
+            Optional buttons to be added to message, warning or restriction dialogs.
+            </summary>
+        </member>
+        <member name="F:AdskTsVaultUtils.Messages.Buttons.None">
+            <summary>
+            The dialog contains a default OK button.
+            </summary>
+        </member>
+        <member name="F:AdskTsVaultUtils.Messages.Buttons.Abort">
+            <summary>
+            The dialog contains an Abort button.
+            </summary>
+        </member>
+        <member name="F:AdskTsVaultUtils.Messages.Buttons.SkipAll">
+            <summary>
+            The dialog contains a Skip, Skip All, and an OK Button.
+            </summary>
+        </member>
+        <member name="F:AdskTsVaultUtils.Messages.Buttons.YesNo">
+            <summary>
+            The dialog contains a Yes and a No button.
+            </summary>
+        </member>
+        <member name="F:AdskTsVaultUtils.Messages.Buttons.RetryCancel">
+            <summary>
+            The dialog contains a Retry and a Cancel button.
+            </summary>
+        </member>
+        <member name="F:AdskTsVaultUtils.Messages.Buttons.Ok">
+            <summary>
+            The dialog contains an OK button.
+            </summary>
+        </member>
+        <member name="F:AdskTsVaultUtils.Messages.Buttons.OkCancel">
+            <summary>
+            The dialog contains an OK and a Cancel button.
+            </summary>
+        </member>
+        <member name="F:AdskTsVaultUtils.Messages.Buttons.YesNoCancel">
+            <summary>
+            The dialog contains a Yes, No and a Cancel button.
+            </summary>
+        </member>
+        <member name="F:AdskTsVaultUtils.Messages.Buttons.ContinueCancel">
+            <summary>
+            The dialog contains a Continue and a Cancel button.
+            </summary>
+            <remarks>The return values are "Yes" for Continue and "Cancel" for Cancel</remarks>
+        </member>
+        <member name="T:AdskTsVaultUtils.Messages.IconType">
+            <summary>
+            Icons indicating the message types error, information, warning.
+            </summary>
+        </member>
+        <member name="F:AdskTsVaultUtils.Messages.IconType.Error">
+            <summary>
+            The error icon, an X in a red circle.
+            </summary>
+        </member>
+        <member name="F:AdskTsVaultUtils.Messages.IconType.Info">
+            <summary>
+            The information icon, a lower-case I in a blue circle.
+            </summary>
+        </member>
+        <member name="F:AdskTsVaultUtils.Messages.IconType.Warning">
+            <summary>
+            The warning icon, an exclamation mark in a yellow triangle.
+            </summary>
+        </member>
+        <member name="M:AdskTsVaultUtils.Messages.ShowError(System.String,System.String)">
+            <summary>
+            Displays an error dialog box with the specified error message. Supports dark/light theme.
+            </summary>
+            <param name="Message">The error message text.</param>
+            <param name="Caption">The dialog title.</param>
+            <returns>The OK button's text value "OK".</returns>
+        </member>
+        <member name="M:AdskTsVaultUtils.Messages.ShowMessage(System.String,System.String,AdskTsVaultUtils.Messages.Buttons)">
+            <summary>
+            Displays a message dialog box with the specified message. Supports dark/light theme.
+            </summary>
+            <param name="Message">The message text.</param>
+            <param name="Caption">The dialog title.</param>
+            <param name="Buttons">Default = OK. Alternate options are Abort, SkipAll, Yes/No, Retry/Cancel, Continue/Cancel, OK/Cancel</param>
+            <returns>The button's text value clicked by the user. Values are:"Abort" (Abort, SkipAll), "Yes", "No", "Retry", "Cancel", "OK", "Ignore" (Ignore, Skip)</returns>
+        </member>
+        <member name="M:AdskTsVaultUtils.Messages.ShowMessageWithObjectList(System.Collections.Generic.List{System.String},System.String,System.String,AdskTsVaultUtils.Messages.Buttons)">
+            <summary>
+            Displays a message dialog providing a list of affected object names.
+            </summary>
+            <param name="ObjectNames"></param>
+            <param name="Message"></param>
+            <param name="Caption"></param>
+            <param name="Buttons"></param>
+            <returns>The button's text value clicked by the user. Values are:"Abort" (Abort, SkipAll), "Yes", "No", "Retry", "Cancel", "OK", "Ignore" (Ignore, Skip)</returns>
+        </member>
+        <member name="M:AdskTsVaultUtils.Messages.ShowErrorWithObjectList(System.Collections.Generic.List{System.String},System.String,System.String,AdskTsVaultUtils.Messages.Buttons)">
+            <summary>
+            Displays an error dialog providing a list of affected object names.
+            </summary>
+            <param name="ObjectNames"></param>
+            <param name="Message"></param>
+            <param name="Caption"></param>
+            <param name="Buttons"></param>
+            <returns>The button's text value clicked by the user. Values are:"Abort" (Abort, SkipAll), "Yes", "No", "Retry", "Cancel", "OK", "Ignore" (Ignore, Skip)</returns>
+        </member>
+        <member name="M:AdskTsVaultUtils.Messages.ShowWarning(System.String,System.String,AdskTsVaultUtils.Messages.Buttons)">
+            <summary>
+            Displays a warning message dialog box with the specified warning. Supports dark/light theme.
+            </summary>
+            <param name="Message">The text describing the warning.</param>
+            <param name="Caption">The dialog title.</param>
+            <param name="Buttons">Default = OK. Alternate options are Abort, SkipAll, Yes/No, Retry/Cancel, Continue/Cancel, OK/Cancel</param>
+            <returns>The button's text value clicked by the user. Values are:"Abort" (Abort, SkipAll), "Yes", "No", "Retry", "Cancel", "OK", "Ignore" (Ignore, Skip)</returns>
+        </member>
+        <member name="M:AdskTsVaultUtils.Messages.ShowMessageGrid(System.Collections.Generic.List{AdskTsVaultUtils.ObjectGrid.TableRow},System.String,System.String,AdskTsVaultUtils.Messages.Buttons)">
+            <summary>
+            Displays a message dialog providing a table with 3 columns to list object name, short text, and long text.
+            </summary>
+            <param name="GridData">Data matrix of 3 columns (object name, short text, long text)</param>
+            <param name="Message"></param>
+            <param name="Caption"></param>
+            <param name="Buttons"></param>
+            <returns>The button's text value clicked by the user. Values are:"Abort" (Abort, SkipAll), "Yes", "No", "Retry", "Cancel", "OK", "Ignore" (Ignore, Skip)</returns>
+        </member>
+        <member name="M:AdskTsVaultUtils.Messages.ShowErrorGrid(System.Collections.Generic.List{AdskTsVaultUtils.ObjectGrid.TableRow},System.String,System.String,AdskTsVaultUtils.Messages.Buttons)">
+            <summary>
+            Displays an error dialog providing a table with 3 columns to list object name, short text, and long text.
+            </summary>
+            <param name="GridData">Data matrix of 3 columns (object name, short text, long text)</param>
+            <param name="Message"></param>
+            <param name="Caption"></param>
+            <param name="Buttons"></param>
+            <returns>The button's text value clicked by the user. Values are:"Abort" (Abort, SkipAll), "Yes", "No", "Retry", "Cancel", "OK", "Ignore" (Ignore, Skip)</returns>
+        </member>
+        <member name="M:AdskTsVaultUtils.Messages.ShowCustomRestriction(System.Collections.Generic.List{AdskTsVaultUtils.ObjectGrid.TableRow},System.String,System.String,AdskTsVaultUtils.Messages.IconType,System.Boolean)">
+            <summary>
+            Launches an user interactive workflow informing and handling custom restrictions.
+            </summary>
+            <param name="Restrictions">List of restricted object names, restriction text and restriction reason.</param>
+            <param name="Message"></param>
+            <param name="Caption">The dialog title.</param>
+            <param name="Type">The Icon illustrating the type of the restriction.</param>
+            <param name="ShowDetails">Optional. Expands detail area if set to true.</param>
+            <returns>The button's text value clicked by the user. Values are:"Abort" (Abort, SkipAll), "Yes", "No", "Retry", "Cancel", "OK", "Ignore" (Ignore, Skip)</returns>
+        </member>
+        <member name="T:AdskTsVaultUtils.EntityProperties">
+            <summary>
+            Library for simplified properties read/write actions for all entity types
+            </summary>
+        </member>
+        <member name="F:AdskTsVaultUtils.EntityProperties.conn">
+            <summary>
+            Any Vault interaction requires an active Client-Server connection.
+            To avoid Vault API specific references, check connection state using the loggedIn property.
+            </summary>
+        </member>
+        <member name="P:AdskTsVaultUtils.EntityProperties.LoggedIn">
+            <summary>
+            Property representing the current user's Vault connection state; returns true, if current user is logged in.
+            </summary>
+        </member>
+        <member name="M:AdskTsVaultUtils.EntityProperties.GetVaultConnection">
+            <summary>
+            Deprecated. Returns current Vault connection. Leverage LoggedIn property whenever possible. 
+            Null value returned if user is not logged in.
+            </summary>
+            <returns>Vault Connection</returns>
+        </member>
+        <member name="M:AdskTsVaultUtils.EntityProperties.mGetFileProps(Autodesk.Connectivity.WebServices.File,System.Collections.Generic.Dictionary{System.String,System.String}@)">
+            <summary>
+            Get File properties as DisplayName/Value map
+            </summary>
+            <param name="mFileIt">Autodesk Connectivity Webservice File Version (Iteration) Object</param>
+            <param name="VaultFileProperties">DisplayName/Value dictionary of file iteration's properties</param>
+        </member>
+        <member name="M:AdskTsVaultUtils.EntityProperties.mGetItemProps(Autodesk.Connectivity.WebServices.Item,System.Collections.Generic.Dictionary{System.String,System.String}@)">
+            <summary>
+            Get Item properties as DisplayName/Value map
+            </summary>
+            <param name="item">Autodesk Connectivity Webservice Item object</param>
+            <param name="VaultItemProperties">DisplayName/Value dictionary of Item version's properties</param>
+        </member>
+        <member name="M:AdskTsVaultUtils.EntityProperties.mGetFolderProps(Autodesk.Connectivity.WebServices.Folder,System.Collections.Generic.Dictionary{System.String,System.String}@)">
+            <summary>
+            Get Folder properties as DisplayName/Value map
+            </summary>
+            <param name="mFolder">Autodesk Connectivity Webservice File Version (Iteration) Object</param>
+            <param name="VaultFolderProperties">DisplayName/Value dictionary of file iteration's properties</param>
+        </member>
+        <member name="M:AdskTsVaultUtils.ObjectList.SetMessageText(System.String)">
+            <summary>
+            Display message text.
+            </summary>
+            <param name="Message"></param>
+        </member>
+        <member name="M:AdskTsVaultUtils.ObjectList.SetListBoxItems(System.Collections.Generic.List{System.String})">
+            <summary>
+            Provide data to be displayed.
+            </summary>
+            <param name="Data">List of text, e.g. file names.</param>
+        </member>
+        <member name="F:AdskTsVaultUtils.ObjectList.components">
+            <summary> 
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:AdskTsVaultUtils.ObjectList.Dispose(System.Boolean)">
+            <summary> 
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:AdskTsVaultUtils.ObjectList.InitializeComponent">
+            <summary> 
+            Required method for Designer support - do not modify 
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:AdskTsVaultUtils.ObjectGrid">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:AdskTsVaultUtils.ObjectGrid.#ctor">
+            <summary>
+            Custom control combining a message/error with data grid for affected objects.
+            </summary>
+        </member>
+        <member name="T:AdskTsVaultUtils.ObjectGrid.TableRow">
+            <summary>
+            Row for message/error data tables.
+            </summary>
+        </member>
+        <member name="P:AdskTsVaultUtils.ObjectGrid.TableRow.ObjectName">
+            <summary>
+            Name of the affected object.
+            </summary>
+        </member>
+        <member name="P:AdskTsVaultUtils.ObjectGrid.TableRow.ShortText">
+            <summary>
+            Individual object's short message text or restriction.
+            </summary>
+        </member>
+        <member name="P:AdskTsVaultUtils.ObjectGrid.TableRow.LongText">
+            <summary>
+            Individual object's long message text or restriction reason.
+            </summary>
+        </member>
+        <member name="M:AdskTsVaultUtils.ObjectGrid.mRestrictionRows">
+            <summary>
+            Test automation function providing grid data.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:AdskTsVaultUtils.ObjectGrid.SetMessageText(System.String)">
+            <summary>
+            Display message text.
+            </summary>
+            <param name="Message"></param>
+        </member>
+        <member name="M:AdskTsVaultUtils.ObjectGrid.SetGridData(System.Collections.Generic.List{AdskTsVaultUtils.ObjectGrid.TableRow})">
+            <summary>
+            Fill data source with list of table rows.
+            </summary>
+        </member>
+        <member name="F:AdskTsVaultUtils.ObjectGrid.components">
+            <summary> 
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:AdskTsVaultUtils.ObjectGrid.Dispose(System.Boolean)">
+            <summary> 
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:AdskTsVaultUtils.ObjectGrid.InitializeComponent">
+            <summary> 
+            Required method for Designer support - do not modify 
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,4 @@
+﻿break
+If ThisDoc.Document.DocumentType = Inventor.DocumentTypeEnum.kAssemblyDocumentObject And ThisDoc.Document.FullDocumentName IsNot Nothing
+If SharedVariable.Exists(ThisDoc.Document.FullDocumentName) Then SharedVariable.Remove(ThisDoc.Document.FullDocumentName)
+End If

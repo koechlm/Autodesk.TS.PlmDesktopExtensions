@@ -1,0 +1,133 @@
+﻿AddReference "Adsk.Ts.VaultUtils.dll"
+Sub main()
+	
+	Dim updateProperties As Object() = RuleArguments("UpdateProperties")
+	Logger.Info("UpdateProperties started")
+		
+	If updateProperties Is Nothing Then
+		Logger.Error("Missing RuleArgument value [UpdateProperties]")
+		AdskTsVaultUtils.Messages.ShowError("Missing rule argument [UpdateProperties] - Restart the rule providing a rule argument and value.", "iLogic-Vault")
+		Exit Sub
+	End If 
+	If updateProperties.Length = 0 Then
+		Logger.Error("RuleArgument [UpdateProperties] is empty.")
+		AdskTsVaultUtils.Messages.ShowError("RuleArgument [UpdateProperties] is empty. - Restart the rule providing a rule argument and value.", "iLogic-Vault")
+		Return
+	End If 
+	
+ 	
+	' Loop through all updated file obejct
+	Dim i = 0
+	Dim max = updateProperties.Length
+	For Each updateObj In updateProperties		
+		i+=1
+		Dim cPartNumber As String = updateObj.PartNumber
+		Logger.Info("")
+		Logger.Info("Update PartNumber " & i & " / " & max & ": " & cPartNumber)
+	
+		' Get Updated Doc from Assembly or Part
+		Dim updatedDoc As Document
+		If ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kAssemblyDocumentObject Then
+			Dim pnDict = GetDocumentsByPartNumberDictionary()	
+			If Not pnDict.ContainsKey(cPartNumber) Then
+				Logger.Warn("Component with Part Number = " + cPartNumber + " not found.")
+				AdskTsVaultUtils.Messages.ShowWarning("Component with Part Number = " + cPartNumber + " not found.", "iLogic-Vault")
+			End If
+			Logger.Info("Updating (from IAM): " & pnDict.Item(cPartNumber).DisplayName)
+			updatedDoc = pnDict.Item(cPartNumber)
+		ElseIf ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kPartDocumentObject Then			
+			Logger.Info("Updating (from IPT): " & ThisApplication.ActiveDocument.DisplayName)
+			updatedDoc = ThisApplication.ActiveDocument
+		End If
+		
+		Dim k = 0
+		Dim propsCount = updateObj.Properties.Length
+		Dim prop ' As PLMInventor.Model.KeyValue		
+		For Each prop In updateObj.Properties
+			k +=1
+			Logger.Info("update iProperty " & k & " / " & propsCount & ": Key=" & prop.Key & ", Value=" & prop.Value)
+			SetIProperty(updatedDoc, RemapPropertyName(prop.Key), prop.Value)
+		Next	
+	Next
+	Logger.Info("UpdateProperties finished")
+End Sub
+
+
+Function RemapPropertyName(Name As String) As String
+	' Apply mapping for incoming Property Names
+	Dim Mapping As New System.Collections.Specialized.StringDictionary'(Of String, String)
+	
+	' Add Mappings, case is ignored for incoming names, "ModelYear" would be the same as "modelyear"
+	Mapping.Add("ModelYear", "CA_MODEL_YEAR")
+	Mapping.Add("MODEL_YEAR", "CA_MODEL_YEAR")
+	Mapping.Add("Test", "MUM_TEST")		
+	
+	If Mapping.ContainsKey(Name) Then
+		Dim mappedName = Mapping(Name)	
+		Logger.Info("Apply custom mapping: " & Name &" ▶ "& mappedName)
+		Return mappedName
+	Else
+		Return Name
+	End If		
+End Function
+
+Function GetDocumentsByPartNumberDictionary() As Dictionary(Of String, Document)
+	Dim oDoc As Document = ThisApplication.ActiveDocument
+	Dim x = New Dictionary(Of String, Document)
+	
+	Dim ref As Document
+	For Each ref In oDoc.AllReferencedDocuments
+		'GUID for Design Tracking Properties
+		Dim pn = ref.PropertySets.Item("{32853F0F-3444-11D1-9E93-0060B03C1CA6}").Item("Part Number").Value		
+		If Not x.ContainsKey(pn) Then x.Add(pn, ref)
+		'Logger.Info("Added Dictionary: " & pn )
+	Next
+	Return x
+End Function
+
+Sub SetIProperty(doc As Document, Name As String, Value As Object)
+	'Inventor Summary Information
+	Dim propset As PropertySet = doc.PropertySets.Item("{F29F85E0-4FF9-1068-AB91-08002B27B3D9}")	
+	Try
+		Dim prop = propset.Item(Name)
+		prop.Value = Value
+		Logger.Info("Property """ & Name &""" set in " & propset.DisplayName)
+		Exit Sub
+	Catch
+		Logger.Warn("Property """ & Name &""" not found in " & propset.DisplayName)
+	End Try
+	
+	'Inventor Document Summary Information
+	propset = doc.PropertySets.Item("{D5CDD502-2E9C-101B-9397-08002B2CF9AE}")	
+	Try
+		Dim prop = propset.Item(Name)
+		prop.Value = Value
+		Logger.Info("Property """ & Name &""" set in " & propset.DisplayName)
+		Exit Sub
+	Catch		
+		Logger.Warn("Property """ & Name &""" not found in " & propset.DisplayName)
+	End Try
+	
+	'Design Tracking Properties
+	propset = doc.PropertySets.Item("{32853F0F-3444-11D1-9E93-0060B03C1CA6}")	
+	Try
+		Dim prop = propset.Item(Name)
+		prop.Value = Value
+		Logger.Info("Property """ & Name &""" set in " & propset.DisplayName)
+		Exit Sub
+	Catch		
+		Logger.Warn("Property """ & Name &""" not found in " & propset.DisplayName)
+	End Try
+	
+	'Inventor User Defined Properties
+	propset = doc.PropertySets.Item("{D5CDD505-2E9C-101B-9397-08002B2CF9AE}")	
+	Try
+		Dim prop = propset.Item(Name)
+		prop.Value = Value
+		Logger.Info("Property """ & Name & """ set in " & propset.DisplayName)
+		Exit Sub
+	Catch
+		propset.Add(Value, Name)
+		Logger.Info("Property """ & Name & """ created in " & propset.DisplayName)
+	End Try
+End Sub 

@@ -1,0 +1,5 @@
+﻿Dim mActiveSelection As Inventor.SelectSet = ThisDoc.Document.SelectSet
+Dim ctrlDef = ThisApplication.CommandManager.ControlDefinitions.Item("AssemblyIsolateUndoCmd")
+While ctrlDef.Enabled
+	ctrlDef.Execute
+End While

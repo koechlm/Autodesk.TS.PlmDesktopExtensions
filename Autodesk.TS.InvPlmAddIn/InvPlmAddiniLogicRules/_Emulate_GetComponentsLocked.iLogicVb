@@ -1,0 +1,7 @@
+﻿Dim map As Inventor.NameValueMap = ThisApplication.TransientObjects.CreateNameValueMap()
+Dim mPartNumbersToCheck As List(Of String) = New List(Of String)
+mPartNumbersToCheck.Add("CAD_30000012")
+mPartNumbersToCheck.Add("CAD_30000014")
+mPartNumbersToCheck.Add("CAD_30000052")
+map.Add("Partnumber", mPartNumbersToCheck.ToArray())
+iLogicVb.RunExternalRule("GetComponentsLocked", map)

@@ -25,9 +25,11 @@ using VDF = Autodesk.DataManagement.Client.Framework;
 
 namespace InvPlmAddIn.Utils
 {
+    /// <summary>
+    /// The default SDK samples Utilities class.
+    /// </summary>
     public class Util
     {
-
         public static void DoAction(Action a)
         {
             try
