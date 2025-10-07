@@ -72,5 +72,11 @@ namespace InvPlmAddIn.Model
 				.Replace("{BaseUrl}", mBaseUri.ToString())
 				.Replace(PartNumberParameter, PartNumber)
 				.Replace("{Theme}", InvPlmAddIn.InvPlmAddinSrv.mInventorApplication.ThemeManager.ActiveTheme.Name.Replace("Theme", ""));
-	}
+
+        public void mSendMessage(string message)
+        {
+            foreach (var panel in WebViewHandlers.Values)
+                panel.WebView.CoreWebView2.PostWebMessageAsString(message);
+        }
+    }
 }
