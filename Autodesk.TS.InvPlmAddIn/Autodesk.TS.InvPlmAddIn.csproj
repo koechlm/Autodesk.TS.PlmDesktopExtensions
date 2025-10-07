@@ -162,6 +162,9 @@
     <None Include="InvPlmAddiniLogicRules\getSelectedComponentPaths.iLogicVb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="InvPlmAddiniLogicRules\IsolateInstance.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="InvPlmAddiniLogicRules\IsolateComponents.iLogicVb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -175,6 +178,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="InvPlmAddiniLogicRules\OpenComponent.iLogicVb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InvPlmAddiniLogicRules\SelectInstance.iLogicVb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="InvPlmAddiniLogicRules\SelectComponents.iLogicVb">

@@ -17,12 +17,12 @@ namespace InvPlmAddIn.Model
 
         private List<BrowserPanelWindow> windows = new List<BrowserPanelWindow>();
 
-        private List<BrowserPanelWindow> windowsAppContext = new List<BrowserPanelWindow>();
+        private static List<BrowserPanelWindow> windowsAppContext = new List<BrowserPanelWindow>();
 
         public BrowserPanelWindowManager(InvPlmAddIn.InvPlmAddinSrv addIn) => mAddIn = addIn;
 
         public static string mSelectionSender { get; set; } = "Inventor";
-        public DocumentPanelSet ActiveDocumentPanelSet { get; set; }
+        public static DocumentPanelSet ActiveDocumentPanelSet { get; set; }
         private InvPlmAddIn.InvPlmAddinSrv mAddIn { get; set; }
         public bool IsLoggedIn { get; private set; } = false;
 
@@ -35,11 +35,18 @@ namespace InvPlmAddIn.Model
                 Url = mBaseUri.ToString() + "/item?number={PartNumber}&theme={Theme}" + "&host=Inventor"
             },
 
+            new PanelOptions
+            {
+                InternalName = "Instances",
+                WindowTitle = "Vault PLM Instance",
+                Url = mBaseUri.ToString() + "/../asset-editor?number={PartNumber}&theme={Theme}" + "&host=Inventor"
+            }
+
             //new PanelOptions
             //{
             //    InternalName = "Context",
             //    WindowTitle = "Vault PLM Context",
-            //    Url = mBaseUri.ToString() + "/context?number={PartNumber}&theme={Theme}"
+            //    Url = mBaseUri.ToString() + "/context?number={PartNumber}&theme={Theme}" + "&host=Inventor"
             //},
         };
 
@@ -289,6 +296,13 @@ namespace InvPlmAddIn.Model
                     a.DocumentsEvents.OnChangeSelectSet -= DocumentEvents_OnChangeSelectSet;
             }
             panelSets.Clear();
+        }
+
+        public static void SendMessage(string message)
+        {
+            foreach (var a in windowsAppContext)
+                a.GetWebViewHandler().WebView_SendMessage(message);
+            ActiveDocumentPanelSet?.WebViewHandlers.Values.ToList().ForEach(x => x.WebView_SendMessage(message));
         }
     }
 }

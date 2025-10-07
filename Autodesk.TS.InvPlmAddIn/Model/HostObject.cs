@@ -18,6 +18,7 @@ using VDF = Autodesk.DataManagement.Client.Framework;
 using VDFV = Autodesk.DataManagement.Client.Framework.Vault;
 using VltBase = Connectivity.Application.VaultBase;
 using static DevExpress.XtraPrinting.Native.ExportOptionsPropertiesNames;
+using static DevExpress.Xpo.Helpers.AssociatedCollectionCriteriaHelper;
 
 
 namespace InvPlmAddIn.Model
@@ -65,6 +66,15 @@ namespace InvPlmAddIn.Model
 
             // values represent per type: file = File.MasterId, item = "", plm-item = urn
             public string masterId { get; set; }
+        }
+
+        // Error codes to be sent back to the webview
+        public enum mErrorCodes
+        {
+            Unhandled = -1,
+            Success = 0,
+            PartNumberNotFound = 100,
+            InstancePathNotFound = 200
         }
 
 
@@ -217,7 +227,16 @@ namespace InvPlmAddIn.Model
                 };
 
                 CallILogic("SelectComponents", ref dic);
-                await Task.CompletedTask;
+                // await Task.CompletedTask;
+                // include result handling
+                await Task.FromResult(dic);
+
+                object iLogicResult;
+                if (dic.TryGetValue("Result", out iLogicResult) == true)
+                {
+                    string message = parameters[0] + ":" + iLogicResult?.ToString();                    
+                    BrowserPanelWindowManager.SendMessage(message);
+                }
             }
 
             BrowserPanelWindowManager.mSelectionSender = "Inventor";
@@ -251,16 +270,39 @@ namespace InvPlmAddIn.Model
 
         public static async Task selectInstance(string[] parameters)
         {
-            // reserved for future use
-            // This method is currently not implemented in the iLogic rule.
-            // It can be used to select a specific instance of a component in the assembly.
-            // For now, it simply returns without doing anything.
-            var dic = new Dictionary<string, object>
+            BrowserPanelWindowManager.mSelectionSender = "PLM";
+
+            var EntityIds = new Dictionary<string, mVaultEntity>();
+            EntityIds.Add("0", mCastToVaultEntity(parameters));
+
+            //get instance names (=file names, not extension) from Vault using mVaultEntity.entityType
+            List<string> mPartNumbers = new List<string>();
+            mPartNumbers = VaultUtils.mGetPartNumbers(EntityIds);
+
+            string mInstancePath = parameters[5];
+
+            if (mPartNumbers.Count != 0)
             {
-                ["Parameters"] = parameters
-            };
-            //CallILogic("SelectInstance", ref dic);
-            await Task.CompletedTask;
+                var dic = new Dictionary<string, object>
+                {
+                    ["PartNumbers"] = mPartNumbers.ToArray(),
+                    ["InstancePath"] = mInstancePath
+                };
+
+                CallILogic("SelectInstance", ref dic);
+                // await Task.CompletedTask;
+                // include result handling
+                await Task.FromResult(dic);
+
+                object iLogicResult;
+                if (dic.TryGetValue("Result", out iLogicResult) == true)
+                {
+                    string message = parameters[0] + ":" + iLogicResult?.ToString();
+                    BrowserPanelWindowManager.SendMessage(message);
+                }
+            }
+
+            BrowserPanelWindowManager.mSelectionSender = "Inventor";
         }
 
         public static async Task isolateInstance(string[] parameters)
@@ -360,32 +402,32 @@ namespace InvPlmAddIn.Model
                 return null;
             }
 
-            //parameters are expected to be in the format: "source(entitytype);id;name/number;masterId or URN"
+            //parameters are expected to be in the format: "messageId;source(entitytype);id;name/number;masterId or URN"
 
-            switch (parameters[0])
+            switch (parameters[1])
             {
                 case "file":
                     return new mVaultEntity
                     {
                         entityType = "file",
-                        id = parameters[1],
-                        name = parameters[2],
-                        masterId = parameters[3]
+                        id = parameters[2],
+                        name = parameters[3],
+                        masterId = parameters[4]
                     };
                 case "item":
                     return new mVaultEntity
                     {
                         entityType = "item",
-                        id = parameters[1],
-                        name = parameters[2],
+                        id = parameters[2],
+                        name = parameters[3],
                         masterId = string.Empty // Item does not have a masterId
                     };
                 case "plm-item":
                     return new mVaultEntity
                     {
                         entityType = "plm-item",
-                        id = parameters[1],
-                        name = parameters[2]
+                        id = parameters[2],
+                        name = parameters[3]
                     };
                 default:
                     return null;
@@ -435,10 +477,8 @@ namespace InvPlmAddIn.Model
         }
 
         internal static void HandleJsMessage(string message)
-        {
-            // call the task openComponent
-
-            String[]? mMessageArray = message?.ToString()?.Split(":");
+        {            
+            String[] mMessageArray = message?.ToString()?.Split(":");
             if (mMessageArray?.Length > 1)
             {
                 String mCommand = mMessageArray[0];
@@ -459,6 +499,12 @@ namespace InvPlmAddIn.Model
                     case "isolateComponent":
                         _ = isolateComponent(mParametersArray);
                         break;
+                    case "selectInstance":
+                        _ = selectInstance(mParametersArray);
+                        break;
+                    case "isolateInstance":
+                        _ = isolateInstance(mParametersArray);
+                        break;
                     case "gotoVaultFile":
                         // GoToEntity() targets the Vault client context only
                         break;
@@ -472,6 +518,33 @@ namespace InvPlmAddIn.Model
                         break;
                 }
             }
+        }
+
+        internal static void mSendWebMessage(string messageId, string iLogicResult)
+        {
+            mErrorCodes mErrorCode;
+
+            switch (iLogicResult)
+                            {
+                case "PartNumberNotFound":
+                    mErrorCode = mErrorCodes.PartNumberNotFound;
+                    break;
+                case "InstancePathNotFound":
+                    mErrorCode = mErrorCodes.InstancePathNotFound;
+                    break;
+                case "Success":
+                    mErrorCode = mErrorCodes.Success;
+                    break;
+                default:
+                    mErrorCode = mErrorCodes.Unhandled;
+                    break;
+            }
+
+            string mMessage = messageId + ":" + mErrorCode.ToString();
+            
+            // call the Webviewhandler's PostWebMessage
+
+            
         }
 
         internal static ACW.File GetFileByParameters(string[] parameters)
