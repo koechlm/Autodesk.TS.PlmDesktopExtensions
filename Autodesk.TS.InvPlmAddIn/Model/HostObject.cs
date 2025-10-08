@@ -285,7 +285,7 @@ namespace InvPlmAddIn.Model
             {
                 var dic = new Dictionary<string, object>
                 {
-                    ["PartNumbers"] = mPartNumbers.ToArray(),
+                    ["PartNumber"] = mPartNumbers.ToArray().FirstOrDefault(),
                     ["InstancePath"] = mInstancePath
                 };
 
@@ -300,6 +300,11 @@ namespace InvPlmAddIn.Model
                     string message = parameters[0] + ":" + iLogicResult?.ToString();
                     BrowserPanelWindowManager.SendMessage(message);
                 }
+                else
+                {
+                    string message = parameters[0] + ":" + mErrorCodes.Unhandled.ToString();
+                    BrowserPanelWindowManager.SendMessage(message);
+                }   
             }
 
             BrowserPanelWindowManager.mSelectionSender = "Inventor";
@@ -482,8 +487,9 @@ namespace InvPlmAddIn.Model
             if (mMessageArray?.Length > 1)
             {
                 String mCommand = mMessageArray[0];
-                String mParameters = mMessageArray[1];
-                String[] mParametersArray = mParameters.Split(";");
+                //String mParameters = mMessageArray[1];
+                String[] mParametersArray = message.Split(";");
+                mParametersArray[0] = mParametersArray[0].Split(":")[1]; // first element contains messageId and command
 
                 switch (mCommand)
                 {

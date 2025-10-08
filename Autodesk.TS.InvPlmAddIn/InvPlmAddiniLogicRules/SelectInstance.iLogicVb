@@ -1,126 +1,83 @@
 ﻿AddReference "Adsk.Ts.VaultUtils.dll"
-Public Sub main()
-	'use case 1: select occurrence(s) in assembly
-	'use case 2: select surface body(ies) in multi-body part
-
+Public Sub Main()
 	break
 
-	Dim mPartnumbers As String() = RuleArguments("PartNumbers")
-	Dim mDoc As Inventor.Document = ThisApplication.ActiveDocument
+	Try
+		Dim mPartNumber As String = RuleArguments("PartNumber")
+		Dim mInstance As String = RuleArguments("InstancePath")
+		Dim mDoc As Inventor.Document = ThisApplication.ActiveDocument
+		'Dim mOccToSelect As Inventor.ComponentOccurrenceProxy
+		Dim mSubOccs As Inventor.ComponentOccurrences
+		Dim mOccToSelect As ComponentOccurrenceProxy = Nothing
 
-	If mPartnumbers Is Nothing Then
-		Logger.Error("Rule exits due to missing rule argument 'Partnumber'")
-		AdskTsVaultUtils.Messages.ShowError("Rule exits due to missing rule argument [mPartnumbers].", "iLogic-Vault")
-		Exit Sub
-	End If
-
-	'PartNumbers may be handed as latest element of an instance or part number path (user selected proxies)
-	Dim mTemp As New List(Of String)
-	For Each mNum In mPartnumbers
-		If mNum.Split("|").Length > 1 Then
-			mTemp.Add(mNum.Split("|").LastOrDefault().Split(":").FirstOrDefault())
-		Else
-			mTemp.Add(mNum)
-		End If
-	Next
-	mPartnumbers = mTemp.ToArray()
-
-	'differentiate selection of bodies in multi-body part files and occurrences in assemblies
-	'Region assembly
-	If (ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kAssemblyDocumentObject) Then
-		Dim mAsmDoc As AssemblyDocument = mDoc
-
-		'assembly occurrences are cached in iLogic SharedVariable storage on document open
-		If (Not SharedVariable.Exists(mDoc.FullDocumentName)) Then
-			Logger.Error("SharedVariable for Cache Object not found. Run the PLMInventor Rule 'OnDocumentOpen manually if you are debugging.'")
-			Return
-		End If
-		Dim occurenceCache As Dictionary(Of String, List(Of ComponentOccurrence)) = SharedVariable(mDoc.FullDocumentName)
-
-		' clear current isolate view
-		Dim ctrlDef = ThisApplication.CommandManager.ControlDefinitions.Item("AssemblyIsolateUndoCmd")
-		While ctrlDef.Enabled
-			ctrlDef.Execute
-		End While
-
-		'Perform Selection
-		mAsmDoc.SelectSet.Clear()
-		For Each s In occurenceCache.Where(Function(x)
-											   Return mPartnumbers.Contains(x.Key)
-										   End Function)
-			'Logger.Info("Select occurences for partnumber " & s.Key & "; Count: " & s.Value.Count)
-			Dim occ As ComponentOccurrence
-			For Each occ In s.Value
-				mAsmDoc.SelectSet.Select(occ)
-			Next
-		Next
-	End If
-	'End Region 'assembly
-
-	' region for Multi-Body part components
-	If (ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kPartDocumentObject) Then
-		If mPartnumbers.Count = 0 Then
+		If mInstance Is Nothing Then
+			Logger.Error("Rule exits due to missing rule argument 'Instance'")
+			'AdskTsVaultUtils.Messages.ShowError("Rule exits due to missing rule argument [mInstance].", "iLogic-Vault")
+			RuleArguments.Arguments.Add("Result", "The iLogic rule 'SelectInstance' did not recieve an instance path.")
 			Exit Sub
 		End If
-		Dim mPrtDoc As PartDocument = mDoc
-		Dim mCompDef As Inventor.PartComponentDefinition = mPrtDoc.ComponentDefinition
-		Dim mBodyCache As Dictionary(Of String, List(Of SurfaceBody))
 
-		If mCompDef.SurfaceBodies.Count > 1 Then
+		'Split the instance path
+		Dim mInstancePath() As String
+		If mInstance.Split("|").Length > 1 Then
+			mInstancePath = mInstance.Split("|")
+		End If
 
-			'get the cache for faster selection or create it on first time run
-			If SharedVariable.Exists(mDoc.FullDocumentName) Then
-				mBodyCache = SharedVariable(mDoc.FullDocumentName)
-			Else
-				mBodyCache = New Dictionary(Of String, List(Of SurfaceBody))()
-				For Each mBody As SurfaceBody In mCompDef.SurfaceBodies
-					Dim mBodyPartNumber As String = mExtractPartNumFromBodyName(mBody.Name)
-					If mBodyPartNumber <> Nothing Then
-						If mBodyCache.ContainsKey(mBodyPartNumber) Then
-							'there is a list of bodies with the same partnumber
-							mBodyCache(mBodyPartNumber).Add(mBody)
-						Else
-							'create a new list of bodies for this partnumber
-							mBodyList = New List(Of Inventor.SurfaceBody)
-							mBodyList.Add(mBody)
-							mBodyCache.Add(mBodyPartNumber, mBodyList)
-						End If
-					End If
-				Next
-				'create a shared variable for the cache
-				SharedVariable(mDoc.FullDocumentName) = mBodyCache
+		If (ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kAssemblyDocumentObject) Then
+			Dim mAsmDoc As AssemblyDocument = mDoc
+			Dim mCompDef As Inventor.AssemblyComponentDefinition = mDoc.ComponentDefinition
+			Dim mCurrentOccurrences As ComponentOccurrences = mCompDef.Occurrences
+
+			If mAsmDoc.DisplayNameBasis <> mInstancePath(0) Then
+				Logger.Error("Exiting rule due to name mismatch of root node.")
+				RuleArguments.Arguments.Add("Result", "The iLogic rule 'SelectInstance' exited due to name mismatch of the root node.")
+				Return
 			End If
 
-			'Perform Selection
-			mPrtDoc.SelectSet.Clear()
-			For Each mBody As SurfaceBody In mCompDef.SurfaceBodies
-				Dim mBodyPartNumber As String = mExtractPartNumFromBodyName(mBody.Name)
-				' if a user turned on "Isolate" before, none of the bodies might be visible
-				mBody.Visible = True
-				For Each s In mBodyCache.Where(Function(x)
-												   Return mPartnumbers.Contains(x.Key)
-											   End Function)
-					'Logger.Info("Select bodies for partnumber " & s.Key & "; Count: " & s.Value.Count)
-					For Each body As SurfaceBody In s.Value
-						mPrtDoc.SelectSet.Select(body)
-					Next
+			For i As Integer = 1 To mInstancePath.Length - 1
+				Dim mOccName As String = mInstancePath(i)
+
+				' Find the matching occurrence in the current level
+				Dim found As Boolean = False
+				For Each mOcc As ComponentOccurrence In mCurrentOccurrences
+					If mOcc.Name = mOccName Then
+						' If this is the last element in the path, get the proxy
+						If i = mInstancePath.Length - 1 Then
+							mOccToSelect = mOcc
+						Else
+							' Move to the next level of occurrences
+							mCurrentOccurrences = mOcc.SubOccurrences
+						End If
+						found = True
+						Exit For
+					End If
 				Next
+
+				' If no matching occurrence is found, exit
+				If Not found Then
+					Logger.Error($"Occurrence '{mOccName}' not found in the path.")
+					RuleArguments.Arguments.Add("Result", $"The iLogic rule 'SelectInstance' exited because the occurrence '{mOccName}' was not found.")
+					Exit Sub
+				End If
 			Next
 
-		End If ' surfacebodies.count > 0
+			' clear current isolate view
+			Dim ctrlDef = ThisApplication.CommandManager.ControlDefinitions.Item("AssemblyIsolateUndoCmd")
+			While ctrlDef.Enabled
+				ctrlDef.Execute
+			End While
 
-	End If  ' end region Mulit-Body selection
+			'Perform Selection
+			mAsmDoc.SelectSet.Clear()
+			mAsmDoc.SelectSet.Select(mOccToSelect)
+		End If
 
-	' return a result
-	RuleArguments.Arguments.Add("Result", "0")
+		' return a result
+		RuleArguments.Arguments.Add("Result", "0")
+
+	Catch ex As Exception
+		Logger.Error(ex.Message)
+		RuleArguments.Arguments.Add("Result", "The iLogic rule 'SelectInstance' return an unhandled exception.")
+	End Try
 
 End Sub
-
-Private Function mExtractPartNumFromBodyName(Name As String)
-	Dim mNameSubStrings As String() = Name.Split("_")
-	'the name convention is: Pos_'CAD'_Number_Title_LxBxH
-	If mNameSubStrings.Length >= 3 Then
-		Return mNameSubStrings(1) + "_" + mNameSubStrings(2)
-	End If
-	Return Nothing
-End Function
