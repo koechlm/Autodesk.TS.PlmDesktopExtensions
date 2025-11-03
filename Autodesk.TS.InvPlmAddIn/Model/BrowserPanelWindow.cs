@@ -23,10 +23,11 @@ namespace InvPlmAddIn.Model
 			UserControl.WebViewHandler.ExecutePlmSearchRawMaterial(searchText);
 		}
 
-		public void ExecutePlmSelectItem(string partNumbers)
+		public void ExecutePlmAction(string partNumbers)
 		{
-			UserControl.WebViewHandler.ExecutePlmSelectItem(partNumbers);
-		}
+			// UserControl.WebViewHandler.ExecutePlmAction(partNumbers);
+            UserControl.WebViewHandler.WebView_SendMessage(partNumbers);
+        }
 
 		public WebViewHandler GetWebViewHandler()
 		{

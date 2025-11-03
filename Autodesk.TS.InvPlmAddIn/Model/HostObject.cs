@@ -227,8 +227,6 @@ namespace InvPlmAddIn.Model
                 };
 
                 CallILogic("SelectComponents", ref dic);
-                // await Task.CompletedTask;
-                // include result handling
                 await Task.FromResult(dic);
 
                 object iLogicResult;
@@ -290,8 +288,6 @@ namespace InvPlmAddIn.Model
                 };
 
                 CallILogic("SelectInstance", ref dic);
-                // await Task.CompletedTask;
-                // include result handling
                 await Task.FromResult(dic);
 
                 object iLogicResult;
@@ -312,16 +308,42 @@ namespace InvPlmAddIn.Model
 
         public static async Task isolateInstance(string[] parameters)
         {
-            // reserved for future use
-            // This method is currently not implemented in the iLogic rule.
-            // It can be used to isolate a specific instance of a component in the assembly.
-            // For now, it simply returns without doing anything.
-            var dic = new Dictionary<string, object>
+            BrowserPanelWindowManager.mSelectionSender = "PLM";
+
+            var EntityIds = new Dictionary<string, mVaultEntity>();
+            EntityIds.Add("0", mCastToVaultEntity(parameters));
+
+            //get instance names (=file names, not extension) from Vault using mVaultEntity.entityType
+            List<string> mPartNumbers = new List<string>();
+            mPartNumbers = VaultUtils.mGetPartNumbers(EntityIds);
+
+            string mInstancePath = parameters[5];
+
+            if (mPartNumbers.Count != 0)
             {
-                ["Parameters"] = parameters
-            };
-            //CallILogic("IsolateInstance", ref dic);
-            await Task.CompletedTask;
+                var dic = new Dictionary<string, object>
+                {
+                    ["PartNumber"] = mPartNumbers.ToArray().FirstOrDefault(),
+                    ["InstancePath"] = mInstancePath
+                };
+
+                CallILogic("IsolateInstance", ref dic);
+                await Task.FromResult(dic);
+
+                object iLogicResult;
+                if (dic.TryGetValue("Result", out iLogicResult) == true)
+                {
+                    string message = parameters[0] + ":" + iLogicResult?.ToString();
+                    BrowserPanelWindowManager.SendMessage(message);
+                }
+                else
+                {
+                    string message = parameters[0] + ":" + mErrorCodes.Unhandled.ToString();
+                    BrowserPanelWindowManager.SendMessage(message);
+                }
+            }
+
+            BrowserPanelWindowManager.mSelectionSender = "Inventor";
         }
 
         public async Task setLifecycleState(string folderName, string targetStateName)

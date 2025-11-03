@@ -23,9 +23,9 @@ namespace InvPlmAddIn.Model
 			Options = options?.ToArray() ?? Array.Empty<PanelOptions>();
 			PartNumber = partNumber;
 			InitViews();
-		}
+        }
 
-		public bool ArePagesRefreshedAfterLogin { get; set; }
+        public bool ArePagesRefreshedAfterLogin { get; set; }
 
 		public HostObject HostObject { get; set; }
 
@@ -73,10 +73,10 @@ namespace InvPlmAddIn.Model
 				.Replace(PartNumberParameter, PartNumber)
 				.Replace("{Theme}", InvPlmAddIn.InvPlmAddinSrv.mInventorApplication.ThemeManager.ActiveTheme.Name.Replace("Theme", ""));
 
-        public void mSendMessage(string message)
-        {
-            foreach (var panel in WebViewHandlers.Values)
-                panel.WebView.CoreWebView2.PostWebMessageAsString(message);
-        }
+        //public void mSendMessage(string message)
+        //{
+        //    foreach (var panel in WebViewHandlers.Values)
+        //        panel.WebView.CoreWebView2.PostWebMessageAsString(message);
+        //}
     }
 }
