@@ -31,14 +31,14 @@ namespace InvPlmAddIn.Model
             new PanelOptions
             {
                 InternalName = "Item",
-                WindowTitle = "Vault PLM Item",
+                WindowTitle = "Vault PLM-UXE Item",
                 Url = mBaseUri.ToString() + "/item?number={PartNumber}&theme={Theme}" + "&host=Inventor"
             },
 
             new PanelOptions
             {
                 InternalName = "Instances",
-                WindowTitle = "Vault PLM Instance",
+                WindowTitle = "Vault PLM-UXE Instance",
                 Url = mBaseUri.ToString() + "/../asset-editor?number={PartNumber}&theme={Theme}" + "&host=Inventor"
             }
 
@@ -55,7 +55,7 @@ namespace InvPlmAddIn.Model
             new PanelOptions
             {
                 InternalName = "plmTasksWindow",
-                WindowTitle = "Vault PLM Tasks",
+                WindowTitle = "Vault PLM-UXE Tasks",
                 Url = mBaseUri.ToString() + "/tasks?&theme={Theme}" + "&host=Inventor"
             },
             
@@ -69,7 +69,7 @@ namespace InvPlmAddIn.Model
             new PanelOptions
             {
                 InternalName = "plmSearchWindow",
-                WindowTitle = "Vault PLM Search",
+                WindowTitle = "Vault PLM-UXE Search",
                 Url = mBaseUri.ToString() + "/pdm-search?&theme={Theme}" + "&host=Inventor"
             }
         };
@@ -184,7 +184,22 @@ namespace InvPlmAddIn.Model
                             }
                         }
                         string mNumbers = System.Text.Json.JsonSerializer.Serialize((List<string>)mSelectedPartNumbers).ToString();
-                        GetPlmItemWindow().ExecutePlmSelectItem(mNumbers);
+                        GetPlmItemWindow("Item").ExecutePlmAction(mNumbers);
+
+                        // for single selection of an occurrence, we call selectInstance()
+                        if (mSelectSet.Count == 1)
+                        {
+                            // get the full path of the occurrence iterating the OccurrencePath Items
+                            string InstancePath = "";
+                            string message = "";
+                            var occurrence = (ComponentOccurrence)mSelectSet[1];
+                            foreach (ComponentOccurrence pathItem in occurrence.OccurrencePath)
+                            {
+                                InstancePath += "|" + pathItem._DisplayName;
+                            }
+                            message = "selectInstance:" + mSelectedPartNumbers[0] + ":" + application.ActiveDocument.DisplayName + InstancePath;
+                            GetPlmItemWindow("Instances").ExecutePlmAction(message);
+                        }
                     }
 
                     //Body selection; we differentiate selection of 'material-assigned' bodies and others. 'material-assigned' body names start with a partnumber 'CAD_'
@@ -205,7 +220,7 @@ namespace InvPlmAddIn.Model
                         if (mSelectedPartNumbers.Count > 0)
                         {
                             string mNumbers = System.Text.Json.JsonSerializer.Serialize((List<string>)mSelectedPartNumbers).ToString();
-                            GetPlmItemWindow().ExecutePlmSelectItem(mNumbers);
+                            GetPlmItemWindow("Item").ExecutePlmAction(mNumbers);
                             return;
                         }
                     }
@@ -244,13 +259,13 @@ namespace InvPlmAddIn.Model
                 }
 
                 //toDo: bind event registration to a future option/setting of the addin; for now, we decided to turn off and actively grab a selection
-                //docSet.DocumentsEvents = document.DocumentEvents;
-                //docSet.DocumentsEvents.OnChangeSelectSet += DocumentEvents_OnChangeSelectSet;
+                docSet.DocumentsEvents = document.DocumentEvents;
+                docSet.DocumentsEvents.OnChangeSelectSet += DocumentEvents_OnChangeSelectSet;
             }
             return docSet;
         }
 
-        private BrowserPanelWindow GetPlmItemWindow() => windows.First(x => x.Options.InternalName == "Item");
+        private BrowserPanelWindow GetPlmItemWindow(string internalName) => windows.First(x => x.Options.InternalName == internalName);
 
         private void RemoveDocumentPanelSetOfDocument(Document document)
         {
