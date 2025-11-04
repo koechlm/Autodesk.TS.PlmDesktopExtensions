@@ -42,24 +42,40 @@
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Autodesk.Connectivity.Explorer.Extensibility">
+      <HintPath>tempSDK\Autodesk.Connectivity.Explorer.Extensibility.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Autodesk.Connectivity.Explorer.ExtensibilityTools">
-      <HintPath>..\SDK Refs\Autodesk.Connectivity.Explorer.ExtensibilityTools.dll</HintPath>
+      <HintPath>tempSDK\Autodesk.Connectivity.Explorer.ExtensibilityTools.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Autodesk.Connectivity.Extensibility.Framework">
-      <HintPath>..\SDK Refs\Autodesk.Connectivity.Extensibility.Framework.dll</HintPath>
+      <HintPath>tempSDK\Autodesk.Connectivity.Extensibility.Framework.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Autodesk.Connectivity.WebServices">
-      <HintPath>..\SDK Refs\Autodesk.Connectivity.WebServices.dll</HintPath>
+      <HintPath>tempSDK\Autodesk.Connectivity.WebServices.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Autodesk.Connectivity.WebServices.WCF">
+      <HintPath>tempSDK\Autodesk.Connectivity.WebServices.WCF.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Autodesk.DataManagement.Client.Framework">
-      <HintPath>..\SDK Refs\Autodesk.DataManagement.Client.Framework.dll</HintPath>
+      <HintPath>tempSDK\Autodesk.DataManagement.Client.Framework.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Autodesk.DataManagement.Client.Framework.Forms">
+      <HintPath>tempSDK\Autodesk.DataManagement.Client.Framework.Forms.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Autodesk.DataManagement.Client.Framework.Vault">
-      <HintPath>..\SDK Refs\Autodesk.DataManagement.Client.Framework.Vault.dll</HintPath>
+      <HintPath>tempSDK\Autodesk.DataManagement.Client.Framework.Vault.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Autodesk.DataManagement.Client.Framework.Vault.Forms">
+      <HintPath>tempSDK\Autodesk.DataManagement.Client.Framework.Vault.Forms.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -74,6 +90,21 @@
     <None Include="Autodesk.TS.PlmEventHandler.vcet.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="tempSDK\Autodesk.Connectivity.Explorer.Extensibility.dll" />
+    <None Include="tempSDK\Autodesk.Connectivity.Explorer.ExtensibilityTools.dll" />
+    <None Include="tempSDK\Autodesk.Connectivity.Extensibility.Framework.dll" />
+    <None Include="tempSDK\Autodesk.Connectivity.FMPanel.dll" />
+    <None Include="tempSDK\Autodesk.Connectivity.IDServicesWrapper.dll" />
+    <None Include="tempSDK\Autodesk.Connectivity.JobProcessor.Extensibility.dll" />
+    <None Include="tempSDK\Autodesk.Connectivity.LicenseWrapper.dll" />
+    <None Include="tempSDK\Autodesk.Connectivity.VaultConnect.dll" />
+    <None Include="tempSDK\Autodesk.Connectivity.WebServices.dll" />
+    <None Include="tempSDK\Autodesk.Connectivity.WebServices.WCF.dll" />
+    <None Include="tempSDK\Autodesk.DataManagement.Client.Framework.dll" />
+    <None Include="tempSDK\Autodesk.DataManagement.Client.Framework.Forms.dll" />
+    <None Include="tempSDK\Autodesk.DataManagement.Client.Framework.FOS.dll" />
+    <None Include="tempSDK\Autodesk.DataManagement.Client.Framework.Vault.dll" />
+    <None Include="tempSDK\Autodesk.DataManagement.Client.Framework.Vault.Forms.dll" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Settings.xml">

@@ -197,7 +197,7 @@ namespace InvPlmAddIn.Model
                             {
                                 InstancePath += "|" + pathItem._DisplayName;
                             }
-                            message = "selectInstance:" + mSelectedPartNumbers[0] + ":" + application.ActiveDocument.DisplayName + InstancePath;
+                            message = "selectInstance;" + mSelectedPartNumbers[0] + ";" + application.ActiveDocument.DisplayName + InstancePath;
                             GetPlmItemWindow("Instances").ExecutePlmAction(message);
                         }
                     }
