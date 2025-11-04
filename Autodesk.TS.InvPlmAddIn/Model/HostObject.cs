@@ -232,7 +232,7 @@ namespace InvPlmAddIn.Model
                 object iLogicResult;
                 if (dic.TryGetValue("Result", out iLogicResult) == true)
                 {
-                    string message = parameters[0] + ":" + iLogicResult?.ToString();                    
+                    string message = parameters[0] + ";" + iLogicResult?.ToString();                    
                     BrowserPanelWindowManager.SendMessage(message);
                 }
             }
@@ -293,12 +293,12 @@ namespace InvPlmAddIn.Model
                 object iLogicResult;
                 if (dic.TryGetValue("Result", out iLogicResult) == true)
                 {
-                    string message = parameters[0] + ":" + iLogicResult?.ToString();
+                    string message = parameters[0] + ";" + iLogicResult?.ToString();
                     BrowserPanelWindowManager.SendMessage(message);
                 }
                 else
                 {
-                    string message = parameters[0] + ":" + mErrorCodes.Unhandled.ToString();
+                    string message = parameters[0] + ";" + mErrorCodes.Unhandled.ToString();
                     BrowserPanelWindowManager.SendMessage(message);
                 }   
             }
@@ -333,12 +333,12 @@ namespace InvPlmAddIn.Model
                 object iLogicResult;
                 if (dic.TryGetValue("Result", out iLogicResult) == true)
                 {
-                    string message = parameters[0] + ":" + iLogicResult?.ToString();
+                    string message = parameters[0] + ";" + iLogicResult?.ToString();
                     BrowserPanelWindowManager.SendMessage(message);
                 }
                 else
                 {
-                    string message = parameters[0] + ":" + mErrorCodes.Unhandled.ToString();
+                    string message = parameters[0] + ";" + mErrorCodes.Unhandled.ToString();
                     BrowserPanelWindowManager.SendMessage(message);
                 }
             }

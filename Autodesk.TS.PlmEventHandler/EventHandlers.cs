@@ -26,6 +26,8 @@ namespace Autodesk.TS.PlmEventHandler
             "Inventor Drawing"
         };
 
+        private const string mFMConfigName = "Adsk.Vault.ExternalSyncTask.FusionManage";
+
         #endregion custom variables
 
         #region IWebServiceExtension Members
@@ -290,15 +292,26 @@ namespace Autodesk.TS.PlmEventHandler
         }
 
         private void CommitItemEvents_Post(object sender, CommitItemCommandEventArgs e)
-        {            
+        {
             if (e.Status == EventStatus.FAIL)
             {
                 return;
             }
 
-            // on success: call the FM sync method here to initiate item creation/update on FM;
+            IWebService service = sender as IWebService;
+            if (service == null)
+                return;
 
+            WebServiceCredentials cred = new WebServiceCredentials(service);
+            using (WebServiceManager serviceManager = new WebServiceManager(cred))
+            {
+                var mExternalSyncService = serviceManager.ExternalSyncService;
 
+                NameValuePair[] taskParamArray = new NameValuePair[1];               
+
+                // submit the task to FM for the created/modified item
+                mExternalSyncService.AddExtSyncTask(e.ItemRevisionIds.FirstOrDefault(), "ITEM", mFMConfigName, taskParamArray);
+            }
         }
 
         private void CommitItemEvents_Pre(object sender, CommitItemCommandEventArgs e)
