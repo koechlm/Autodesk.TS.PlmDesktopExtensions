@@ -163,6 +163,9 @@ namespace InvPlmAddIn.Model
             handlingCode = HandlingCodeEnum.kEventNotHandled;
             var application = InvPlmAddinSrv.mInventorApplication;
 
+            string InstancePath = "";
+            string message = "";
+
             if (BeforeOrAfter == EventTimingEnum.kAfter && application.ActiveDocument?.SelectSet != null)
             {
                 mSelectSet = application.ActiveDocument.SelectSet;
@@ -183,21 +186,21 @@ namespace InvPlmAddIn.Model
                                 mSelectedPartNumbers.Add(GetDocPartNumber((Document)component.Definition.Document));
                             }
                         }
-                        string mNumbers = System.Text.Json.JsonSerializer.Serialize((List<string>)mSelectedPartNumbers).ToString();
-                        GetPlmItemWindow("Item").ExecutePlmAction(mNumbers);
+                        
+                        message = "selectComponent:" + mSelectedPartNumbers.LastOrDefault();
+                        GetPlmItemWindow("Item").ExecutePlmAction(message);
 
                         // for single selection of an occurrence, we call selectInstance()
                         if (mSelectSet.Count == 1)
                         {
                             // get the full path of the occurrence iterating the OccurrencePath Items
-                            string InstancePath = "";
-                            string message = "";
+
                             var occurrence = (ComponentOccurrence)mSelectSet[1];
                             foreach (ComponentOccurrence pathItem in occurrence.OccurrencePath)
                             {
                                 InstancePath += "|" + pathItem._DisplayName;
                             }
-                            message = "selectInstance;" + mSelectedPartNumbers[0] + ";" + application.ActiveDocument.DisplayName + InstancePath;
+                            message = "selectInstance:" + mSelectedPartNumbers[0] + ";" + application.ActiveDocument.DisplayName + InstancePath;
                             GetPlmItemWindow("Instances").ExecutePlmAction(message);
                         }
                     }
@@ -219,8 +222,8 @@ namespace InvPlmAddIn.Model
                         }
                         if (mSelectedPartNumbers.Count > 0)
                         {
-                            string mNumbers = System.Text.Json.JsonSerializer.Serialize((List<string>)mSelectedPartNumbers).ToString();
-                            GetPlmItemWindow("Item").ExecutePlmAction(mNumbers);
+                            message = "selectComponent:" + mSelectedPartNumbers.LastOrDefault();
+                            GetPlmItemWindow("Item").ExecutePlmAction(message);
                             return;
                         }
                     }

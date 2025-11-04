@@ -277,7 +277,7 @@ namespace InvPlmAddIn.Model
             List<string> mPartNumbers = new List<string>();
             mPartNumbers = VaultUtils.mGetPartNumbers(EntityIds);
 
-            string mInstancePath = parameters[5];
+            string mInstancePath = parameters[4];
 
             if (mPartNumbers.Count != 0)
             {
@@ -431,30 +431,30 @@ namespace InvPlmAddIn.Model
 
             //parameters are expected to be in the format: "messageId;source(entitytype);id;name/number;masterId or URN"
 
-            switch (parameters[1])
+            switch (parameters[0])
             {
                 case "file":
                     return new mVaultEntity
                     {
                         entityType = "file",
-                        id = parameters[2],
-                        name = parameters[3],
-                        masterId = parameters[4]
+                        id = parameters[1],
+                        name = parameters[2],
+                        masterId = parameters[3]
                     };
                 case "item":
                     return new mVaultEntity
                     {
                         entityType = "item",
-                        id = parameters[2],
-                        name = parameters[3],
+                        id = parameters[1],
+                        name = parameters[2],
                         masterId = string.Empty // Item does not have a masterId
                     };
                 case "plm-item":
                     return new mVaultEntity
                     {
                         entityType = "plm-item",
-                        id = parameters[2],
-                        name = parameters[3]
+                        id = parameters[1],
+                        name = parameters[2]
                     };
                 default:
                     return null;
