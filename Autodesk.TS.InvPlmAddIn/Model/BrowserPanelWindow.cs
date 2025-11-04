@@ -23,10 +23,9 @@ namespace InvPlmAddIn.Model
 			UserControl.WebViewHandler.ExecutePlmSearchRawMaterial(searchText);
 		}
 
-		public void ExecutePlmAction(string partNumbers)
-		{
-			// UserControl.WebViewHandler.ExecutePlmAction(partNumbers);
-            UserControl.WebViewHandler.WebView_SendMessage(partNumbers);
+		public void ExecutePlmAction(string message)
+		{			
+            UserControl.WebViewHandler.WebView_SendMessage(message);
         }
 
 		public WebViewHandler GetWebViewHandler()
