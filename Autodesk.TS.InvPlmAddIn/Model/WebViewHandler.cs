@@ -62,5 +62,14 @@ namespace InvPlmAddIn.Model
                 HostObject.HandleJsMessage(message);
             }
         }
-	}
+
+        public void WebView_SendMessage(string message)
+        {
+            if (WebView?.CoreWebView2 != null)
+            {
+                WebView.CoreWebView2.PostWebMessageAsString(message);
+            }
+        }
+
+    }
 }

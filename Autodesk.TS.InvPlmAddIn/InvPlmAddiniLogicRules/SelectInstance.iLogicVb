@@ -1,0 +1,83 @@
+﻿AddReference "Adsk.Ts.VaultUtils.dll"
+Public Sub Main()
+	break
+
+	Try
+		Dim mPartNumber As String = RuleArguments("PartNumber")
+		Dim mInstance As String = RuleArguments("InstancePath")
+		Dim mDoc As Inventor.Document = ThisApplication.ActiveDocument
+		'Dim mOccToSelect As Inventor.ComponentOccurrenceProxy
+		Dim mSubOccs As Inventor.ComponentOccurrences
+		Dim mOccToSelect As ComponentOccurrenceProxy = Nothing
+
+		If mInstance Is Nothing Then
+			Logger.Error("Rule exits due to missing rule argument 'Instance'")
+			'AdskTsVaultUtils.Messages.ShowError("Rule exits due to missing rule argument [mInstance].", "iLogic-Vault")
+			RuleArguments.Arguments.Add("Result", "The iLogic rule 'SelectInstance' did not recieve an instance path.")
+			Exit Sub
+		End If
+
+		'Split the instance path
+		Dim mInstancePath() As String
+		If mInstance.Split("|").Length > 1 Then
+			mInstancePath = mInstance.Split("|")
+		End If
+
+		If (ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kAssemblyDocumentObject) Then
+			Dim mAsmDoc As AssemblyDocument = mDoc
+			Dim mCompDef As Inventor.AssemblyComponentDefinition = mDoc.ComponentDefinition
+			Dim mCurrentOccurrences As ComponentOccurrences = mCompDef.Occurrences
+
+			If mAsmDoc.DisplayNameBasis <> mInstancePath(0) Then
+				Logger.Error("Exiting rule due to name mismatch of root node.")
+				RuleArguments.Arguments.Add("Result", "The iLogic rule 'SelectInstance' exited due to name mismatch of the root node.")
+				Return
+			End If
+
+			For i As Integer = 1 To mInstancePath.Length - 1
+				Dim mOccName As String = mInstancePath(i)
+
+				' Find the matching occurrence in the current level
+				Dim found As Boolean = False
+				For Each mOcc As ComponentOccurrence In mCurrentOccurrences
+					If mOcc.Name = mOccName Then
+						' If this is the last element in the path, get the proxy
+						If i = mInstancePath.Length - 1 Then
+							mOccToSelect = mOcc
+						Else
+							' Move to the next level of occurrences
+							mCurrentOccurrences = mOcc.SubOccurrences
+						End If
+						found = True
+						Exit For
+					End If
+				Next
+
+				' If no matching occurrence is found, exit
+				If Not found Then
+					Logger.Error($"Occurrence '{mOccName}' not found in the path.")
+					RuleArguments.Arguments.Add("Result", $"The iLogic rule 'SelectInstance' exited because the occurrence '{mOccName}' was not found.")
+					Exit Sub
+				End If
+			Next
+
+			' clear current isolate view
+			Dim ctrlDef = ThisApplication.CommandManager.ControlDefinitions.Item("AssemblyIsolateUndoCmd")
+			While ctrlDef.Enabled
+				ctrlDef.Execute
+			End While
+
+			'Perform Selection
+			mAsmDoc.SelectSet.Clear()
+			mAsmDoc.SelectSet.Select(mOccToSelect)
+		End If
+
+		' return a result
+		RuleArguments.Arguments.Add("Result", "0")
+
+	Catch ex As Exception
+		Logger.Error(ex.Message)
+		RuleArguments.Arguments.Add("Result", "The iLogic rule 'SelectInstance' return an unhandled exception.")
+	End Try
+
+End Sub
