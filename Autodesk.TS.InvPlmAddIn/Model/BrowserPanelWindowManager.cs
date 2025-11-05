@@ -17,12 +17,12 @@ namespace InvPlmAddIn.Model
 
         private List<BrowserPanelWindow> windows = new List<BrowserPanelWindow>();
 
-        private List<BrowserPanelWindow> windowsAppContext = new List<BrowserPanelWindow>();
+        private static List<BrowserPanelWindow> windowsAppContext = new List<BrowserPanelWindow>();
 
         public BrowserPanelWindowManager(InvPlmAddIn.InvPlmAddinSrv addIn) => mAddIn = addIn;
 
         public static string mSelectionSender { get; set; } = "Inventor";
-        public DocumentPanelSet ActiveDocumentPanelSet { get; set; }
+        public static DocumentPanelSet ActiveDocumentPanelSet { get; set; }
         private InvPlmAddIn.InvPlmAddinSrv mAddIn { get; set; }
         public bool IsLoggedIn { get; private set; } = false;
 
@@ -31,15 +31,22 @@ namespace InvPlmAddIn.Model
             new PanelOptions
             {
                 InternalName = "Item",
-                WindowTitle = "Vault PLM Item",
+                WindowTitle = "Vault PLM-UXE Item",
                 Url = mBaseUri.ToString() + "/item?number={PartNumber}&theme={Theme}" + "&host=Inventor"
             },
+
+            new PanelOptions
+            {
+                InternalName = "Instances",
+                WindowTitle = "Vault PLM-UXE Instance",
+                Url = mBaseUri.ToString() + "/../asset-editor?number={PartNumber}&theme={Theme}" + "&host=Inventor"
+            }
 
             //new PanelOptions
             //{
             //    InternalName = "Context",
             //    WindowTitle = "Vault PLM Context",
-            //    Url = mBaseUri.ToString() + "/context?number={PartNumber}&theme={Theme}"
+            //    Url = mBaseUri.ToString() + "/context?number={PartNumber}&theme={Theme}" + "&host=Inventor"
             //},
         };
 
@@ -48,7 +55,7 @@ namespace InvPlmAddIn.Model
             new PanelOptions
             {
                 InternalName = "plmTasksWindow",
-                WindowTitle = "Vault PLM Tasks",
+                WindowTitle = "Vault PLM-UXE Tasks",
                 Url = mBaseUri.ToString() + "/tasks?&theme={Theme}" + "&host=Inventor"
             },
             
@@ -62,7 +69,7 @@ namespace InvPlmAddIn.Model
             new PanelOptions
             {
                 InternalName = "plmSearchWindow",
-                WindowTitle = "Vault PLM Search",
+                WindowTitle = "Vault PLM-UXE Search",
                 Url = mBaseUri.ToString() + "/pdm-search?&theme={Theme}" + "&host=Inventor"
             }
         };
@@ -156,6 +163,9 @@ namespace InvPlmAddIn.Model
             handlingCode = HandlingCodeEnum.kEventNotHandled;
             var application = InvPlmAddinSrv.mInventorApplication;
 
+            string InstancePath = "";
+            string message = "";
+
             if (BeforeOrAfter == EventTimingEnum.kAfter && application.ActiveDocument?.SelectSet != null)
             {
                 mSelectSet = application.ActiveDocument.SelectSet;
@@ -176,8 +186,23 @@ namespace InvPlmAddIn.Model
                                 mSelectedPartNumbers.Add(GetDocPartNumber((Document)component.Definition.Document));
                             }
                         }
-                        string mNumbers = System.Text.Json.JsonSerializer.Serialize((List<string>)mSelectedPartNumbers).ToString();
-                        GetPlmItemWindow().ExecutePlmSelectItem(mNumbers);
+                        
+                        message = "selectComponent:" + mSelectedPartNumbers.LastOrDefault();
+                        GetPlmItemWindow("Item").ExecutePlmAction(message);
+
+                        // for single selection of an occurrence, we call selectInstance()
+                        if (mSelectSet.Count == 1)
+                        {
+                            // get the full path of the occurrence iterating the OccurrencePath Items
+
+                            var occurrence = (ComponentOccurrence)mSelectSet[1];
+                            foreach (ComponentOccurrence pathItem in occurrence.OccurrencePath)
+                            {
+                                InstancePath += "|" + pathItem._DisplayName;
+                            }
+                            message = "selectInstance:" + mSelectedPartNumbers[0] + ";" + application.ActiveDocument.DisplayName + InstancePath;
+                            GetPlmItemWindow("Instances").ExecutePlmAction(message);
+                        }
                     }
 
                     //Body selection; we differentiate selection of 'material-assigned' bodies and others. 'material-assigned' body names start with a partnumber 'CAD_'
@@ -197,8 +222,8 @@ namespace InvPlmAddIn.Model
                         }
                         if (mSelectedPartNumbers.Count > 0)
                         {
-                            string mNumbers = System.Text.Json.JsonSerializer.Serialize((List<string>)mSelectedPartNumbers).ToString();
-                            GetPlmItemWindow().ExecutePlmSelectItem(mNumbers);
+                            message = "selectComponent:" + mSelectedPartNumbers.LastOrDefault();
+                            GetPlmItemWindow("Item").ExecutePlmAction(message);
                             return;
                         }
                     }
@@ -237,13 +262,13 @@ namespace InvPlmAddIn.Model
                 }
 
                 //toDo: bind event registration to a future option/setting of the addin; for now, we decided to turn off and actively grab a selection
-                //docSet.DocumentsEvents = document.DocumentEvents;
-                //docSet.DocumentsEvents.OnChangeSelectSet += DocumentEvents_OnChangeSelectSet;
+                docSet.DocumentsEvents = document.DocumentEvents;
+                docSet.DocumentsEvents.OnChangeSelectSet += DocumentEvents_OnChangeSelectSet;
             }
             return docSet;
         }
 
-        private BrowserPanelWindow GetPlmItemWindow() => windows.First(x => x.Options.InternalName == "Item");
+        private BrowserPanelWindow GetPlmItemWindow(string internalName) => windows.First(x => x.Options.InternalName == internalName);
 
         private void RemoveDocumentPanelSetOfDocument(Document document)
         {
@@ -289,6 +314,13 @@ namespace InvPlmAddIn.Model
                     a.DocumentsEvents.OnChangeSelectSet -= DocumentEvents_OnChangeSelectSet;
             }
             panelSets.Clear();
+        }
+
+        public static void SendMessage(string message)
+        {
+            foreach (var a in windowsAppContext)
+                a.GetWebViewHandler().WebView_SendMessage(message);
+            ActiveDocumentPanelSet?.WebViewHandlers.Values.ToList().ForEach(x => x.WebView_SendMessage(message));
         }
     }
 }

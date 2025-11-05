@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Autodesk.TS.InvPlmAddIn": {
+      "commandName": "Project",
+      "remoteDebugEnabled": true,
+      "authenticationMode": "None"
+    }
+  }
+}

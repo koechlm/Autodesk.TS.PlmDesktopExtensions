@@ -40,6 +40,8 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup.VaultPlmExtension", "
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup.Inventor.VaultPlmExtension", "Setup.Inventor.Vault.plm.Extension\Setup.Inventor.VaultPlmExtension.vdproj", "{22E700DA-59D6-6747-956D-876524F9FFBD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Autodesk.TS.PlmEventHandler", "Autodesk.TS.PlmEventHandler\Autodesk.TS.PlmEventHandler.csproj", "{0B11C526-2BFE-45AB-8614-AA22C8D861B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,6 +76,14 @@ Global
 		{22E700DA-59D6-6747-956D-876524F9FFBD}.Release|Any CPU.ActiveCfg = Release
 		{22E700DA-59D6-6747-956D-876524F9FFBD}.Release|x64.ActiveCfg = Release
 		{22E700DA-59D6-6747-956D-876524F9FFBD}.Release|x64.Build.0 = Release
+		{0B11C526-2BFE-45AB-8614-AA22C8D861B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B11C526-2BFE-45AB-8614-AA22C8D861B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B11C526-2BFE-45AB-8614-AA22C8D861B4}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0B11C526-2BFE-45AB-8614-AA22C8D861B4}.Debug|x64.Build.0 = Debug|Any CPU
+		{0B11C526-2BFE-45AB-8614-AA22C8D861B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B11C526-2BFE-45AB-8614-AA22C8D861B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B11C526-2BFE-45AB-8614-AA22C8D861B4}.Release|x64.ActiveCfg = Release|Any CPU
+		{0B11C526-2BFE-45AB-8614-AA22C8D861B4}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

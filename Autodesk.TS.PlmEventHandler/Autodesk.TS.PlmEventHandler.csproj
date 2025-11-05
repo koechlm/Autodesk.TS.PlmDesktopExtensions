@@ -1,0 +1,114 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+    <ProjectGuid>{0b11c526-2bfe-45ab-8614-aa22c8d861b4}</ProjectGuid>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Autodesk.TS.PlmEventHandler</RootNamespace>
+    <AssemblyName>Autodesk.TS.PlmEventHandler</AssemblyName>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <MSBuildWarningsAsMessages>MSB3277</MSBuildWarningsAsMessages>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>$(ProgramData)\Autodesk\Vault 2026\Extensions\Autodesk.TS.PlmEventHandler\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Autodesk.Connectivity.Explorer.Extensibility">
+      <HintPath>tempSDK\Autodesk.Connectivity.Explorer.Extensibility.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Autodesk.Connectivity.Explorer.ExtensibilityTools">
+      <HintPath>tempSDK\Autodesk.Connectivity.Explorer.ExtensibilityTools.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Autodesk.Connectivity.Extensibility.Framework">
+      <HintPath>tempSDK\Autodesk.Connectivity.Extensibility.Framework.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Autodesk.Connectivity.WebServices">
+      <HintPath>tempSDK\Autodesk.Connectivity.WebServices.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Autodesk.Connectivity.WebServices.WCF">
+      <HintPath>tempSDK\Autodesk.Connectivity.WebServices.WCF.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Autodesk.DataManagement.Client.Framework">
+      <HintPath>tempSDK\Autodesk.DataManagement.Client.Framework.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Autodesk.DataManagement.Client.Framework.Forms">
+      <HintPath>tempSDK\Autodesk.DataManagement.Client.Framework.Forms.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Autodesk.DataManagement.Client.Framework.Vault">
+      <HintPath>tempSDK\Autodesk.DataManagement.Client.Framework.Vault.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Autodesk.DataManagement.Client.Framework.Vault.Forms">
+      <HintPath>tempSDK\Autodesk.DataManagement.Client.Framework.Vault.Forms.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="EventHandlers.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="Util.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Key.snk" />
+    <None Include="Autodesk.TS.PlmEventHandler.vcet.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tempSDK\Autodesk.Connectivity.Explorer.Extensibility.dll" />
+    <None Include="tempSDK\Autodesk.Connectivity.Explorer.ExtensibilityTools.dll" />
+    <None Include="tempSDK\Autodesk.Connectivity.Extensibility.Framework.dll" />
+    <None Include="tempSDK\Autodesk.Connectivity.FMPanel.dll" />
+    <None Include="tempSDK\Autodesk.Connectivity.IDServicesWrapper.dll" />
+    <None Include="tempSDK\Autodesk.Connectivity.JobProcessor.Extensibility.dll" />
+    <None Include="tempSDK\Autodesk.Connectivity.LicenseWrapper.dll" />
+    <None Include="tempSDK\Autodesk.Connectivity.VaultConnect.dll" />
+    <None Include="tempSDK\Autodesk.Connectivity.WebServices.dll" />
+    <None Include="tempSDK\Autodesk.Connectivity.WebServices.WCF.dll" />
+    <None Include="tempSDK\Autodesk.DataManagement.Client.Framework.dll" />
+    <None Include="tempSDK\Autodesk.DataManagement.Client.Framework.Forms.dll" />
+    <None Include="tempSDK\Autodesk.DataManagement.Client.Framework.FOS.dll" />
+    <None Include="tempSDK\Autodesk.DataManagement.Client.Framework.Vault.dll" />
+    <None Include="tempSDK\Autodesk.DataManagement.Client.Framework.Vault.Forms.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Settings.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>
