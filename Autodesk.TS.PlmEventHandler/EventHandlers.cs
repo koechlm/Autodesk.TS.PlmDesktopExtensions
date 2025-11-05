@@ -316,8 +316,10 @@ namespace Autodesk.TS.PlmEventHandler
                 var mExternalSyncService = serviceManager.ExternalSyncService;
 
                 // submit the task to FM for the created/modified item
-                long mId = serviceManager.ItemService.GetItemsByRevisionIds(new long[] { e.ItemRevisionIds.FirstOrDefault() }, true).FirstOrDefault().MasterId;
-                mExternalSyncService.AddExtSyncTask(mId, "ITEM", mFMConfigName, null);
+                long mId = serviceManager.ItemService.GetItemsByRevisionIds(new long[] { e.ItemRevisionIds.FirstOrDefault() }, false).FirstOrDefault().MasterId;
+                long mRevId = serviceManager.ItemService.GetLatestItemByItemMasterId(mId).Id;
+                //mExternalSyncService.AddExtSyncTask(mId, "ITEM", mFMConfigName, null);
+                mExternalSyncService.AddExtSyncTask(mRevId, "ITEM", mFMConfigName, null);
             }
         }
 
