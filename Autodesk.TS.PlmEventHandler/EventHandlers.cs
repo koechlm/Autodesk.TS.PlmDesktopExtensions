@@ -18,12 +18,20 @@ namespace Autodesk.TS.PlmEventHandler
     public class EventHandlers : IWebServiceExtension
     {
         #region custom variables
-        private static List<string> mExcludedCategories = new List<string>()
+        private static readonly List<string> mExcludedCategories = new List<string>()
         {
             "Reference",
             "Phantom",
             "Substitute",
             "Inventor Drawing"
+        };
+
+        private static readonly List<string> mExcludedFileCls = new List<string>()
+        {
+            "Design Visualization",
+            "Design Representation",
+            "Configuration Factory",
+            "Design Document"
         };
 
         private const string mFMConfigName = "Adsk.Vault.ExternalSyncTask.FusionManage";
@@ -307,10 +315,9 @@ namespace Autodesk.TS.PlmEventHandler
             {
                 var mExternalSyncService = serviceManager.ExternalSyncService;
 
-                NameValuePair[] taskParamArray = new NameValuePair[1];               
-
                 // submit the task to FM for the created/modified item
-                mExternalSyncService.AddExtSyncTask(e.ItemRevisionIds.FirstOrDefault(), "ITEM", mFMConfigName, taskParamArray);
+                long mId = serviceManager.ItemService.GetItemsByRevisionIds(new long[] { e.ItemRevisionIds.FirstOrDefault() }, true).FirstOrDefault().MasterId;
+                mExternalSyncService.AddExtSyncTask(mId, "ITEM", mFMConfigName, null);
             }
         }
 
@@ -513,8 +520,13 @@ namespace Autodesk.TS.PlmEventHandler
                 return;
             }
 
-            // call promote file to assign or update item on FM
+            // exclude file classifications
+            if (mExcludedFileCls.Contains(file.FileClass.ToString()))
+            {
+                return;
+            }
 
+            // call promote file to assign or update item on FM
             mPromoteFileToItem(sender, file.Id);
 
         }
