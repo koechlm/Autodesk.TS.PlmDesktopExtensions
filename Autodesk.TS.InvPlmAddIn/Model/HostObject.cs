@@ -317,7 +317,7 @@ namespace InvPlmAddIn.Model
             List<string> mPartNumbers = new List<string>();
             mPartNumbers = VaultUtils.mGetPartNumbers(EntityIds);
 
-            string mInstancePath = parameters[5];
+            string mInstancePath = parameters[4];
 
             if (mPartNumbers.Count != 0)
             {
