@@ -31,14 +31,14 @@ namespace InvPlmAddIn.Model
             new PanelOptions
             {
                 InternalName = "Item",
-                WindowTitle = "Vault PLM-UXE Item",
+                WindowTitle = "FM-UXE Item",
                 Url = mBaseUri.ToString() + "/item?number={PartNumber}&theme={Theme}" + "&host=Inventor"
             },
 
             new PanelOptions
             {
                 InternalName = "Instances",
-                WindowTitle = "Vault PLM-UXE Instance",
+                WindowTitle = "FM-UXE Assets",
                 Url = mBaseUri.ToString() + "/../asset-editor?number={PartNumber}&theme={Theme}" + "&host=Inventor"
             }
 
@@ -55,21 +55,21 @@ namespace InvPlmAddIn.Model
             new PanelOptions
             {
                 InternalName = "plmTasksWindow",
-                WindowTitle = "Vault PLM-UXE Tasks",
+                WindowTitle = "FM-UXE Tasks",
                 Url = mBaseUri.ToString() + "/tasks?&theme={Theme}" + "&host=Inventor"
             },
             
             //new PanelOptions
             //{
             //    InternalName = "plmNavigatorWindow",
-            //    WindowTitle = "Vault PLM Navigator",
+            //    WindowTitle = "FM-UXE Navigator",
             //    Url = mBaseUri.ToString() + "/navigate?&theme={Theme}"
             //},
 
             new PanelOptions
             {
                 InternalName = "plmSearchWindow",
-                WindowTitle = "Vault PLM-UXE Search",
+                WindowTitle = "FM-UXE Search",
                 Url = mBaseUri.ToString() + "/pdm-search?&theme={Theme}" + "&host=Inventor"
             }
         };

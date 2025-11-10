@@ -82,17 +82,17 @@ namespace Autodesk.TS.VltPlmAddIn
 
             // Create a dock panels for Vault/Fusion Manage Search, ITem/BOM and Tasks
             DockPanel mPanelSearch = new DockPanel(Guid.Parse("E2B3E9C6-80B2-4FED-8DF5-08E8C830E31E"),
-                                                "Vault PLM | Search", typeof(WebViewFmSearch));
+                                                "FM-UXE Search", typeof(WebViewFmSearch));
             mDockPanels.Add(mPanelSearch);
 
-            DockPanel mPanelItemDetails = new DockPanel(Guid.Parse("31DB4F79-84D5-4D67-A109-5807563BE133"),
-                                                "Vault PLM | Item Details", typeof(WebViewFmItem));
-            // Add event handler for selection changed event; the content of the panel needs to update accordingly.
-            mPanelItemDetails.SelectionChanged += mPanelItemDetails_SelectionChanged;
-            mDockPanels.Add(mPanelItemDetails);
+            //DockPanel mPanelItemDetails = new DockPanel(Guid.Parse("31DB4F79-84D5-4D67-A109-5807563BE133"),
+            //                                    "FM-UXE Item", typeof(WebViewFmItem));
+            //// Add event handler for selection changed event; the content of the panel needs to update accordingly.
+            //mPanelItemDetails.SelectionChanged += mPanelItemDetails_SelectionChanged;
+            //mDockPanels.Add(mPanelItemDetails);
 
             DockPanel mPanelTasks = new DockPanel(Guid.Parse("7B5E20B1-C3FD-42FB-8955-A8D57D2015B2"),
-                                                "Vault PLM | Tasks", typeof(WebViewFmTasks));
+                                                "FM-UXE Tasks", typeof(WebViewFmTasks));
             //no event handler for now: the content is the personal tasks of the user and not related to the selected object in Vault
             mDockPanels.Add(mPanelTasks);
 
