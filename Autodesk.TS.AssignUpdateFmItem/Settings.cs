@@ -16,13 +16,13 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 
-namespace Autodesk.TS.PlmEventHandler
+namespace Autodesk.TS.AssignUpdateFmItem
 {
     [XmlRoot("settings")]
     public class Settings
     {
-        [XmlElement("SettingName")]
-        public string mSettingName;
+        [XmlElement("LogFileLocation")]
+        public string LogFileLocation;
 
         #region for future use
         //[XmlElement("OutputPath")]
@@ -39,7 +39,7 @@ namespace Autodesk.TS.PlmEventHandler
             try
             {
                 string codeFolder = Util.GetAssemblyPath();
-                string xmlPath = Path.Combine(codeFolder, "Autodesk.TS.PlmEventHandler.xml");
+                string xmlPath = Path.Combine(codeFolder, "Autodesk.TS.AssignUpdateFmItem.xml");
 
                 using (System.IO.StreamWriter writer = new System.IO.StreamWriter(xmlPath))
                 {
@@ -57,7 +57,7 @@ namespace Autodesk.TS.PlmEventHandler
 
 
             string codeFolder = Util.GetAssemblyPath();
-            string xmlPath = Path.Combine(codeFolder, "Autodesk.TS.PlmEventHandler.xml");
+            string xmlPath = Path.Combine(codeFolder, "Autodesk.TS.AssignUpdateFmItem.xml");
 
             using (System.IO.StreamReader reader = new System.IO.StreamReader(xmlPath))
             {
