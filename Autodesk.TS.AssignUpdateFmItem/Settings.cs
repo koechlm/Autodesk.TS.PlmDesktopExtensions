@@ -16,7 +16,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 
-namespace Autodesk.TS.AssignUpdateFmItem
+namespace adsk.ts.job.assignupdateitem
 {
     [XmlRoot("settings")]
     public class Settings
@@ -39,7 +39,7 @@ namespace Autodesk.TS.AssignUpdateFmItem
             try
             {
                 string codeFolder = Util.GetAssemblyPath();
-                string xmlPath = Path.Combine(codeFolder, "Autodesk.TS.AssignUpdateFmItem.xml");
+                string xmlPath = Path.Combine(codeFolder, "adsk.ts.job.assignupdateitem.xml");
 
                 using (System.IO.StreamWriter writer = new System.IO.StreamWriter(xmlPath))
                 {
@@ -57,7 +57,7 @@ namespace Autodesk.TS.AssignUpdateFmItem
 
 
             string codeFolder = Util.GetAssemblyPath();
-            string xmlPath = Path.Combine(codeFolder, "Autodesk.TS.AssignUpdateFmItem.xml");
+            string xmlPath = Path.Combine(codeFolder, "adsk.ts.job.assignupdateitem.xml");
 
             using (System.IO.StreamReader reader = new System.IO.StreamReader(xmlPath))
             {

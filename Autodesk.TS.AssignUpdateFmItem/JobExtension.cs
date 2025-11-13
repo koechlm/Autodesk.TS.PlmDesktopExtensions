@@ -18,14 +18,14 @@ using System.Windows.Forms;
 [assembly: ExtensionId("e47f92ba-e2c2-4c6c-91c3-9482b732d738")]
 
 
-namespace Autodesk.TS.AssignUpdateFmItem
+namespace adsk.ts.job.assignupdateitem
 {
     /// <summary>
     /// Job handler to assign/update Vault and Fusion Manage items
     /// </summary>
     public class JobExtension : IJobHandler
     {
-        private static string JOB_TYPE = "Autodesk.TS.AssignUpdateFmItem";
+        private static string JOB_TYPE = "adsk.ts.job.assignupdateitem";
 
         #region custom variables
         private static readonly List<string> mExcludedCategories = new List<string>()
