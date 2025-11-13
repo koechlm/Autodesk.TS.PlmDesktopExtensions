@@ -38,8 +38,8 @@ namespace InvPlmAddIn.Model
             new PanelOptions
             {
                 InternalName = "Instances",
-                WindowTitle = "FM-UXE Assets",
-                Url = mBaseUri.ToString() + "/../asset-editor?number={PartNumber}&theme={Theme}" + "&host=Inventor"
+                WindowTitle = "FM-UXE Instances",
+                Url = mBaseUri.ToString() + "/../instances?number={PartNumber}&theme={Theme}" + "&host=Inventor"
             }
 
             //new PanelOptions
