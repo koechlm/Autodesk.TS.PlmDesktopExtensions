@@ -595,6 +595,17 @@ Autodesk.iLogic.Interfaces
  Default: LogLevel.Trace.
  </summary>
 </member>
+<member name="P:Autodesk.iLogic.Interfaces.LogControl.BatchUpdateMode">
+ <summary>
+ This only affects the iLogic Log window in Inventor.
+ If this is set to True, then log messages may not be displayed right away.
+ They are accumulated and displayed when the system is ready. This can improve performance.
+ If this is set to True, you can make the messages update by calling
+ ThisApplication.UserInterfaceManager.DoEvents()
+ in a rule.
+ Default: False.
+ </summary>
+</member>
 <member name="M:Autodesk.iLogic.Interfaces.LogControl.SaveLogAs(System.String)">
  <summary>
  Save the current log to a file with the specified path.
