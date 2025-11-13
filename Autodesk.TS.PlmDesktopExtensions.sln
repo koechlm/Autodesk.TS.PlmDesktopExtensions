@@ -42,7 +42,7 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup.Inventor.VaultPlmExte
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Autodesk.TS.PlmEventHandler", "Autodesk.TS.PlmEventHandler\Autodesk.TS.PlmEventHandler.csproj", "{0B11C526-2BFE-45AB-8614-AA22C8D861B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Autodesk.TS.AssignUpdateFmItem", "Autodesk.TS.AssignUpdateFmItem\Autodesk.TS.AssignUpdateFmItem.csproj", "{E47F92BA-E2C2-4C6C-91C3-9482B732D738}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "adsk.ts.job.assignupdateitem", "Autodesk.TS.AssignUpdateFmItem\adsk.ts.job.assignupdateitem.csproj", "{E47F92BA-E2C2-4C6C-91C3-9482B732D738}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
