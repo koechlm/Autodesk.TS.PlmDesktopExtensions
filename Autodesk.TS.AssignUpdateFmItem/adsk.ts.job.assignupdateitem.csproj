@@ -6,8 +6,8 @@
     <TargetFramework>net8.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Autodesk.TS.AssignUpdateFmItem</RootNamespace>
-    <AssemblyName>Autodesk.TS.AssignUpdateFmItem</AssemblyName>
+    <RootNamespace>adsk.ts.job.assignupdateitem</RootNamespace>
+    <AssemblyName>adsk.ts.job.assignupdateitem</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWindowsForms>true</UseWindowsForms>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
@@ -19,7 +19,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>$(ProgramData)\Autodesk\Vault 2026\Extensions\Autodesk.TS.AssignUpdateFmItem\</OutputPath>
+    <OutputPath>$(ProgramData)\Autodesk\Vault 2026\Extensions\adsk.ts.job.assignupdateitem\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -27,7 +27,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>$(ProgramData)\Autodesk\Vault 2026\Extensions\Autodesk.TS.AssignUpdateFmItem\</OutputPath>
+    <OutputPath>$(ProgramData)\Autodesk\Vault 2026\Extensions\adsk.ts.job.assignupdateitem\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -49,12 +49,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Key.snk" />
-    <None Include="Autodesk.TS.AssignUpdateFmItem.vcet.config">
+    <None Include="adsk.ts.job.assignupdateitem.vcet.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Autodesk.TS.AssignUpdateFmItem.xml">
+    <Content Include="adsk.ts.job.assignupdateitem.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
