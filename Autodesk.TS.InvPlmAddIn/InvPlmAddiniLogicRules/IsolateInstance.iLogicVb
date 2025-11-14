@@ -8,9 +8,9 @@ Public Sub Main()
 		Dim mPartNumber As String = RuleArguments("PartNumber")
 		Dim mInstance As String = RuleArguments("InstancePath")
 		Dim mDoc As Inventor.Document = ThisApplication.ActiveDocument
-		'Dim mOccToSelect As Inventor.ComponentOccurrenceProxy
+		Dim mOccToSelect As Inventor.ComponentOccurrence = Nothing
 		Dim mSubOccs As Inventor.ComponentOccurrences
-		Dim mOccToSelect As ComponentOccurrenceProxy = Nothing
+		Dim mOccProxyToSelect As ComponentOccurrenceProxy = Nothing
 
 		If mInstance Is Nothing Then
 			Logger.Error("Rule exits due to missing rule argument 'Instance'")
@@ -24,6 +24,15 @@ Public Sub Main()
 		If mInstance.Split("|").Length > 1 Then
 			mInstancePath = mInstance.Split("|")
 		End If
+
+		'remove the element containing "pattern"
+		Dim filteredList As New List(Of String)
+		For Each element As String In mInstancePath
+			If Not element.ToLower().Contains("pattern") Then
+				filteredList.Add(element)
+			End If
+		Next
+		mInstancePath = filteredList.ToArray()
 
 		If (ThisApplication.ActiveDocumentType = Inventor.DocumentTypeEnum.kAssemblyDocumentObject) Then
 			Dim mAsmDoc As AssemblyDocument = mDoc
@@ -51,7 +60,12 @@ Public Sub Main()
 					If mOcc.Name = mOccName Then
 						' If this is the last element in the path, get the proxy
 						If i = mInstancePath.Length - 1 Then
-							mOccToSelect = mOcc
+							' first level selection is occurrence, second level and beyond is proxy
+							if i = 1 then
+								mOccToSelect = mOcc
+							Else
+								mOccProxyToSelect = mOcc
+							End If							
 						Else
 							' Move to the next level of occurrences
 							mCurrentOccurrences = mOcc.SubOccurrences
@@ -60,7 +74,6 @@ Public Sub Main()
 						Exit For
 					End If
 				Next
-
 				' If no matching occurrence is found, exit
 				If Not found Then
 					Logger.Error($"Occurrence '{mOccName}' not found in the path.")
@@ -71,7 +84,11 @@ Public Sub Main()
 
 			'Perform isolation
 			mAsmDoc.SelectSet.Clear()
-			mAsmDoc.SelectSet.Select(mOccToSelect)
+			If mOccToSelect IsNot Nothing Then
+				mAsmDoc.SelectSet.Select(mOccToSelect)
+			Else if mOccProxyToSelect IsNot Nothing Then
+				mAsmDoc.SelectSet.Select(mOccProxyToSelect)
+			End If
 			ThisApplication.CommandManager.ControlDefinitions.Item("AssemblyIsolateCmd").Execute
 			
 		End If
