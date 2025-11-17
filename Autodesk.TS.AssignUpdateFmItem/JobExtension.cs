@@ -32,16 +32,14 @@ namespace adsk.ts.job.assignupdateitem
         {
             "Reference",
             "Phantom",
-            "Substitute",
-            "Inventor Drawing"
+            "Substitute"
         };
 
-        private static readonly List<string> mExcludedFileCls = new List<string>()
+        private static readonly List<FileClassification> mExcludedFileCls = new()
         {
-            "Design Visualization",
-            "Design Representation",
-            "Configuration Factory",
-            "Design Document"
+            FileClassification.DesignVisualization,
+            FileClassification.DesignRepresentation,
+            FileClassification.ConfigurationFactory
         };
 
         private static Settings mSettings = Settings.Load();
@@ -81,6 +79,11 @@ namespace adsk.ts.job.assignupdateitem
                 {
                     throw new Exception("The file version is no longer available!");
                 }
+                if (mFile.FileRev.MaxFileId != mFile.Id)
+                {
+                    // not the latest file version - get the latest
+                    mFile = mWsMgr.DocumentService.GetFileById(mFile.FileRev.MaxFileId);
+                }
 
                 // prepare log file and initiate logging
                 mLogFile = JOB_TYPE + "_" + mFile.Name + ".log";
@@ -119,7 +122,7 @@ namespace adsk.ts.job.assignupdateitem
 
         }
 
-        private void mAssignUpdateItem(WebServiceManager webServiceManager, Autodesk.Connectivity.WebServices.File file)
+        private void mAssignUpdateItem(object sender, Autodesk.Connectivity.WebServices.File file)
         {
             // exclude categories that must not get an item assigned and would fail
             if (mExcludedCategories.Contains(file.Cat.CatName))
@@ -128,100 +131,139 @@ namespace adsk.ts.job.assignupdateitem
             }
 
             // exclude file classifications
-            if (mExcludedFileCls.Contains(file.FileClass.ToString()))
+            if (mExcludedFileCls.Contains(file.FileClass))
             {
                 return;
+            }
+
+            // retrieve the primary referenced file for files of classification "Design Document"
+            if (file.FileClass == FileClassification.DesignDocument)
+            {
+                WebServiceManager serviceManager = sender as WebServiceManager;
+
+                Autodesk.Connectivity.WebServices.File parent = null;
+
+                DocumentService docService = serviceManager.DocumentService;
+                // get the associated references
+                List<TreeNode> children = new List<TreeNode>();
+                FileAssocArray[] fileAssociations = serviceManager.DocumentService.GetLatestFileAssociationsByMasterIds(
+                    new long[] { file.MasterId },
+                    FileAssociationTypeEnum.None,
+                    false,
+                    FileAssociationTypeEnum.Dependency,
+                    false,
+                    false,
+                    false,
+                    false);
+
+                if (fileAssociations.FirstOrDefault()?.FileAssocs != null)
+                {
+                    foreach (var fileAssociation in fileAssociations.First().FileAssocs)
+                    {
+                        parent = fileAssociation.CldFile;
+                    }
+                }
+
+                if (parent != null)
+                {
+                    // use the parent file for item assignment
+                    file = parent;
+                }
+                else
+                {
+                    // no valid parent found - exit
+                    return;
+                }
             }
 
             // call promote file to assign or update item on FM
-            mPromoteFileToItem(webServiceManager, file.Id);
+            mPromoteFileToItem(sender, file.Id);
 
         }
 
-        private void mPromoteFileToItem(WebServiceManager webServiceManager, long mFileId)
+        private void mPromoteFileToItem(object sender, long mFileId)
         {
-            if (webServiceManager == null)
-                return;
-
-            long currentUserId = webServiceManager.SecurityService.Session.User.Id;
-            ItemService mItemSvc = webServiceManager.ItemService;
-
-            ItemsAndFiles promoteResult = null;
-            Item[] updatedItems = null;
-            bool mPromoteFailed = false;
-            try
+            using (WebServiceManager serviceManager = sender as WebServiceManager)
             {
-                // in this case - we enforce to create/update an item by checkin; with that we must not cause the item creation "twice" in case an assembly's subcomponent also requires an item creation
-                // with that we have to set ItemAssignAll = No
-                mItemSvc.AddFilesToPromote(new long[] { mFileId }, ItemAssignAll.No, true);
-                DateTime timestamp;
-                GetPromoteOrderResults promoteOrderResults = mItemSvc.GetPromoteComponentOrder(out timestamp);
-                if (promoteOrderResults.PrimaryArray != null && promoteOrderResults.PrimaryArray.Any())
-                    try
-                    {
-                        mItemSvc.PromoteComponents(timestamp, promoteOrderResults.PrimaryArray);
-                    }
-                    catch
-                    {
-                        mPromoteFailed = true;
-                        //create new restriction / message 
-                    }
-                if (promoteOrderResults.NonPrimaryArray != null && promoteOrderResults.NonPrimaryArray.Any())
-                    try
-                    {
-                        mItemSvc.PromoteComponentLinks(promoteOrderResults.NonPrimaryArray);
-                    }
-                    catch
-                    {
-                        mPromoteFailed = true;
-                        //create new restriction / message indicating that the item (unknown number here) linked to file e is probably locked by an editor
-                    }
+                ItemService mItemSvc = serviceManager.ItemService;
+
+                ItemsAndFiles promoteResult = null;
+                Item[] updatedItems = null;
+                bool mPromoteFailed = false;
                 try
                 {
-                    if (mPromoteFailed != true)
+                    // in this case - we enforce to create/update an item by checkin; with that we must not cause the item creation "twice" in case an assembly's subcomponent also requires an item creation
+                    // with that we have to set ItemAssignAll = No
+                    mItemSvc.AddFilesToPromote(new long[] { mFileId }, ItemAssignAll.No, true);
+                    DateTime timestamp;
+                    GetPromoteOrderResults promoteOrderResults = mItemSvc.GetPromoteComponentOrder(out timestamp);
+                    if (promoteOrderResults.PrimaryArray != null && promoteOrderResults.PrimaryArray.Any())
+                        try
+                        {
+                            mItemSvc.PromoteComponents(timestamp, promoteOrderResults.PrimaryArray);
+                        }
+                        catch
+                        {
+                            mPromoteFailed = true;
+                            //create new restriction / message 
+                        }
+                    if (promoteOrderResults.NonPrimaryArray != null && promoteOrderResults.NonPrimaryArray.Any())
+                        try
+                        {
+                            mItemSvc.PromoteComponentLinks(promoteOrderResults.NonPrimaryArray);
+                        }
+                        catch
+                        {
+                            mPromoteFailed = true;
+                            //create new restriction / message indicating that the item (unknown number here) linked to file e is probably locked by an editor
+                        }
+                    try
                     {
-                        promoteResult = mItemSvc.GetPromoteComponentsResults(timestamp);
-                        //check the result for locked root item as we continue to update this
-                        if (promoteResult.ItemRevArray[0].Locked != true)
+                        if (mPromoteFailed != true)
                         {
-                            updatedItems = promoteResult.ItemRevArray;
-                            Item m_CurrentItem = promoteResult.ItemRevArray[0];
-                            Item[] m_ItemToUpdateCommit = new Item[1];
-                            m_ItemToUpdateCommit[0] = m_CurrentItem;
-                            // commit the changes for the root element only; the reason is as stated before for ItemAssignAll = No
-                            mItemSvc.UpdateAndCommitItems(m_ItemToUpdateCommit);
+                            promoteResult = mItemSvc.GetPromoteComponentsResults(timestamp);
+                            //check the result for locked root item as we continue to update this
+                            if (promoteResult.ItemRevArray[0].Locked != true)
+                            {
+                                updatedItems = promoteResult.ItemRevArray;
+                                Item m_CurrentItem = promoteResult.ItemRevArray[0];
+                                Item[] m_ItemToUpdateCommit = new Item[1];
+                                m_ItemToUpdateCommit[0] = m_CurrentItem;
+                                // commit the changes for the root element only; the reason is as stated before for ItemAssignAll = No
+                                mItemSvc.UpdateAndCommitItems(m_ItemToUpdateCommit);
+                            }
+                            else
+                            {
+                                //create a restriction for file e and item promoteResult.ItemRevArray[0] Number / Title
+                            }
                         }
-                        else
-                        {
-                            //create a restriction for file e and item promoteResult.ItemRevArray[0] Number / Title
-                        }
-                    }
 
+                    }
+                    catch
+                    {
+                        //still an unhandled situation?
+                    }
                 }
                 catch
                 {
-                    //still an unhandled situation?
-                }
-            }
-            catch
-            {
-                if (updatedItems != null && updatedItems.Length > 0)
-                {
-                    long[] itemIds = new long[updatedItems.Length];
-                    for (int i = 0; i < updatedItems.Length; i++)
+                    if (updatedItems != null && updatedItems.Length > 0)
                     {
-                        itemIds[i] = updatedItems[i].Id;
+                        long[] itemIds = new long[updatedItems.Length];
+                        for (int i = 0; i < updatedItems.Length; i++)
+                        {
+                            itemIds[i] = updatedItems[i].Id;
+                        }
+                        serviceManager.ItemService.UndoEditItems(itemIds);
                     }
-                    webServiceManager.ItemService.UndoEditItems(itemIds);
                 }
-            }
-            finally
-            {
-                if (promoteResult == null && mPromoteFailed != true)
+                finally
                 {
-                    // clear out the promoted item
-                    webServiceManager.ItemService.DeleteUnusedItemNumbers(new long[] { promoteResult.ItemRevArray[0].MasterId });
-                    webServiceManager.ItemService.UndoEditItems(new long[] { promoteResult.ItemRevArray[0].Id });
+                    if (promoteResult != null && mPromoteFailed == true)
+                    {
+                        // clear out the promoted item
+                        serviceManager.ItemService.DeleteUnusedItemNumbers(new long[] { promoteResult.ItemRevArray[0].MasterId });
+                        serviceManager.ItemService.UndoEditItems(new long[] { promoteResult.ItemRevArray[0].Id });
+                    }
                 }
             }
 

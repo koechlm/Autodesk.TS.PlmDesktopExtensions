@@ -24,6 +24,9 @@ namespace Autodesk.TS.PlmEventHandler
         [XmlElement("SettingName")]
         public string mSettingName;
 
+        [XmlElement("EventsToAssignItem")]
+        public string EventsToAssignItem;
+
         #region for future use
         //[XmlElement("OutputPath")]
         //public string mOutPutPath;
