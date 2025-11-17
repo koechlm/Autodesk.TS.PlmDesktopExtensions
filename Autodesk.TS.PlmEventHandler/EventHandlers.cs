@@ -3,6 +3,7 @@ using Autodesk.Connectivity.WebServices;
 using Autodesk.Connectivity.WebServicesTools;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,19 +23,19 @@ namespace Autodesk.TS.PlmEventHandler
         {
             "Reference",
             "Phantom",
-            "Substitute",
-            "Inventor Drawing"
+            "Substitute"            
         };
 
-        private static readonly List<string> mExcludedFileCls = new List<string>()
+        private static readonly List<FileClassification> mExcludedFileCls = new()
         {
-            "Design Visualization",
-            "Design Representation",
-            "Configuration Factory",
-            "Design Document"
+            FileClassification.DesignVisualization,
+            FileClassification.DesignRepresentation,
+            FileClassification.ConfigurationFactory
         };
 
         private const string mFMConfigName = "Adsk.Vault.ExternalSyncTask.FusionManage";
+
+        private static Settings mSettings = Settings.Load();
 
         #endregion custom variables
 
@@ -52,7 +53,7 @@ namespace Autodesk.TS.PlmEventHandler
             //DocumentService.AddFileEvents.Pre += new EventHandler<AddFileCommandEventArgs>(AddFileEvents_Pre);
             //DocumentService.CheckinFileEvents.GetRestrictions += new EventHandler<CheckinFileCommandEventArgs>(CheckinFileEvents_GetRestrictions);
             //DocumentService.CheckinFileEvents.Pre += new EventHandler<CheckinFileCommandEventArgs>(CheckInFileEvents_Pre);
-            //DocumentService.CheckinFileEvents.Post += new EventHandler<CheckinFileCommandEventArgs>(CheckInFileEvents_Post);
+            DocumentService.CheckinFileEvents.Post += new EventHandler<CheckinFileCommandEventArgs>(CheckInFileEvents_Post);
             //DocumentService.CheckoutFileEvents.GetRestrictions += new EventHandler<CheckoutFileCommandEventArgs>(CheckoutFileEvents_GetRestrictions);
             //DocumentService.CheckoutFileEvents.Pre += new EventHandler<CheckoutFileCommandEventArgs>(CheckoutFileEvents_Pre);
             //DocumentService.CheckoutFileEvents.Post += new EventHandler<CheckoutFileCommandEventArgs>(CheckoutFileEvents_Post);
@@ -479,7 +480,16 @@ namespace Autodesk.TS.PlmEventHandler
 
         private void CheckInFileEvents_Post(object sender, CheckinFileCommandEventArgs e)
         {
-            //add code here;
+            if (e.Status == EventStatus.FAIL || !mSettings.EventsToAssignItem.Contains("CheckInFile"))
+            {
+                return;
+            }
+            if (e.Comment.StartsWith("Revision table"))
+            {
+                return;
+            }
+            // on success only: call the assign/update item method to initiate an item creation on FM;
+            mAssignUpdateItem(sender, e.ReturnValue);
         }
 
         private void CheckInFileEvents_Pre(object sender, CheckinFileCommandEventArgs e)
@@ -499,7 +509,13 @@ namespace Autodesk.TS.PlmEventHandler
 
         private void AddFileEvents_Post(object sender, AddFileCommandEventArgs e)
         {
-            if (e.Status == EventStatus.FAIL)
+            if (e.Status == EventStatus.FAIL || !mSettings.EventsToAssignItem.Contains("AddFile"))
+            {
+                return;
+            }
+
+            //copied files need to open in CAD before assigning items
+            if (e.Comment.StartsWith("Copy"))
             {
                 return;
             }
@@ -526,9 +542,57 @@ namespace Autodesk.TS.PlmEventHandler
             }
 
             // exclude file classifications
-            if (mExcludedFileCls.Contains(file.FileClass.ToString()))
+            if (mExcludedFileCls.Contains(file.FileClass))
             {
                 return;
+            }
+
+            // retrieve the primary referenced file for files of classification "Design Document"
+            if (file.FileClass == FileClassification.DesignDocument)
+            {
+                // get the primary referenced file
+                IWebService service = sender as IWebService;
+
+                if (service == null)
+                    return;
+
+                File parent = null;
+
+                WebServiceCredentials cred = new WebServiceCredentials(service);
+                using (WebServiceManager serviceManager = new WebServiceManager(cred))
+                {
+                    DocumentService docService = serviceManager.DocumentService;
+                    // get the associated references
+                    List<TreeNode> children = new List<TreeNode>();
+                    FileAssocArray[] fileAssociations = serviceManager.DocumentService.GetLatestFileAssociationsByMasterIds(
+                        new long[] { file.MasterId },
+                        FileAssociationTypeEnum.None,
+                        false,
+                        FileAssociationTypeEnum.Dependency,
+                        false,
+                        false,
+                        false,
+                        false);
+
+                    if (fileAssociations.FirstOrDefault()?.FileAssocs != null)
+                    {
+                        foreach (var fileAssociation in fileAssociations.First().FileAssocs)
+                        {
+                            parent = fileAssociation.CldFile;
+                        }
+                    }                    
+                }
+
+                if (parent != null)
+                {
+                    // use the parent file for item assignment
+                    file = parent;
+                }
+                else
+                {
+                    // no valid parent found - exit
+                    return;
+                }
             }
 
             // call promote file to assign or update item on FM
@@ -618,7 +682,7 @@ namespace Autodesk.TS.PlmEventHandler
                 }
                 finally
                 {
-                    if (promoteResult == null && mPromoteFailed != true)
+                    if (promoteResult != null && mPromoteFailed == true)
                     {
                         // clear out the promoted item
                         serviceManager.ItemService.DeleteUnusedItemNumbers(new long[] { promoteResult.ItemRevArray[0].MasterId });
