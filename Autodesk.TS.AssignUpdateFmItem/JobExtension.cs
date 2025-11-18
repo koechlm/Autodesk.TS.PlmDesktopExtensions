@@ -82,7 +82,7 @@ namespace adsk.ts.job.assignupdateitem
                 if (mFile.FileRev.MaxFileId != mFile.Id)
                 {
                     // not the latest file version - get the latest
-                    mFile = mWsMgr.DocumentService.GetFileById(mFile.FileRev.MaxFileId);
+                    mFile = mWsMgr.DocumentService.GetLatestFileByMasterId(mFile.MasterId);
                 }
 
                 // prepare log file and initiate logging
@@ -94,7 +94,7 @@ namespace adsk.ts.job.assignupdateitem
                 mTrace.WriteLine("Starting Job...");
 
                 // assign or update FM item for this file
-                mAssignUpdateItem(context.Connection.WebServiceManager, mFile);
+                mAssignUpdateItem(context, mFile);
 
                 mTrace.IndentLevel = 0;
                 mTrace.WriteLine("... successfully ending Job.");
@@ -122,7 +122,7 @@ namespace adsk.ts.job.assignupdateitem
 
         }
 
-        private void mAssignUpdateItem(object sender, Autodesk.Connectivity.WebServices.File file)
+        private void mAssignUpdateItem(IJobProcessorServices context, Autodesk.Connectivity.WebServices.File file)
         {
             // exclude categories that must not get an item assigned and would fail
             if (mExcludedCategories.Contains(file.Cat.CatName))
@@ -139,7 +139,7 @@ namespace adsk.ts.job.assignupdateitem
             // retrieve the primary referenced file for files of classification "Design Document"
             if (file.FileClass == FileClassification.DesignDocument)
             {
-                WebServiceManager serviceManager = sender as WebServiceManager;
+                WebServiceManager serviceManager = context.Connection.WebServiceManager;
 
                 Autodesk.Connectivity.WebServices.File parent = null;
 
@@ -177,13 +177,13 @@ namespace adsk.ts.job.assignupdateitem
             }
 
             // call promote file to assign or update item on FM
-            mPromoteFileToItem(sender, file.Id);
+            mPromoteFileToItem(context, file.Id);
 
         }
 
-        private void mPromoteFileToItem(object sender, long mFileId)
+        private void mPromoteFileToItem(IJobProcessorServices context, long mFileId)
         {
-            using (WebServiceManager serviceManager = sender as WebServiceManager)
+            using (WebServiceManager serviceManager = context.Connection.WebServiceManager)
             {
                 ItemService mItemSvc = serviceManager.ItemService;
 
@@ -202,20 +202,20 @@ namespace adsk.ts.job.assignupdateitem
                         {
                             mItemSvc.PromoteComponents(timestamp, promoteOrderResults.PrimaryArray);
                         }
-                        catch
+                        catch (Exception ex)
                         {
                             mPromoteFailed = true;
-                            //create new restriction / message 
+                            context.Log(ex, "Job " + JOB_TYPE + " failed: " + ex.ToString() + " ");
                         }
                     if (promoteOrderResults.NonPrimaryArray != null && promoteOrderResults.NonPrimaryArray.Any())
                         try
                         {
                             mItemSvc.PromoteComponentLinks(promoteOrderResults.NonPrimaryArray);
                         }
-                        catch
+                        catch (Exception ex)
                         {
                             mPromoteFailed = true;
-                            //create new restriction / message indicating that the item (unknown number here) linked to file e is probably locked by an editor
+                            context.Log(ex, "Job " + JOB_TYPE + " failed: " + ex.ToString() + " ");
                         }
                     try
                     {
@@ -239,9 +239,10 @@ namespace adsk.ts.job.assignupdateitem
                         }
 
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        //still an unhandled situation?
+                        context.Log(ex, "Job " + JOB_TYPE + " failed: " + ex.ToString() + " ");
+                        throw;
                     }
                 }
                 catch
