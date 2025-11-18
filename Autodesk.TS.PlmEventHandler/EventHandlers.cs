@@ -30,7 +30,10 @@ namespace Autodesk.TS.PlmEventHandler
         {
             FileClassification.DesignVisualization,
             FileClassification.DesignRepresentation,
-            FileClassification.ConfigurationFactory
+            FileClassification.ConfigurationFactory,
+            FileClassification.DesignPresentation,
+            FileClassification.DesignDocument,
+            FileClassification.DesignSubstitute
         };
 
         private const string mFMConfigName = "Adsk.Vault.ExternalSyncTask.FusionManage";
@@ -413,7 +416,7 @@ namespace Autodesk.TS.PlmEventHandler
         #region File Events
         private void UpdateFileLifecycleStateEvents_Post(object sender, UpdateFileLifeCycleStateCommandEventArgs e)
         {
-            if (e.Status == EventStatus.FAIL)
+            if (e.Status == EventStatus.FAIL || !mSettings.EventsToAssignItem.Contains("UpdateFileLifecycle"))
             {
                 return;
             }

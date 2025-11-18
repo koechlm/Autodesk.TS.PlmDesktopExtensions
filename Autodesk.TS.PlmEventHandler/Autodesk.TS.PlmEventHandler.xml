@@ -4,8 +4,8 @@
   <!-- The name/value pair of a setting -->
   <SettingName>Value</SettingName>
 
-  <!-- Events to Assign/Update Item; valid values are AddFile, CheckInFile -->
-  <EventsToAssignItem>CheckInFile</EventsToAssignItem>
+  <!-- Events to Assign/Update Item; valid values are AddFile, CheckInFile, UpdateFileLifecycle -->
+  <EventsToAssignItem></EventsToAssignItem>
   <!-- Output Path -->
   <!--<OutputPath>C:\Temp\SD124422\</OutputPath>-->
 
