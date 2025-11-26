@@ -24,6 +24,9 @@ namespace adsk.ts.job.assignupdateitem
         [XmlElement("LogFileLocation")]
         public string LogFileLocation;
 
+        [XmlElement("FMSync")]
+        public string FMSync;
+
         #region for future use
         //[XmlElement("OutputPath")]
         //public string mOutPutPath;

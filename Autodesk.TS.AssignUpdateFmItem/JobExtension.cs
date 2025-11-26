@@ -50,6 +50,9 @@ namespace adsk.ts.job.assignupdateitem
         WebServiceManager mWsMgr = null;
         Autodesk.Connectivity.WebServices.File mFile = null;
 
+        // Fusion Manage config name
+        private const string mFMConfigName = "Adsk.Vault.ExternalSyncTask.FusionManage";
+
 
         #endregion custom variables
 
@@ -77,12 +80,14 @@ namespace adsk.ts.job.assignupdateitem
                 mFile = mWsMgr.DocumentService.GetFileById(mEntId);
                 if (mFile == null)
                 {
-                    throw new Exception("The file version is no longer available!");
+                    context.Log("Job " + JOB_TYPE + " did not start: " + "Job could not retrieve the file object for id " + mEntId.ToString(), MessageType.eError);
+                    return JobOutcome.Failure;
                 }
-                if (mFile.FileRev.MaxFileId != mFile.Id)
+
+                //get the latest file version
+                if (mFile.FileRev.MaxFileId != mEntId)
                 {
-                    // not the latest file version - get the latest
-                    mFile = mWsMgr.DocumentService.GetLatestFileByMasterId(mFile.MasterId);
+                    mFile = mWsMgr.DocumentService.GetFileById(mFile.FileRev.MaxFileId);
                 }
 
                 // prepare log file and initiate logging
@@ -94,22 +99,31 @@ namespace adsk.ts.job.assignupdateitem
                 mTrace.WriteLine("Starting Job...");
 
                 // assign or update FM item for this file
-                mAssignUpdateItem(context, mFile);
+                bool success = mAssignUpdateItem(context, mFile);
+                if (!success)
+                {
+                    mTrace.IndentLevel = 0;
+                    mTrace.WriteLine("... ending Job with failure");
 
-                mTrace.IndentLevel = 0;
-                mTrace.WriteLine("... successfully ending Job.");
-                mTrace.Flush();
-                mTrace.Close();
+                    return JobOutcome.Failure;
+                }
+                else
+                {
+                    mTrace.IndentLevel = 0;
+                    mTrace.WriteLine("... successfully ending Job.");
 
-                return JobOutcome.Success;
+                    return JobOutcome.Success;
+                }
             }
+
             catch (Exception ex)
             {
-                context.Log(ex, "Job " + JOB_TYPE + " failed: " + ex.ToString() + " ");
+                context.Log("Job " + JOB_TYPE + " failed: " + ex.ToString() + " .", MessageType.eError);
                 mTrace.IndentLevel = 0;
                 mTrace.WriteLine("... ending Job with failure.");
                 return JobOutcome.Failure;
             }
+
             finally
             {
                 // close the log file
@@ -122,18 +136,18 @@ namespace adsk.ts.job.assignupdateitem
 
         }
 
-        private void mAssignUpdateItem(IJobProcessorServices context, Autodesk.Connectivity.WebServices.File file)
+        private bool mAssignUpdateItem(IJobProcessorServices context, Autodesk.Connectivity.WebServices.File file)
         {
             // exclude categories that must not get an item assigned and would fail
             if (mExcludedCategories.Contains(file.Cat.CatName))
             {
-                return;
+                return true;
             }
 
             // exclude file classifications
             if (mExcludedFileCls.Contains(file.FileClass))
             {
-                return;
+                return true;
             }
 
             // retrieve the primary referenced file for files of classification "Design Document"
@@ -172,16 +186,16 @@ namespace adsk.ts.job.assignupdateitem
                 else
                 {
                     // no valid parent found - exit
-                    return;
+                    return true;
                 }
             }
 
             // call promote file to assign or update item on FM
-            mPromoteFileToItem(context, file.Id);
+            return mPromoteFileToItem(context, file.Id);
 
         }
 
-        private void mPromoteFileToItem(IJobProcessorServices context, long mFileId)
+        private bool mPromoteFileToItem(IJobProcessorServices context, long mFileId)
         {
             using (WebServiceManager serviceManager = context.Connection.WebServiceManager)
             {
@@ -205,7 +219,7 @@ namespace adsk.ts.job.assignupdateitem
                         catch (Exception ex)
                         {
                             mPromoteFailed = true;
-                            context.Log(ex, "Job " + JOB_TYPE + " failed: " + ex.ToString() + " ");
+                            context.Log("Job " + JOB_TYPE + " failed: " + ex.ToString() + " .", MessageType.eError);
                         }
                     if (promoteOrderResults.NonPrimaryArray != null && promoteOrderResults.NonPrimaryArray.Any())
                         try
@@ -215,7 +229,7 @@ namespace adsk.ts.job.assignupdateitem
                         catch (Exception ex)
                         {
                             mPromoteFailed = true;
-                            context.Log(ex, "Job " + JOB_TYPE + " failed: " + ex.ToString() + " ");
+                            context.Log("Job " + JOB_TYPE + " failed: " + ex.ToString() + " .", MessageType.eError);
                         }
                     try
                     {
@@ -231,6 +245,20 @@ namespace adsk.ts.job.assignupdateitem
                                 m_ItemToUpdateCommit[0] = m_CurrentItem;
                                 // commit the changes for the root element only; the reason is as stated before for ItemAssignAll = No
                                 mItemSvc.UpdateAndCommitItems(m_ItemToUpdateCommit);
+
+                                // check for FM Sync setting and execute if needed
+                                if (mSettings.FMSync.ToLower() == "true")
+                                {
+                                    //Sync to Fusion Manage
+                                    var mExternalSyncService = serviceManager.ExternalSyncService;
+
+                                    if (mExternalSyncService != null)
+                                    {
+                                        // submit the task to FM for the created/modified item                                       
+                                        long mRevId = serviceManager.ItemService.GetLatestItemByItemMasterId(m_CurrentItem.MasterId).Id;
+                                        mExternalSyncService.AddExtSyncTask(mRevId, "ITEM", mFMConfigName, null);
+                                    }
+                                }
                             }
                             else
                             {
@@ -241,11 +269,10 @@ namespace adsk.ts.job.assignupdateitem
                     }
                     catch (Exception ex)
                     {
-                        context.Log(ex, "Job " + JOB_TYPE + " failed: " + ex.ToString() + " ");
-                        throw;
+                        context.Log("Job " + JOB_TYPE + " failed: " + ex.ToString() + " .", MessageType.eError);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
                     if (updatedItems != null && updatedItems.Length > 0)
                     {
@@ -255,6 +282,11 @@ namespace adsk.ts.job.assignupdateitem
                             itemIds[i] = updatedItems[i].Id;
                         }
                         serviceManager.ItemService.UndoEditItems(itemIds);
+                    }
+                    else
+                    {
+                        mPromoteFailed = true;
+                        context.Log("Job failed likely due to missing Item Data; Check the property 'Item Assignable'", MessageType.eError);
                     }
                 }
                 finally
@@ -266,8 +298,12 @@ namespace adsk.ts.job.assignupdateitem
                         serviceManager.ItemService.UndoEditItems(new long[] { promoteResult.ItemRevArray[0].Id });
                     }
                 }
-            }
 
+                if (mPromoteFailed)
+                    return false;
+                else
+                    return true;
+            }
         }
 
         public void OnJobProcessorShutdown(IJobProcessorServices context)

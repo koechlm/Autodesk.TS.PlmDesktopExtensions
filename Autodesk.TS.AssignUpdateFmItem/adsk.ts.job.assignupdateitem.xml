@@ -3,5 +3,9 @@
 
   <!-- Logfile directory; validate for write access -->
   <LogFileLocation>C:\Temp\</LogFileLocation>
+  
+  <!-- Submit FM Sync Job; initiate the synchronization to Fusion Manage on successful updated item -->
+  <!-- Values: True | False  -->
+  <FMSync>True</FMSync>
 
 </settings>
