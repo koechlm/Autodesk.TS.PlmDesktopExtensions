@@ -86,6 +86,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
             }
         }
     }
@@ -194,15 +202,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Autodesk Vault plm | FM UXE Panels 2026"
-        "ProductCode" = "8:{371795FC-C533-4CDE-A655-EBC62C1FBABC}"
-        "PackageCode" = "8:{DD2ADE14-1C46-4325-94F7-C95550070A75}"
+        "ProductCode" = "8:{1F88C5D9-5BCA-46A5-BE20-B41AB8E427B4}"
+        "PackageCode" = "8:{89A7771D-4E47-4CAB-BC57-1E91D23FCFC7}"
         "UpgradeCode" = "8:{11702833-4C2E-4815-82EE-F34E9C904BC5}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:31.2.01"
+        "ProductVersion" = "8:31.2.02"
         "Manufacturer" = "8:Autodesk, Technical Sales CE"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://github.com/koechlm/Autodesk.TS.PlmDesktopExtensions/issues"
@@ -210,7 +218,7 @@
         "Subject" = "8:Autodesk Vault | FM UXE Panels"
         "ARPCONTACT" = "8:Markus Koechl, Sven Dickmans"
         "Keywords" = "8:"
-        "ARPCOMMENTS" = "8:Vault Client FM UXE Panels 2026.2"
+        "ARPCOMMENTS" = "8:Vault Client FM UXE Panels 2026.31.2.02"
         "ARPURLINFOABOUT" = "8:https://github.com/koechlm"
         "ARPPRODUCTICON" = "8:_72000F01B33B43479A0F59B525EB9CB8"
         "ARPIconIndex" = "3:0"
