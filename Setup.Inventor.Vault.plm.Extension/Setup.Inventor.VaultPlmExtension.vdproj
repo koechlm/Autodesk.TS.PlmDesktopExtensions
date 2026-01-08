@@ -91,6 +91,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
             }
         }
     }
@@ -199,23 +207,23 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Autodesk Inventor-Vault plm | FM UXE Panels 2026"
-        "ProductCode" = "8:{1C314DE9-611E-415D-B826-F68DB7EDA1D3}"
-        "PackageCode" = "8:{2B5189E7-93F4-4998-9049-0B7F618ECD8E}"
+        "ProductCode" = "8:{2CE8E7C6-6EBD-41C0-AFC6-0B6E9BBF4E5B}"
+        "PackageCode" = "8:{EBCD509D-1A85-405A-B244-D236D472771D}"
         "UpgradeCode" = "8:{1018E2B4-198C-4DB7-AFA0-DC3C758BCF24}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:30.1.01"
+        "ProductVersion" = "8:30.2.00"
         "Manufacturer" = "8:Autodesk, Technical Sales CE"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
         "Title" = "8:Inventor-Vault plm | FM Extension - Setup"
-        "Subject" = "8:Autodesk Inventor | Fusion Manage Panels"
+        "Subject" = "8:Autodesk Inventor | FM UXE Panels"
         "ARPCONTACT" = "8:Markus Koechl, Sven Dickmans, Carsten Fischer"
         "Keywords" = "8:"
-        "ARPCOMMENTS" = "8:Inventor Add-in | FM UXE Panels"
+        "ARPCOMMENTS" = "8:Inventor FM UXE Panels 2026.2"
         "ARPURLINFOABOUT" = "8:https://github.com/koechlm"
         "ARPPRODUCTICON" = "8:_EF74CF08B4E54B5386BB0EE435F333FE"
         "ARPIconIndex" = "3:0"

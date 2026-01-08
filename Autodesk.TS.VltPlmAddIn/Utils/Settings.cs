@@ -40,6 +40,9 @@ namespace Autodesk.TS.VltPlmAddIn.Utils
         [XmlElement("AddOpenSpprtdExts")]
         public string AddOpenSpprtdExts;
 
+        [XmlElement("FMExtensionItemPanel")]
+        public string FMExtensionItemPanel;
+
         public Settings()
         {
 

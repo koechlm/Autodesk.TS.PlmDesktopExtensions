@@ -3211,9 +3211,6 @@
         <member name="F:Inventor.DimensionTypeEnum.kAngularForeshortenedDimensionType">
             <summary>Dimension type is angular foreshortened.</summary>
         </member>
-        <member name="F:Inventor.DimensionTypeEnum.kAngularSumDimensionType">
-            <summary>Dimension type is angular sum.</summary>
-        </member>
         <member name="F:Inventor.DimensionTypeEnum.kArcLengthDimensionType">
             <summary>Dimension type is arc length.</summary>
         </member>
@@ -3228,9 +3225,6 @@
         </member>
         <member name="F:Inventor.DimensionTypeEnum.kLinearForeshortenedDimensionType">
             <summary>Dimension type is linear foreshortened.</summary>
-        </member>
-        <member name="F:Inventor.DimensionTypeEnum.kLinearSumDimensionType">
-            <summary>Dimension type is linear sum.</summary>
         </member>
         <member name="F:Inventor.DimensionTypeEnum.kNormalToCurveDimensionType">
             <summary>Dimension type is normal to curve.</summary>
@@ -18203,9 +18197,6 @@ context of the active assembly/part/sketch.</summary>
         <member name="P:Inventor.AngularGeneralDimension.ShowLeader">
             <summary>Gets and sets whether to display a leader line for the dimension text.</summary>
         </member>
-        <member name="P:Inventor.AngularGeneralDimension.SpacingDimension">
-            <summary>Gets and sets spacing dimension for the angular sum dimension.</summary>
-        </member>
         <member name="P:Inventor.AngularGeneralDimension.Style">
             <summary>Gets and sets the DimensionStyle associated with the dimension.</summary>
         </member>
@@ -19412,9 +19403,7 @@ Traditional Chinese: zh-TW </summary>
                 <summary>Input indicating if the event is being fired before (kBefore) or after (kAfter) the document is activated. Notification is sent before and after the document is activated.</summary>
             </param>
             <param name="Context">
-                <summary>Input object that can be used to determine the context of why the event fired. Below context information is provided for this event: 
-
-Name = EnterSubstitute. Value = String value that returns the full filename of the document when the substitute model state is just being activated.</summary>
+                <summary>Input object that can be used to determine the context of why the event fired. No context information is provided for this event.</summary>
             </param>
             <param name="HandlingCode">
                 <summary>Output that indicates how you are handling the event. The value of this argument is currently ignored for this event.</summary>
@@ -19434,22 +19423,6 @@ Name = EnterSubstitute. Value = String value that returns the full filename of t
             </param>
             <param name="HandlingCode">
                 <summary>Output that indicates how you are handling the event. This argument is ignored for this event.</summary>
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.ApplicationEvents.OnActivateWebView(Inventor.WebView,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Event that fires just after a web view is activated.</summary>
-            <param name="WebViewObject">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
             </param>
             <returns />
         </member>
@@ -19536,22 +19509,6 @@ End Sub</summary>
             </param>
             <returns />
         </member>
-        <member name="M:Inventor.ApplicationEvents.OnCloseWebView(Inventor.WebView,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Event that fires just before a web view is closed.</summary>
-            <param name="WebViewObject">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
-            </param>
-            <returns />
-        </member>
         <member name="M:Inventor.ApplicationEvents.OnDeactivateDocument(Inventor.Document,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
             <summary>The OnDeactivateDocument event notifies a client when a document is deactivated.</summary>
             <param name="DocumentObject">
@@ -19581,22 +19538,6 @@ End Sub</summary>
             </param>
             <param name="HandlingCode">
                 <summary>Output that indicates how you are handling the event.</summary>
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.ApplicationEvents.OnDeactivateWebView(Inventor.WebView,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Event that fires just before a web view is deactivated.</summary>
-            <param name="WebViewObject">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
             </param>
             <returns />
         </member>
@@ -19754,22 +19695,6 @@ Name = "ConsideredDirty", Value = "". If this name appears in the context list t
             </param>
             <returns />
         </member>
-        <member name="M:Inventor.ApplicationEvents.OnNewWebView(Inventor.WebView,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Fires just after a web view is created.</summary>
-            <param name="WebViewObject">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
-            </param>
-            <returns />
-        </member>
         <member name="M:Inventor.ApplicationEvents.OnOpenDocument(Inventor.Document,System.String,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
             <summary>The OnOpenDocument event notifies a client when a document is opened.</summary>
             <param name="DocumentObject">
@@ -19786,54 +19711,6 @@ Name = "ConsideredDirty", Value = "". If this name appears in the context list t
             </param>
             <param name="HandlingCode">
                 <summary>Output HandlingCodeEnum that indicates how you are handling the event. The value of this argument is currently ignored for this event.</summary>
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.ApplicationEvents.OnProjectAdded(Inventor.DesignProject,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Fires just soon after a project is added, supplying the context in which this action is being taken.</summary>
-            <param name="ProjectObject">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.ApplicationEvents.OnProjectDeleted(Inventor.DesignProject,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Fires just before and soon after a project is deleted, supplying the context in which this action is being taken.</summary>
-            <param name="ProjectObject">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.ApplicationEvents.OnProjectRenamed(Inventor.DesignProject,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Fires just before and soon after a project is renamed, supplying the context in which this action is being taken.</summary>
-            <param name="ProjectObject">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
             </param>
             <returns />
         </member>
@@ -19983,25 +19860,6 @@ Name=”WindowState”, Value= WindowsSizeEnum. This indicates the current view 
             </param>
             <param name="HandlingCode">
                 <summary>Output HandlingCodeEnum that indicates how you are handling the event.  The value of this argument is currently ignored for this event.</summary>
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.ApplicationEvents.OnWebViewAct(Inventor.WebView,System.String,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Event that fires just after a web view action occurs.</summary>
-            <param name="WebViewObject">
-                <summary />
-            </param>
-            <param name="ActionID">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
             </param>
             <returns />
         </member>
@@ -20205,6 +20063,87 @@ Name=”WindowState”, Value= WindowsSizeEnum. This indicates the current view 
         </member>
         <member name="P:Inventor.ApprenticePrintManager.Type">
             <summary>Returns an ObjectTypeEnum indicating this object's type.</summary>
+        </member>
+        <member name="T:Inventor.ApprenticeServer">
+            <summary>Standalone mini component allowing limited access to an Inventor File. Refer to the Apprentice Server overview article.</summary>
+        </member>
+        <member name="P:Inventor.ApprenticeServer.ApplicationAddIns">
+            <summary>Gets all the Application AddIns found on this machine in a collection.</summary>
+        </member>
+        <member name="M:Inventor.ApprenticeServer.Close">
+            <summary>Closes the current file. After this call there is no top-level Document. An attempt is also made to close the children Documents.</summary>
+            <returns />
+        </member>
+        <member name="P:Inventor.ApprenticeServer.DesignProjectManager">
+            <summary>Property that returns the DesignProjectManager object.</summary>
+        </member>
+        <member name="P:Inventor.ApprenticeServer.DisplayAffinity">
+            <summary>Indicates the Boolean flag that fine tunes the performance of Apprentice when it is being used to display Inventor files. Defaults to false.</summary>
+        </member>
+        <member name="P:Inventor.ApprenticeServer.DisplayOptions">
+            <summary>Get the DisplayOptions object.</summary>
+        </member>
+        <member name="P:Inventor.ApprenticeServer.Document">
+            <summary>Gets the top-level Apprentice Server Document.</summary>
+        </member>
+        <member name="P:Inventor.ApprenticeServer.FileManager">
+            <summary>Gets the file manager object.</summary>
+        </member>
+        <member name="P:Inventor.ApprenticeServer.FileOptions">
+            <summary>Gets the File Options object.</summary>
+        </member>
+        <member name="P:Inventor.ApprenticeServer.FileSaveAs">
+            <summary>Gets the object that provides access to the helper object that provides the Save As facility.</summary>
+        </member>
+        <member name="P:Inventor.ApprenticeServer.HardwareOptions">
+            <summary>Get the HardwareOptions object.</summary>
+        </member>
+        <member name="P:Inventor.ApprenticeServer.HelpManager">
+            <summary>Gets the Help Manager object that provides access to the help-related activity taking place in the system.</summary>
+        </member>
+        <member name="P:Inventor.ApprenticeServer.InstallPath">
+            <summary>Property that returns the full path where Inventor/Apprentice is installed.</summary>
+        </member>
+        <member name="P:Inventor.ApprenticeServer.Locale">
+            <summary>Gets the Locale Id currently in use in Inventor.</summary>
+        </member>
+        <member name="P:Inventor.ApprenticeServer.MultiUserExternallyManaged">
+            <summary>Get or set the Boolean flag indicating whether Multi-User facility is managed by Inventor or not.</summary>
+        </member>
+        <member name="P:Inventor.ApprenticeServer.MultiUserMode">
+            <summary>Get or set the enum indicating the Multi-User mode.</summary>
+        </member>
+        <member name="M:Inventor.ApprenticeServer.Open(System.String)">
+            <summary>Opens a file. It can now be accessed as the top-level Document</summary>
+            <param name="FullDocumentName">
+                <summary>Specifies the full document name of the document to open. If only the FullFileName is specified for part and assembly documents, the master document within the file is opened.</summary>
+            </param>
+            <returns />
+        </member>
+        <member name="M:Inventor.ApprenticeServer.OpenWithOptions(System.String,Inventor.NameValueMap)">
+            <summary>Opens a document of the specified file-name with the specified set of options.</summary>
+            <param name="FullDocumentName">
+                <summary>Input String that specifies the full document name of the document to open. If only the FullFileName is specified for an assembly, the master document within the file is opened.</summary>
+            </param>
+            <param name="Options">
+                <summary>Input NameValueMap object that specifies additional options for open. (An empty NameValueMap object can be provided).</summary>
+            </param>
+            <returns />
+        </member>
+        <member name="P:Inventor.ApprenticeServer.SoftwareVersion">
+            <summary>Gets the object that encapsulates the version of the current software.</summary>
+        </member>
+        <member name="P:Inventor.ApprenticeServer.TransientGeometry">
+            <summary>Gets the object through which all transient geometry objects can be constructed.</summary>
+        </member>
+        <member name="P:Inventor.ApprenticeServer.TransientObjects">
+            <summary>Property that returns the TransientObjects object.</summary>
+        </member>
+        <member name="P:Inventor.ApprenticeServer.Type">
+            <summary>Returns an ObjectTypeEnum indicating this object's type.</summary>
+        </member>
+        <member name="P:Inventor.ApprenticeServer.UserName">
+            <summary>Get or set the string that identifies the current user. Inventor saves its own copy of this name per user and can thus be manipulated without effecting the rest of the OS.</summary>
         </member>
         <member name="T:Inventor.ApprenticeServerComponent">
             <summary>Inventor::ApprenticeServer</summary>
@@ -22064,8 +22003,8 @@ If entity one is a linear entity this can be either kNoInference or kInferredPoi
         <member name="P:Inventor.AssemblyDocument.DisabledCommandTypes">
             <summary>Bit mask indicating the disabled command types.</summary>
         </member>
-        <member name="P:Inventor.AssemblyDocument.DisplayNameBasis">
-            <summary>Gets and sets the display name basis of this document. This defaults to file name.</summary>
+        <member name="P:Inventor.AssemblyDocument.DisplayName">
+            <summary>Gets/Sets the user-displayable name of this Document. Defaults to file-name.</summary>
         </member>
         <member name="P:Inventor.AssemblyDocument.DisplayNameOverridden">
             <summary>Read-write property that gets and sets whether the display name of the document has been overridden.</summary>
@@ -22106,9 +22045,6 @@ If entity one is a linear entity this can be either kNoInference or kInferredPoi
                 <summary>Input String that specifies the full file name of the file to search for references to.</summary>
             </param>
             <returns />
-        </member>
-        <member name="P:Inventor.AssemblyDocument.FullDisplayName">
-            <summary>Read-only property that returns the full display name of this document.</summary>
         </member>
         <member name="P:Inventor.AssemblyDocument.FullDocumentName">
             <summary>Property that returns the fully qualified name of the document. The string is the full file name concatenated with the document name and is a unique identifier for the document. The document name is returned by the Name property on the Document object.</summary>
@@ -22473,32 +22409,6 @@ Name = DocumentsToSave. Value = ObjectCollection that contains the Document obje
             </param>
             <returns />
         </member>
-        <member name="M:Inventor.AssemblyEvents.OnAssemblyChanged(Inventor.NameValueMap,Inventor.EventTimingEnum,Inventor.HandlingCodeEnum@)">
-            <summary>Fires after any change occurs that impacts the Assembly Structure.</summary>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.AssemblyEvents.OnAssemblySolve(Inventor.EventTimingEnum,Inventor.NameValueMap)">
-            <summary>Fires before and after the assembly solver solves an assembly.</summary>
-            <param name="Solver">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <returns />
-        </member>
         <member name="M:Inventor.AssemblyEvents.OnDelete(Inventor.Document,System.Object,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
             <summary>Event that is fired whenever an object within this events set is deleted in a document.</summary>
             <param name="DocumentObject">
@@ -22534,25 +22444,6 @@ Name = DocumentsToSave. Value = ObjectCollection that contains the Document obje
             </param>
             <param name="HandlingCode">
                 <summary>Output HandlingCodeEnum that indicates how you are handling the event.  By setting this argument to kEventCanceled when the BeforeOrAfter argument is kBefore, Inventor will abort the state change.  When the save is cancelled, this event is fired again but the BeforeOrAfter argument will have a value of kAbort.</summary>
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.AssemblyEvents.OnNewConstraint(Inventor.AssemblyDocument,System.Object,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Fires whenever an assembly constraint or iMateResult is created.</summary>
-            <param name="DocumentObject">
-                <summary />
-            </param>
-            <param name="Constraint">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
             </param>
             <returns />
         </member>
@@ -26583,20 +26474,6 @@ To change the width of an existing connector you can either edit the geometry th
             </param>
             <returns />
         </member>
-        <member name="M:Inventor.BIMComponent.ExportBuildingComponentWithOptions(System.String,Inventor.NameValueMap)">
-            <summary>Method that exports the BIM component as an adsk, ifc or rfa file.</summary>
-            <param name="FullFileName">
-                <summary>Input String that defines the full filename to write the building component to.  The filename should have an adsk, ifc or rfa extension.</summary>
-            </param>
-            <param name="pOptions">
-                <summary>Input NameValueMap object to specify additional options for export. 
-
-For IFC format, you can specify below options:
-
-Name = “IFCFileVersion”. Value = String value that indicates the IFC file version. Below are valid IFC file versions: IFC2x3, IFC4x3.</summary>
-            </param>
-            <returns />
-        </member>
         <member name="P:Inventor.BIMComponent.Type">
             <summary>Returns an ObjectTypeEnum indicating this object's type.</summary>
         </member>
@@ -29326,9 +29203,9 @@ An ObjectCollection containing multiple ComponentOccurrence (or ComponentOccurre
             <returns />
         </member>
         <member name="M:Inventor.BrowserPane.GetBrowserNodeFromObject(System.Object)">
-            <summary>Returns the browser node that corresponds to the input object.&amp;nbsp;The method returns an error if no corresponding node is found within this pane. If multiple matches are found, the method returns the first match.</summary>
+            <summary>Returns the browser node that corresponds to the input object.  The method returns an error if no corresponding node is found within this pane. If multiple matches are found, the method returns the first match.</summary>
             <param name="NativeObject">
-                <summary>Input object to return the node for.</summary>
+                <summary />
             </param>
             <returns />
         </member>
@@ -30196,27 +30073,6 @@ The CreateImage method is similar to this but instead of writing the image to a 
             </param>
             <param name="bottomColor">
                 <summary>Optional argument that specified the background color at the bottom of the image.  This argument is only valid when the TopBackgroundColor argument has been supplied.  This argument defines the color of the background at the bottom of the image and a gradient background is created that varies from the top color to the bottom color.</summary>
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.Camera.SaveAsBitmapWithOptions(System.String,System.Int32,System.Int32,Inventor.NameValueMap)">
-            <summary>Method that saves the view as a bitmap with more options.</summary>
-            <param name="FullFileName">
-                <summary>Input String value that specifies the full filename of the file to which to save the view.  The extension of this filename controls the type of file that’s created.  Valid extensions are bmp, jpg, png, tiff, and gif.</summary>
-            </param>
-            <param name="Width">
-                <summary>Input Long that specifies the width of the view.  A value of 0 will use the current width.</summary>
-            </param>
-            <param name="Height">
-                <summary>Input Long that specifies the height of the view.  A value of 0 will use the current height.</summary>
-            </param>
-            <param name="Options">
-                <summary>Input NameValueMap that specifies more options to create the bitmap. The valid values for the options are:
-Name = TransparentBackground. Value = Boolean value that specifies whether the saved bitmap will have transparent background. If not specified this will default to False. 
-
-Name = TopBackgroundColor. Value = Color object that specifies the background color at the top of the image. If a bottom background color is supplied, then the background will be a gradient between the top and bottom colors. If only a top background color is supplied, the background will be a solid color using this color. If no color is defined a default color will be used. 
-
-Name = BottomBackgroundColor. Value = Color object that specified the background color at the bottom of the image. This argument is only valid when the TopBackgroundColor argument has been supplied. This argument defines the color of the background at the bottom of the image and a gradient background is created that varies from the top color to the bottom color. </summary>
             </param>
             <returns />
         </member>
@@ -32466,39 +32322,6 @@ Valid events can be suppressed are: ApplicationEvents.OnDocumentChange.</summary
         <member name="P:Inventor.ClientBrowserNodeDefinition.Label">
             <summary>Gets the label of the BrowserNode.</summary>
         </member>
-        <member name="M:Inventor.ClientBrowserNodeDefinition.OnActivate(Inventor.NameValueMap)">
-            <summary>Event that is fired whenever this node is activated by the user.</summary>
-            <param name="Context">
-                <summary />
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.ClientBrowserNodeDefinition.OnGetDisplayObjects(Inventor.ObjectCollection@,Inventor.NameValueMap)">
-            <summary>Event that is fired when a user requests that the objects represented by this browser node be highlighted.</summary>
-            <param name="Objects">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.ClientBrowserNodeDefinition.OnLabelEdit(System.String,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Event that is fired whenever this node is renamed by the user.</summary>
-            <param name="NewLabel">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
-            </param>
-            <returns />
-        </member>
         <member name="P:Inventor.ClientBrowserNodeDefinition.Parent">
             <summary>Gets the parent object from whom this object can logically be reached.</summary>
         </member>
@@ -32540,7 +32363,7 @@ Valid events can be suppressed are: ApplicationEvents.OnDocumentChange.</summary
             <summary>Property that returns the BrowserNode object in the model browser associated with this client feature.</summary>
         </member>
         <member name="P:Inventor.ClientFeature.ClientGraphicsVisible">
-            <summary>Read-write property that gets and sets whether all the client graphics in this client feature are visible or not.</summary>
+            <summary>Property that gets and sets whether all the client graphics in this client featureare visible or not.When getting this property valid values are kAllGraphicsVisible,kNoGraphicsVisible, and kSomeGraphicsVisible. When setting this propertykAllGraphicsVisible and.</summary>
         </member>
         <member name="P:Inventor.ClientFeature.ClientId">
             <summary>Property that returns the string that uniquely identifies the client. This is the CLSID of the AddIn in a string form, e.g. "{C9A6C580-3817-11D0-BE4E-080036E87B02}".</summary>
@@ -32822,7 +32645,7 @@ Valid events can be suppressed are: ApplicationEvents.OnDocumentChange.</summary
             <summary>Property that returns the BrowserNode object in the model browser associated with this client feature.</summary>
         </member>
         <member name="P:Inventor.ClientFeatureProxy.ClientGraphicsVisible">
-            <summary>Read-write property that gets and sets whether all the client graphics in this client feature are visible or not.</summary>
+            <summary>Property that gets and sets whether all the client graphics in this client featureare visible or not.When getting this property valid values are kAllGraphicsVisible,kNoGraphicsVisible, and kSomeGraphicsVisible. When setting this propertykAllGraphicsVisible and.</summary>
         </member>
         <member name="P:Inventor.ClientFeatureProxy.ClientId">
             <summary>Property that returns the string that uniquely identifies the client. This is the CLSID of the AddIn in a string form, e.g. "{C9A6C580-3817-11D0-BE4E-080036E87B02}".</summary>
@@ -36045,11 +35868,11 @@ Button 1 options (i.e. what is allowed/not allowed if button 1 is picked)
 * kDontAllowButton1NoMoreThisSession (Disable the "Do not show this message again this session") 
 
 Button 2 options (i.e. what is allowed/not allowed if button 2 is picked) 
-* kDontAllowButton2NeverAgain (Disable the "Do not show this message again ever" option if button 2 is selected) 
+* kDontAllowButton2NeverAgain (Disable the "Do not show this message again ever" option if button 1 is selected) 
 * kDontAllowButton2NoMoreThisSession (Disable the "Do not show this message again this session") 
 
 Button 3 options (i.e. what is allowed/not allowed if button 3 is picked) 
-* kDontAllowButton3NeverAgain (Disable the "Do not show this message again ever" option if button 3 is selected) 
+* kDontAllowButton3NeverAgain (Disable the "Do not show this message again ever" option if button 1 is selected) 
 * kDontAllowButton3NoMoreThisSession (Disable the "Do not show this message again this session") </summary>
             </param>
             <param name="PromptStrings">
@@ -47553,6 +47376,82 @@ When reading the polylines within a group, the first polyline is the outer polyl
         <member name="P:Inventor.DiameterModelDimensions.Type">
             <summary>Returns an ObjectTypeEnum indicating this object's type.</summary>
         </member>
+        <member name="T:Inventor.Dictionaries">
+            <summary>Dictionaries object.</summary>
+        </member>
+        <member name="M:Inventor.Dictionaries.Add(System.String)">
+            <summary>Method that creates a new Dictionary. The new created Dictionary is returned.</summary>
+            <param name="Name">
+                <summary>Input String as the new Dictionary name.</summary>
+            </param>
+            <returns />
+        </member>
+        <member name="M:Inventor.Dictionaries.AddExisting(System.String)">
+            <summary>Method that adds an existing Dictionary to the list of available dictionaries. The newly added Dictionary is returned.</summary>
+            <param name="FullFileName">
+                <summary>Input String indicating the full filename of an existing Dictionary.</summary>
+            </param>
+            <returns />
+        </member>
+        <member name="P:Inventor.Dictionaries.Application">
+            <summary>Gets the root Application object. Where the property is weakly-typed, it can be set to (QueryInterfaced for) 'Application' when running with Inventor whereas, 'ApprenticeServer' when running with the Apprentice Server.</summary>
+        </member>
+        <member name="P:Inventor.Dictionaries.Count">
+            <summary>Gets the number of items in this collection.</summary>
+        </member>
+        <member name="P:Inventor.Dictionaries.Item">
+            <summary>Allows integer-indexed access to items in the collection.</summary>
+        </member>
+        <member name="P:Inventor.Dictionaries.Type">
+            <summary>Gets the constant that indicates the type of this object.</summary>
+        </member>
+        <member name="T:Inventor.Dictionary">
+            <summary>Dictionary object.</summary>
+        </member>
+        <member name="M:Inventor.Dictionary.AddWord(System.String)">
+            <summary>Method that adds a word to this dictionary.</summary>
+            <param name="Word">
+                <summary>Input String indicating a word.</summary>
+            </param>
+            <returns />
+        </member>
+        <member name="P:Inventor.Dictionary.Application">
+            <summary>Gets the root Application object. Where the property is weakly-typed, it can be set to (QueryInterfaced for) 'Application' when running with Inventor whereas, 'ApprenticeServer' when running with the Apprentice Server.</summary>
+        </member>
+        <member name="M:Inventor.Dictionary.DeleteWord(System.String)">
+            <summary>Method that deletes a word from this dictionary.</summary>
+            <param name="Word">
+                <summary>Input String indicating a word.</summary>
+            </param>
+            <returns />
+        </member>
+        <member name="P:Inventor.Dictionary.FullFileName">
+            <summary>Read-only property that returns the fully qualified file name of the Dictionary.</summary>
+        </member>
+        <member name="M:Inventor.Dictionary.GetWords(System.String[]@)">
+            <summary>Method that gets all words in this dictionary.</summary>
+            <param name="Words">
+                <summary>Output array of Strings contains all the words in the dictionary.</summary>
+            </param>
+            <returns />
+        </member>
+        <member name="M:Inventor.Dictionary.ImportWordsFromExistingDictionary(System.String)">
+            <summary>Method that imports words to this dictionary from an existing dictionary.</summary>
+            <param name="FullFileName">
+                <summary>Input String indicating the full filename of an existing Dictionary.</summary>
+            </param>
+            <returns />
+        </member>
+        <member name="P:Inventor.Dictionary.Name">
+            <summary>Read-only property that returns the name of the Dictionary.</summary>
+        </member>
+        <member name="M:Inventor.Dictionary.Remove">
+            <summary>Method that removes the Dictionary from the dictionaries.</summary>
+            <returns />
+        </member>
+        <member name="P:Inventor.Dictionary.Type">
+            <summary>Gets the constant that indicates the type of this object.</summary>
+        </member>
         <member name="T:Inventor.DimensionConstraint">
             <summary>The DimensionConstraint object represents the base class of all dimension constraints.</summary>
         </member>
@@ -49653,13 +49552,13 @@ OptionName = RightHandedThread. Value = Boolean that indicates whether to displa
         <member name="M:Inventor.DockableWindows.Add(System.String,System.String,System.String)">
             <summary>Method that creates a new DockableWindow.&amp;nbsp;The newly created DockableWindow is returned.&amp;nbsp;The window is created invisible and is undocked.&amp;nbsp;The window remains invisible until explicitly made visible by the creator of the window.</summary>
             <param name="ClientId">
-                <summary>Input String that uniquely identifies the client. This is the CLSID of the AddIn in a string form, e.g. "{C9A6C580-3817-11D0-BE4E-080036E87B02}". If supplied, this string is used at Inventor start up time to determine whether the AddIn that created this ribbon tab has since been uninstalled. If so, settings (such as window position, docking state, etc.) associated with the window are deleted.  The string is also used to find all the windows to delete when the associated Add-in is unloaded. A “dummy” string or a null string can be specified, but is not recommended.</summary>
+                <summary />
             </param>
             <param name="InternalName">
-                <summary>Input String that specifies a unique internal name for the window.  This name is never displayed to the user and is only used (in combination with ClientId) to uniquely identify the window.</summary>
+                <summary />
             </param>
             <param name="Caption">
-                <summary>Input String that specifies the caption of the window.  This should be a localized string.</summary>
+                <summary />
             </param>
             <returns />
         </member>
@@ -49786,8 +49685,8 @@ OptionName = RightHandedThread. Value = Boolean that indicates whether to displa
         <member name="P:Inventor.Document.DisabledCommandTypes">
             <summary>Bit mask indicating the disabled command types.</summary>
         </member>
-        <member name="P:Inventor.Document.DisplayNameBasis">
-            <summary>Gets and sets the display name basis of this document. This defaults to file name.</summary>
+        <member name="P:Inventor.Document.DisplayName">
+            <summary>Gets/Sets the user-displayable name of this Document. Defaults to file-name.</summary>
         </member>
         <member name="P:Inventor.Document.DisplayNameOverridden">
             <summary>Read-write property that gets and sets whether the display name of the document has been overridden.</summary>
@@ -49819,9 +49718,6 @@ OptionName = RightHandedThread. Value = Boolean that indicates whether to displa
                 <summary>Input String that specifies the full file name of the file to search for references to.</summary>
             </param>
             <returns />
-        </member>
-        <member name="P:Inventor.Document.FullDisplayName">
-            <summary>Read-only property that returns the full display name of this document.</summary>
         </member>
         <member name="P:Inventor.Document.FullDocumentName">
             <summary>Property that returns the fully qualified name of the document. The string is the full file name concatenated with the document name and is a unique identifier for the document. The document name is returned by the Name property on the Document object.</summary>
@@ -50376,26 +50272,6 @@ Name = "ConsideredDirty", Value = "". If this name appears in the context list t
             </param>
             <param name="CreateVisible">
                 <summary>Optional input Boolean that specifies whether the created document or template is visible.</summary>
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.Documents.AddWithOptions(Inventor.DocumentTypeEnum,System.Object)">
-            <summary>Creates a new Document of the specified type.The options are passed in as a NameValueMap object.</summary>
-            <param name="DocumentType">
-                <summary>Input that specifies the type of document to add. If the DocumentType argument is specified to be kDrawingDocumentObject, the method will honor the application option to decide whether to use an idw template or an Inventor DWG template.</summary>
-            </param>
-            <param name="Options">
-                <summary>Optional input NameValueMap that specifies the options for creating the document. Valid values are: 
-
-Name = “TemplateFileName”, Value = String value specifies the name of template file. 
-
-Name = “CreateVisible”, Value = Boolean value that specifies whether to create the document in visible mode or not. 
-
-Name = “SheetFormat”, Value = String value that specifies the name of the sheet format that being used to create a new sheet. This is applicable only when the DocumentType is specified as kDrawingDocumentObject. 
-
-Name = “SheetFormatModelFileName”, Value = String value that specifies the name of model file that being used for sheet format. This is applicable only when the SheetFormat is specified. 
-
-Name = “PresentationSceneModelFileName”, Value = String value that specifies the name of model file that being used for presentation scene. This is applicable only when the document type kPresentationDocumentObject is specified. If this is provided then the Insert model dialog won’t appear.</summary>
             </param>
             <returns />
         </member>
@@ -51159,8 +51035,8 @@ Face and edges that belong to surfaces can also be used to specify the pull dire
         <member name="P:Inventor.DrawingDocument.DisabledCommandTypes">
             <summary>Bit mask indicating the disabled command types.</summary>
         </member>
-        <member name="P:Inventor.DrawingDocument.DisplayNameBasis">
-            <summary>Gets and sets the display name basis of this document. This defaults to file name.</summary>
+        <member name="P:Inventor.DrawingDocument.DisplayName">
+            <summary>Gets/Sets the user-displayable name of this Document. Defaults to file-name.</summary>
         </member>
         <member name="P:Inventor.DrawingDocument.DisplayNameOverridden">
             <summary>Read-write property that gets and sets whether the display name of the document has been overridden.</summary>
@@ -51207,9 +51083,6 @@ Face and edges that belong to surfaces can also be used to specify the pull dire
                 <summary>Input String that specifies the full file name of the file to search for references to.</summary>
             </param>
             <returns />
-        </member>
-        <member name="P:Inventor.DrawingDocument.FullDisplayName">
-            <summary>Read-only property that returns the full display name of this document.</summary>
         </member>
         <member name="P:Inventor.DrawingDocument.FullDocumentName">
             <summary>Property that returns the fully qualified name of the document. The string is the full file name concatenated with the document name and is a unique identifier for the document. The document name is returned by the Name property on the Document object.</summary>
@@ -55599,6 +55472,31 @@ Results are available when the entire simulation has been computed (LastComputed
             <summary>Allows VARIANT-indexed access to items in the collection. You can use names as indexes as well.</summary>
         </member>
         <member name="P:Inventor.DWGSplinesEnumerator.Type">
+            <summary>Gets the constant that indicates the type of this object.</summary>
+        </member>
+        <member name="T:Inventor.DWGUnderlays">
+            <summary>DWGUnderlays Collection Object.</summary>
+        </member>
+        <member name="M:Inventor.DWGUnderlays.Add(System.String)">
+            <summary>Method that creates a new ImportedDWGComponent object.</summary>
+            <param name="FullFileName">
+                <summary />
+            </param>
+            <returns />
+        </member>
+        <member name="P:Inventor.DWGUnderlays.Application">
+            <summary>Gets the root Application object. Where the property is weakly-typed, it can be set to (QueryInterfaced for) 'Application' when running with Inventor whereas, 'ApprenticeServer' when running with the Apprentice Server.</summary>
+        </member>
+        <member name="P:Inventor.DWGUnderlays.Count">
+            <summary>Gets the number of items in this collection.</summary>
+        </member>
+        <member name="P:Inventor.DWGUnderlays.Item">
+            <summary>Allows VARIANT-indexed access to items in the collection. You can use names as indexes as well.</summary>
+        </member>
+        <member name="P:Inventor.DWGUnderlays.Parent">
+            <summary>Gets the parent object from whom this object can logically be reached.</summary>
+        </member>
+        <member name="P:Inventor.DWGUnderlays.Type">
             <summary>Gets the constant that indicates the type of this object.</summary>
         </member>
         <member name="T:Inventor.DynamicSimulation">
@@ -62636,17 +62534,6 @@ The NameValueMap that’s returned can be used directly as the NameValueMap for 
             <summary>Method that returns the Revit engine installation status for available versions.</summary>
             <returns />
         </member>
-        <member name="M:Inventor.FileManager.GetRevitFamilyCategories(System.Object)">
-            <summary>Method and returns an array of string that contains the names of Revit family categories.</summary>
-            <param name="InCurrentLanguage">
-                <summary>Optional input Boolean value indicating whether the returned Revit family category names are in current language or English. This defaults to True indicates the names are in current language. Set this to False will return the names in English.</summary>
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.FileManager.GetRevitFamilyCategoryIds">
-            <summary>Method and returns an array of Long values that contains the unique Ids of Revit family categories.</summary>
-            <returns />
-        </member>
         <member name="M:Inventor.FileManager.GetRevitFileVersionCreated(System.String)">
             <summary>Method that returns the Revit version that the Revit file was created with.</summary>
             <param name="FullFileName">
@@ -62656,17 +62543,6 @@ RTE - Revit Project Template
 RFA - Revit Family File 
 RFT - Revit Family Templates </summary>
             </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.FileManager.GetRFAFamilyCategories(System.Object)">
-            <summary>Method and returns an array of string that contains the names of RFA family categories.</summary>
-            <param name="InCurrentLanguage">
-                <summary>Optional input Boolean value indicating whether the returned RFA family category names are in current language or English. This defaults to True indicates the names are in current language. Set this to False will return the names in English.</summary>
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.FileManager.GetRFAFamilyCategoryIds">
-            <summary>Method and returns an array of Long values that contains the unique Ids of RFA family categories.</summary>
             <returns />
         </member>
         <member name="M:Inventor.FileManager.GetSHXFontList(System.Object)">
@@ -67684,40 +67560,6 @@ context of the active assembly/part/sketch.</summary>
             </param>
             <returns />
         </member>
-        <member name="M:Inventor.GeneralDimensions.AddAngularSum(Inventor.Point2d,Inventor.AngularGeneralDimension,Inventor.GeometryIntent,System.Object,System.Object,System.Boolean,System.Boolean,System.Object,System.Object,System.Object)">
-            <summary>Creates an angular sum general dimension on the drawing sheet.</summary>
-            <param name="TextOrigin">
-                <summary>Input Point2d object that specifies the position of the dimension text on sheet.</summary>
-            </param>
-            <param name="SpacingDimension">
-                <summary>Input AngularGeneralDimension object that specifies the spacing dimension.</summary>
-            </param>
-            <param name="IntentOne">
-                <summary>Input GeometryIntent object that specifies the first geometry to dimension. The GeometryIntent object can be created using the CreateGeometryIntent method on the Sheet object.</summary>
-            </param>
-            <param name="IntentTwo">
-                <summary>Optional input GeometryIntent object that specifies the second geometry to dimension. The GeometryIntent object can be created using the CreateGeometryIntent method on the Sheet object.</summary>
-            </param>
-            <param name="IntentThree">
-                <summary>Optional input GeometryIntent object that specifies the third geometry to dimension. This argument must be specified if the first and second geometry intents are points. The GeometryIntent object can be created using the CreateGeometryIntent method on the Sheet object.</summary>
-            </param>
-            <param name="ArrowheadsInside">
-                <summary>Optional input Boolean that indicates whether to place the dimension line arrows inside or outside.  If not specified, this argument defaults to True indicating that arrowheads will be place inside (if possible).</summary>
-            </param>
-            <param name="OppositeAngle">
-                <summary>Optional input Boolean that indicates whether to dimension the opposite angle.  If not specified, the argument defaults to False.</summary>
-            </param>
-            <param name="DimensionStyle">
-                <summary>Optional input DimensionStyle object that specifies the dimension style to use for the dimension. If not specified, the style defined by the active standard is used.</summary>
-            </param>
-            <param name="Layer">
-                <summary>Optional input Layer object that specifies the layer to use for the dimension. If not specified, the layer defined by the active standard is used.</summary>
-            </param>
-            <param name="Reserved">
-                <summary>Reserved for future use.</summary>
-            </param>
-            <returns />
-        </member>
         <member name="M:Inventor.GeneralDimensions.AddArcLengthForeshortened(Inventor.Point2d,Inventor.GeometryIntent,System.Object,System.Object,System.Object,System.Boolean,System.Boolean,System.Boolean,System.Object,System.Object)">
             <summary>Creates an arc length foreshortened dimension on the drawing sheet.</summary>
             <param name="TextOrigin">
@@ -67849,34 +67691,6 @@ context of the active assembly/part/sketch.</summary>
             </param>
             <param name="Layer">
                 <summary>Optional input Layer object that specifies the layer to use for the dimension. If not specified, the layer defined by the active standard is used.</summary>
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.GeneralDimensions.AddLinearSum(Inventor.Point2d,Inventor.LinearGeneralDimension,Inventor.GeometryIntent,System.Object,System.Boolean,System.Object,System.Object,System.Object)">
-            <summary>Creates an linear sum dimension on the drawing sheet.</summary>
-            <param name="TextOrigin">
-                <summary>Input Point2d object that specifies the position of the dimension text on sheet.</summary>
-            </param>
-            <param name="SpacingDimension">
-                <summary>Input LinearGeneralDimension that specifies the spacing dimension.</summary>
-            </param>
-            <param name="IntentOne">
-                <summary>Input GeometryIntent object that specifies the first geometry to dimension. The GeometryIntent object can be created using the CreateGeometryIntent method on the Sheet object.</summary>
-            </param>
-            <param name="IntentTwo">
-                <summary>Optional input GeometryIntent object that specifies the second geometry to dimension. The GeometryIntent object can be created using the CreateGeometryIntent method on the Sheet object.</summary>
-            </param>
-            <param name="ArrowheadsInside">
-                <summary>Optional input Boolean that indicates whether to place the dimension line arrows inside or outside.  If not specified, this argument defaults to True indicating that arrowheads will be place inside (if possible).</summary>
-            </param>
-            <param name="DimensionStyle">
-                <summary>Optional input DimensionStyle object that specifies the dimension style to use for the dimension. If not specified, the style defined by the active standard is used.</summary>
-            </param>
-            <param name="Layer">
-                <summary>Optional input Layer object that specifies the layer to use for the dimension. If not specified, the layer defined by the active standard is used.</summary>
-            </param>
-            <param name="Reserved">
-                <summary>Reserved for future use.</summary>
             </param>
             <returns />
         </member>
@@ -74875,6 +74689,73 @@ If a bias point is not given, one is calculated that is at the center of the par
         <member name="P:Inventor.ImportedComponentDefinition.Type">
             <summary>Gets the constant that indicates the type of this object.</summary>
         </member>
+        <member name="T:Inventor.ImportedComponentProxy">
+            <summary>ImportedComponentProxy Object.</summary>
+        </member>
+        <member name="P:Inventor.ImportedComponentProxy.Application">
+            <summary>Gets the root Application object. Where the property is weakly-typed, it can be set to (QueryInterfaced for) 'Application' when running with Inventor whereas, 'ApprenticeServer' when running with the Apprentice Server.</summary>
+        </member>
+        <member name="P:Inventor.ImportedComponentProxy.AttributeSets">
+            <summary>Gets the Attribute Sets collection on this object.</summary>
+        </member>
+        <member name="M:Inventor.ImportedComponentProxy.BreakLinkToFile">
+            <summary>Breaks the connection of the Reference Component with the file from which it was created.</summary>
+            <returns />
+        </member>
+        <member name="P:Inventor.ImportedComponentProxy.ContainingOccurrence">
+            <summary>Property that returns the ComponentOccurrence that the native object is being referenced through. The returned occurrence is the containing occurrence.</summary>
+        </member>
+        <member name="P:Inventor.ImportedComponentProxy.Definition">
+            <summary>Read-write property that gets and sets the ImportedComponentDefinition which defines the various inputs that were used to create the imported component.</summary>
+        </member>
+        <member name="M:Inventor.ImportedComponentProxy.Delete">
+            <summary>Deletes the Reference Component.</summary>
+            <returns />
+        </member>
+        <member name="M:Inventor.ImportedComponentProxy.GetReferenceKey(System.Byte[]@,System.Int32)">
+            <summary>Generate the sequence of bytes, called this object's reference key, which can be held onto beyond document edits and which will allow the caller to be bound back to the live object.</summary>
+            <param name="ReferenceKey">
+                <summary />
+            </param>
+            <param name="KeyContext">
+                <summary />
+            </param>
+            <returns />
+        </member>
+        <member name="P:Inventor.ImportedComponentProxy.HealthStatus">
+            <summary>Gets the health status of this object.</summary>
+        </member>
+        <member name="P:Inventor.ImportedComponentProxy.IsEmbedded">
+            <summary>Gets whether or not the Reference Component refers to an embedded document or a linked document.</summary>
+        </member>
+        <member name="P:Inventor.ImportedComponentProxy.LinkedToFile">
+            <summary>Gets whether or not the Reference Component is still connected to the source file.</summary>
+        </member>
+        <member name="P:Inventor.ImportedComponentProxy.Name">
+            <summary>Gets the name of this Reference Component within the scope of this Document.</summary>
+        </member>
+        <member name="P:Inventor.ImportedComponentProxy.NativeObject">
+            <summary>Gets the object in the context of the definition instead of the containing assembly.</summary>
+        </member>
+        <member name="P:Inventor.ImportedComponentProxy.Parent">
+            <summary>Gets the parent object from whom this object can logically be reached.</summary>
+        </member>
+        <member name="P:Inventor.ImportedComponentProxy.ReferencedDocumentDescriptor">
+            <summary>Gets the the descriptor of the document that was used to create this Reference Component.</summary>
+        </member>
+        <member name="M:Inventor.ImportedComponentProxy.SetEndOfPart(System.Boolean)">
+            <summary>Method that repositions the end of part marker relative to the object.</summary>
+            <param name="Before">
+                <summary />
+            </param>
+            <returns />
+        </member>
+        <member name="P:Inventor.ImportedComponentProxy.SuppressLinkToFile">
+            <summary>Read-write property that gets and sets whether to suppress the connection of the imported component with the file from which it was created.</summary>
+        </member>
+        <member name="P:Inventor.ImportedComponentProxy.Type">
+            <summary>Gets the constant that indicates the type of this object.</summary>
+        </member>
         <member name="T:Inventor.ImportedComponents">
             <summary>ImportedComponents Object.</summary>
         </member>
@@ -79923,9 +79804,6 @@ If EntityOne is a 2D sketch curve, then EntityTwo must also be a 2D sketch curve
         <member name="P:Inventor.LinearGeneralDimension.ShowLeader">
             <summary>Gets and sets whether to display a leader line for the dimension text.</summary>
         </member>
-        <member name="P:Inventor.LinearGeneralDimension.SpacingDimension">
-            <summary>Gets and sets spacing dimension for the linear sum dimension.</summary>
-        </member>
         <member name="P:Inventor.LinearGeneralDimension.Style">
             <summary>Gets and sets the DimensionStyle associated with the dimension.</summary>
         </member>
@@ -84458,7 +84336,7 @@ The String “Favorites” - Copies it to the Favorites list of assets.</summary
             <returns />
         </member>
         <member name="M:Inventor.Matrix.PreMultiplyBy(Inventor.Matrix)">
-            <summary>Method that pre-multiplies this matrix by the specified matrix, setting this matrix to the result.</summary>
+            <summary>Method that post-multiplies this matrix by the specified matrix, setting this matrix to the result.</summary>
             <param name="Matrix">
                 <summary>Input Matrix object that specifies the matrix to pre-multiply by.</summary>
             </param>
@@ -90802,25 +90680,6 @@ When reading the polylines within a group, the first polyline is the outer polyl
             </param>
             <returns />
         </member>
-        <member name="M:Inventor.ModelingEvents.OnClientFeatureSolve(Inventor.Document,Inventor.ClientFeature,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Event that fires before and after the client feature is solved.</summary>
-            <param name="DocumentObject">
-                <summary />
-            </param>
-            <param name="Feature">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
-            </param>
-            <returns />
-        </member>
         <member name="M:Inventor.ModelingEvents.OnDelete(Inventor.Document,System.Object,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
             <summary>The OnDelete event notifies the client when a modeling entity is deleted.</summary>
             <param name="DocumentObject">
@@ -90856,25 +90715,6 @@ When reading the polylines within a group, the first polyline is the outer polyl
             </param>
             <param name="HandlingCode">
                 <summary>Output HandlingCodeEnum that indicates how you are handling the event. The value of this argument is currently ignored for this event.</summary>
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.ModelingEvents.OnGeneralSurfaceProfileGDTSolve(Inventor.Document,Inventor.ModelAnnotation,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Event that fires after General Surface Profile tolerance GDT is solved.</summary>
-            <param name="DocumentObject">
-                <summary />
-            </param>
-            <param name="Annotation">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
             </param>
             <returns />
         </member>
@@ -90914,41 +90754,6 @@ Name = "GenerateMemberReason", Value = String value that indicates the reason, t
             </param>
             <param name="HandlingCode">
                 <summary>Output that indicates how you are handling the event.</summary>
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.ModelingEvents.OnModelAnnotationsScaleChange(Inventor.Document,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Event that fires before and after scale of model annotations is changed.</summary>
-            <param name="DocumentObject">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.ModelingEvents.OnModelAnnotationsSolve(Inventor.Document,Inventor.ModelAnnotations,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Event that fires before and after ModelAnnotations are solved.</summary>
-            <param name="DocumentObject">
-                <summary />
-            </param>
-            <param name="Annotations">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
             </param>
             <returns />
         </member>
@@ -91009,22 +90814,6 @@ Name = "Name". Value = A String containing the new name of the parameter. This i
             </param>
             <param name="HandlingCode">
                 <summary>Output HandlingCodeEnum that indicates how you are handling the event. The value of this argument is currently ignored for this event.</summary>
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.ModelingEvents.OnPreGenerateMember(Inventor.Document,System.String,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Event that fires before OnGenerateMember.</summary>
-            <param name="FactoryDocumentObject">
-                <summary />
-            </param>
-            <param name="MemberName">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
             </param>
             <returns />
         </member>
@@ -94083,22 +93872,6 @@ The rotation of the body(s) about the axis entity is defined using the right-han
         <member name="P:Inventor.NativeBrowserNodeDefinition.NativeObject">
             <summary>Gets the object in the context of the definition instead of the containing assembly.</summary>
         </member>
-        <member name="M:Inventor.NativeBrowserNodeDefinition.OnLabelEdit(System.String,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Event that is fired whenever this node is renamed by the user.</summary>
-            <param name="NewLabel">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
-            </param>
-            <returns />
-        </member>
         <member name="P:Inventor.NativeBrowserNodeDefinition.OverrideExpandedIcon">
             <summary>Gets and sets expanded icon override on a existing definition object.</summary>
         </member>
@@ -95524,6 +95297,105 @@ End Sub </summary>
         <member name="P:Inventor.OffsetConstraintProxy.Type">
             <summary>Returns an ObjectTypeEnum indicating this object's type.</summary>
         </member>
+        <member name="T:Inventor.OffsetCurve3">
+            <summary>OffsetCurve3 Object.</summary>
+        </member>
+        <member name="P:Inventor.OffsetCurve3.Application">
+            <summary>Gets the root Application object. Where the property is weakly-typed, it can be set to (QueryInterfaced for) 'Application' when running with Inventor whereas, 'ApprenticeServer' when running with the Apprentice Server.</summary>
+        </member>
+        <member name="P:Inventor.OffsetCurve3.AttributeSets">
+            <summary>Gets the Attribute Sets collection on this object.</summary>
+        </member>
+        <member name="M:Inventor.OffsetCurve3.BreakLink">
+            <summary>Method that breaks the link between the intersection curve and the model.</summary>
+            <returns />
+        </member>
+        <member name="M:Inventor.OffsetCurve3.Delete">
+            <summary>Method that deletes the intersection curve.</summary>
+            <returns />
+        </member>
+        <member name="M:Inventor.OffsetCurve3.GetReferenceKey(System.Byte[]@,System.Int32)">
+            <summary>Generate the sequence of bytes, called this object's reference key, which can be held onto beyond document edits and which will allow the caller to be bound back to the live object.</summary>
+            <param name="ReferenceKey">
+                <summary />
+            </param>
+            <param name="KeyContext">
+                <summary />
+            </param>
+            <returns />
+        </member>
+        <member name="P:Inventor.OffsetCurve3.Name">
+            <summary>Property that gets and sets name of the intersection curve.</summary>
+        </member>
+        <member name="P:Inventor.OffsetCurve3.Parent">
+            <summary>Gets the parent object from whom this object can logically be reached.</summary>
+        </member>
+        <member name="P:Inventor.OffsetCurve3.SketchEntities">
+            <summary>Read-only property that returns a collection of sketch entities that belong to the offset curve.</summary>
+        </member>
+        <member name="P:Inventor.OffsetCurve3.Type">
+            <summary>Gets the constant that indicates the type of this object.</summary>
+        </member>
+        <member name="T:Inventor.OffsetCurve3Proxy">
+            <summary>OffsetCurve3Proxy Object.</summary>
+        </member>
+        <member name="P:Inventor.OffsetCurve3Proxy.Application">
+            <summary>Gets the root Application object. Where the property is weakly-typed, it can be set to (QueryInterfaced for) 'Application' when running with Inventor whereas, 'ApprenticeServer' when running with the Apprentice Server.</summary>
+        </member>
+        <member name="P:Inventor.OffsetCurve3Proxy.AttributeSets">
+            <summary>Gets the Attribute Sets collection on this object.</summary>
+        </member>
+        <member name="M:Inventor.OffsetCurve3Proxy.BreakLink">
+            <summary>Method that breaks the link between the intersection curve and the model.</summary>
+            <returns />
+        </member>
+        <member name="P:Inventor.OffsetCurve3Proxy.ContainingOccurrence">
+            <summary>Use F1 key to display help topic.</summary>
+        </member>
+        <member name="M:Inventor.OffsetCurve3Proxy.Delete">
+            <summary>Method that deletes the intersection curve.</summary>
+            <returns />
+        </member>
+        <member name="M:Inventor.OffsetCurve3Proxy.GetReferenceKey(System.Byte[]@,System.Int32)">
+            <summary>Generate the sequence of bytes, called this object's reference key, which can be held onto beyond document edits and which will allow the caller to be bound back to the live object.</summary>
+            <param name="ReferenceKey">
+                <summary />
+            </param>
+            <param name="KeyContext">
+                <summary />
+            </param>
+            <returns />
+        </member>
+        <member name="P:Inventor.OffsetCurve3Proxy.Name">
+            <summary>Property that gets and sets name of the intersection curve.</summary>
+        </member>
+        <member name="P:Inventor.OffsetCurve3Proxy.NativeObject">
+            <summary>Use F1 key to display help topic.</summary>
+        </member>
+        <member name="P:Inventor.OffsetCurve3Proxy.Parent">
+            <summary>Gets the parent object from whom this object can logically be reached.</summary>
+        </member>
+        <member name="P:Inventor.OffsetCurve3Proxy.SketchEntities">
+            <summary>Read-only property that returns a collection of sketch entities that belong to the offset curve.</summary>
+        </member>
+        <member name="P:Inventor.OffsetCurve3Proxy.Type">
+            <summary>Gets the constant that indicates the type of this object.</summary>
+        </member>
+        <member name="T:Inventor.OffsetCurve3s">
+            <summary>OffsetCurve3s Object.</summary>
+        </member>
+        <member name="P:Inventor.OffsetCurve3s.Application">
+            <summary>Gets the root Application object. Where the property is weakly-typed, it can be set to (QueryInterfaced for) 'Application' when running with Inventor whereas, 'ApprenticeServer' when running with the Apprentice Server.</summary>
+        </member>
+        <member name="P:Inventor.OffsetCurve3s.Count">
+            <summary>Gets the number of items in this collection.</summary>
+        </member>
+        <member name="P:Inventor.OffsetCurve3s.Item">
+            <summary>Allows integer-indexed access to items in the collection.</summary>
+        </member>
+        <member name="P:Inventor.OffsetCurve3s.Type">
+            <summary>Gets the constant that indicates the type of this object.</summary>
+        </member>
         <member name="T:Inventor.OffsetDimConstraint">
             <summary>The OffsetDimConstraint object represents a constraint that controls the distance between two parallel lines or a line and a point.</summary>
         </member>
@@ -95635,6 +95507,42 @@ End Sub </summary>
         </member>
         <member name="P:Inventor.OffsetDimConstraintProxy.Type">
             <summary>Returns an ObjectTypeEnum indicating this object's type.</summary>
+        </member>
+        <member name="T:Inventor.OffsetFromFaceExtent">
+            <summary>The OffsetFromFaceExtent object provides access to the information that defines the extent for a feature that's extent is determined by extruding from a Face with offset. This is derived from the PartFeatureExtent object.</summary>
+        </member>
+        <member name="P:Inventor.OffsetFromFaceExtent.AlternateSolutionDirection">
+            <summary>Read-write property that gets and sets the alternate solution direction of the feature. Valid input is kPositiveExtentDirection or kNegativeExtentDirection. kPositiveExtentDirection defines the offset direction to be in the same direction as the normal of the.</summary>
+        </member>
+        <member name="P:Inventor.OffsetFromFaceExtent.Application">
+            <summary>Gets the root Application object. Where the property is weakly-typed, it can be set to (QueryInterfaced for) 'Application' when running with Inventor whereas, 'ApprenticeServer' when running with the Apprentice Server.</summary>
+        </member>
+        <member name="P:Inventor.OffsetFromFaceExtent.Direction">
+            <summary>Read-write property that gets and sets the distance direction of the feature. Valid input is kPositiveExtentDirection, kNegativeExtentDirection, or kSymmetricExtentDirection. kPositiveExtentDirection defines the offset direction to be in the same direction as.</summary>
+        </member>
+        <member name="P:Inventor.OffsetFromFaceExtent.Distance">
+            <summary>Read-only property that returns the parameter controlling the distance extent of the feature.</summary>
+        </member>
+        <member name="P:Inventor.OffsetFromFaceExtent.DistanceTwo">
+            <summary>Read-only property that returns the parameter controlling the distance extent of the feature in the other direction. This returns Nothing if the IsTwoDirectional returns False.</summary>
+        </member>
+        <member name="P:Inventor.OffsetFromFaceExtent.ExtendFromFace">
+            <summary>Property that gets and sets whether the 'from face' should be extended to contain the extents of the feature. This property is not valid for every surface type.</summary>
+        </member>
+        <member name="P:Inventor.OffsetFromFaceExtent.FromFace">
+            <summary>Read-write property that gets and sets the offset from face, this can be a Face or WorkPlane object.</summary>
+        </member>
+        <member name="P:Inventor.OffsetFromFaceExtent.IsTwoDirectional">
+            <summary>Read-write property that gets and sets the offset from face, this can be a Face or WorkPlane object. This is applicable when the Direction is not set to kSymmetricExtentDirection.</summary>
+        </member>
+        <member name="P:Inventor.OffsetFromFaceExtent.MinimumSolution">
+            <summary>Read-write property that gets and sets whether the feature starts from the nearest valid face when there are multiple options for valid starting faces.</summary>
+        </member>
+        <member name="P:Inventor.OffsetFromFaceExtent.Parent">
+            <summary>Gets the parent object from whom this object can logically be reached.</summary>
+        </member>
+        <member name="P:Inventor.OffsetFromFaceExtent.Type">
+            <summary>Gets the constant that indicates the type of this object.</summary>
         </member>
         <member name="T:Inventor.OffsetSplineDimConstraint">
             <summary>The OffsetSplineDimConstraint is automatically created when offset spline dimensions are created. The OffsetDimConstraint object represents a constraint that controls the distance between two parallel lines or a line and a point. This constraint cannot be explicitly deleted.</summary>
@@ -96566,6 +96474,24 @@ A GeometryIntent object can be created using the Sheet.CreateGeometryIntent meth
         </member>
         <member name="P:Inventor.OriginIndicator.Visible">
             <summary>Gets and sets whether the origin indicator should be hidden.</summary>
+        </member>
+        <member name="T:Inventor.OutOfProcessInventorServer">
+            <summary>OutOfProcessInventorServer Object.</summary>
+        </member>
+        <member name="P:Inventor.OutOfProcessInventorServer.InventorServer">
+            <summary>Get InventorServer Object.</summary>
+        </member>
+        <member name="P:Inventor.OutOfProcessInventorServer.ProcessID">
+            <summary>Get Out-Of-Process InventorServer process ID.</summary>
+        </member>
+        <member name="T:Inventor.OutOfProcessInventorServerObject">
+            <summary>OutOfProcessInventorServer Object.</summary>
+        </member>
+        <member name="P:Inventor.OutOfProcessInventorServerObject.InventorServer">
+            <summary>Get InventorServer Object.</summary>
+        </member>
+        <member name="P:Inventor.OutOfProcessInventorServerObject.ProcessID">
+            <summary>Get Out-Of-Process InventorServer process ID.</summary>
         </member>
         <member name="T:Inventor.PanelBar">
             <summary>The PanelBar object represents the panel window in an environment. See the article in the overviews section.</summary>
@@ -97939,8 +97865,8 @@ Name = AllParameters. Value = Boolean that specifies whether all parameters will
         <member name="P:Inventor.PartDocument.DisabledCommandTypes">
             <summary>Bit mask indicating the disabled command types.</summary>
         </member>
-        <member name="P:Inventor.PartDocument.DisplayNameBasis">
-            <summary>Gets and sets the display name basis of this document. This defaults to file name.</summary>
+        <member name="P:Inventor.PartDocument.DisplayName">
+            <summary>Gets/Sets the user-displayable name of this Document. Defaults to file-name.</summary>
         </member>
         <member name="P:Inventor.PartDocument.DisplayNameOverridden">
             <summary>Read-write property that gets and sets whether the display name of the document has been overridden.</summary>
@@ -97984,9 +97910,6 @@ Name = AllParameters. Value = Boolean that specifies whether all parameters will
         </member>
         <member name="P:Inventor.PartDocument.FlatPatternSettings">
             <summary>Gets the FlatPatternSettings object.</summary>
-        </member>
-        <member name="P:Inventor.PartDocument.FullDisplayName">
-            <summary>Read-only property that returns the full display name of this document.</summary>
         </member>
         <member name="P:Inventor.PartDocument.FullDocumentName">
             <summary>Property that returns the fully qualified name of the document. The string is the full file name concatenated with the document name and is a unique identifier for the document. The document name is returned by the Name property on the Document object.</summary>
@@ -102986,8 +102909,8 @@ Name: MaxNormalDeviation, Value: Defines the maximum deviation between adjacent 
         <member name="P:Inventor.PresentationDocument.DisabledCommandTypes">
             <summary>Bit mask indicating the disabled command types.</summary>
         </member>
-        <member name="P:Inventor.PresentationDocument.DisplayNameBasis">
-            <summary>Gets and sets the display name basis of this document. This defaults to file name.</summary>
+        <member name="P:Inventor.PresentationDocument.DisplayName">
+            <summary>Gets/Sets the user-displayable name of this Document. Defaults to file-name.</summary>
         </member>
         <member name="P:Inventor.PresentationDocument.DisplayNameOverridden">
             <summary>Read-write property that gets and sets whether the display name of the document has been overridden.</summary>
@@ -103025,9 +102948,6 @@ Name: MaxNormalDeviation, Value: Defines the maximum deviation between adjacent 
                 <summary>Input String that specifies the full file name of the file to search for references to.</summary>
             </param>
             <returns />
-        </member>
-        <member name="P:Inventor.PresentationDocument.FullDisplayName">
-            <summary>Read-only property that returns the full display name of this document.</summary>
         </member>
         <member name="P:Inventor.PresentationDocument.FullDocumentName">
             <summary>Property that returns the fully qualified name of the document. The string is the full file name concatenated with the document name and is a unique identifier for the document. The document name is returned by the Name property on the Document object.</summary>
@@ -105719,11 +105639,11 @@ Button 1 options (i.e. what is allowed/not allowed if button 1 is picked) :
 kDontAllowButton1NeverAgain (Disable the "Do not show this message again ever" option if button 1 is selected) 
 kDontAllowButton1NoMoreThisSession (Disable the "Do not show this message again this session" option if button 1 is selected) 
 Button 2 options (i.e. what is allowed/not allowed if button 2 is picked) : 
-kDontAllowButton2NeverAgain (Disable the "Do not show this message again ever" option if button 2 is selected) 
-kDontAllowButton2NoMoreThisSession (Disable the "Do not show this message again this session" option if button 2 is selected) 
+kDontAllowButton1NeverAgain (Disable the "Do not show this message again ever" option if button 2 is selected) 
+kDontAllowButton1NoMoreThisSession (Disable the "Do not show this message again this session" option if button 2 is selected) 
 Button 3 options (i.e. what is allowed/not allowed if button 3 is picked) : 
-kDontAllowButton3NeverAgain (Disable the "Do not show this message again ever" option if button 3 is selected) 
-kDontAllowButton3NoMoreThisSession (Disable the "Do not show this message again this session" option if button 3 is selected) </summary>
+kDontAllowButton1NeverAgain (Disable the "Do not show this message again ever" option if button 3 is selected) 
+kDontAllowButton1NoMoreThisSession (Disable the "Do not show this message again this session" option if button 3 is selected) </summary>
             </param>
             <param name="PromptSettings">
                 <summary>Optional input NameValueMap object that specifies more prompt settings. 
@@ -106719,6 +106639,46 @@ This is reserved for future use.</summary>
         </member>
         <member name="P:Inventor.Publications.Type">
             <summary>Gets the constant that indicates the type of this object.</summary>
+        </member>
+        <member name="T:Inventor.PublicationStage">
+            <summary>PublicationStage Object.</summary>
+        </member>
+        <member name="P:Inventor.PublicationStage.Application">
+            <summary>Gets the root Application object. Where the property is weakly-typed, it can be set to (QueryInterfaced for) 'Application' when running with Inventor whereas, 'ApprenticeServer' when running with the Apprentice Server.</summary>
+        </member>
+        <member name="P:Inventor.PublicationStage.AspectRatio">
+            <summary>Gets and sets aspect ratio property.</summary>
+        </member>
+        <member name="P:Inventor.PublicationStage.bottomColor">
+            <summary>Gets and sets PublicationStage bottom color.</summary>
+        </member>
+        <member name="M:Inventor.PublicationStage.CreateImage(System.Int32,Inventor.Camera,System.Object)">
+            <summary>Creates image in current aspect ratio.</summary>
+            <param name="Width">
+                <summary />
+            </param>
+            <param name="Camera">
+                <summary />
+            </param>
+            <param name="Options">
+                <summary />
+            </param>
+            <returns />
+        </member>
+        <member name="P:Inventor.PublicationStage.Height">
+            <summary>Gets PublicationStage height.</summary>
+        </member>
+        <member name="P:Inventor.PublicationStage.topColor">
+            <summary>Gets and sets PublicationStage top color.</summary>
+        </member>
+        <member name="P:Inventor.PublicationStage.Type">
+            <summary>Gets the constant that indicates the type of this object.</summary>
+        </member>
+        <member name="P:Inventor.PublicationStage.Visible">
+            <summary>Gets and sets visbility property.</summary>
+        </member>
+        <member name="P:Inventor.PublicationStage.Width">
+            <summary>Gets PublicationStage width.</summary>
         </member>
         <member name="T:Inventor.PublicationTrail">
             <summary>PublicationTrail Object.</summary>
@@ -111122,44 +111082,6 @@ All faces to be replaced need to be specified. All of the input faces must belon
             </param>
             <returns />
         </member>
-        <member name="M:Inventor.RepresentationEvents.OnActivateDesignViewRepresentation(Inventor.AssemblyDocument,Inventor.DesignViewRepresentation,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Event that is fired whenever a DesignViewRepresentation changes.</summary>
-            <param name="DocumentObject">
-                <summary />
-            </param>
-            <param name="Representation">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.RepresentationEvents.OnActivateLevelOfDetailRepresentation(Inventor.Document,Inventor.LevelOfDetailRepresentation,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Event that is fired whenever a LevelOfDetailRepresentation changes.</summary>
-            <param name="DocumentObject">
-                <summary />
-            </param>
-            <param name="Representation">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
-            </param>
-            <returns />
-        </member>
         <member name="M:Inventor.RepresentationEvents.OnActivatePositionalRepresentation(Inventor.AssemblyDocument,Inventor.PositionalRepresentation,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
             <summary>The OnActivatePositionalRepresentation event notifies the client when a positional representation is being activated.</summary>
             <param name="DocumentObject">
@@ -111214,44 +111136,6 @@ All faces to be replaced need to be specified. All of the input faces must belon
             </param>
             <param name="HandlingCode">
                 <summary>Output HandlingCodeEnum that indicates how you are handling the event.  The value of this argument is currently ignored for this event.</summary>
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.RepresentationEvents.OnNewDesignViewRepresentation(Inventor.AssemblyDocument,Inventor.DesignViewRepresentation,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Event that is fired whenever a DesignViewRepresentation is created.</summary>
-            <param name="DocumentObject">
-                <summary />
-            </param>
-            <param name="Representation">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.RepresentationEvents.OnNewLevelOfDetailRepresentation(Inventor.Document,Inventor.LevelOfDetailRepresentation,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Event that is fired whenever a LevelOfDetailRepresentation is created.</summary>
-            <param name="DocumentObject">
-                <summary />
-            </param>
-            <param name="Representation">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
             </param>
             <returns />
         </member>
@@ -118621,7 +118505,7 @@ If this argument is omitted the following rules apply. If automated centerlines 
             </param>
             <returns />
         </member>
-        <member name="M:Inventor.Sheet.GetRetrievableAnnotations2(Inventor.DrawingView,System.Object,System.Object,System.Object)">
+        <member name="M:Inventor.Sheet.GetRetrievableAnnotations(Inventor.DrawingView,System.Object,System.Object,System.Object)">
             <summary>Returns a collection of objects that represent the valid set of model dimensions that can be retrieved into the input drawing view.</summary>
             <param name="View">
                 <summary>Input DrawingView object to get the retrievable annotations from.</summary>
@@ -118661,7 +118545,7 @@ If this argument is omitted the following rules apply. If automated centerlines 
         <member name="P:Inventor.Sheet.PartsLists">
             <summary>Property that returns the PartsLists collection object associated with this sheet. This provides access to the existing parts lists on the sheet.</summary>
         </member>
-        <member name="M:Inventor.Sheet.RetrieveAnnotations2(System.Object,System.Object)">
+        <member name="M:Inventor.Sheet.RetrieveAnnotations(System.Object,System.Object)">
             <summary>Retrieves sketch and/or model annotations into the drawing.</summary>
             <param name="ViewOrSketch">
                 <summary>Input object that specifies the DrawingView or the DrawingSketch object to retrieve annotations from.</summary>
@@ -127548,25 +127432,6 @@ Since only one of the above options to specify a group of connected entities can
             </param>
             <returns />
         </member>
-        <member name="M:Inventor.SketchEvents.OnSketch3DSolve(Inventor.Document,System.Object,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Event that is fired whenever a sketch or sketch 3D containing client controlled geometry needs to be updated.</summary>
-            <param name="DocumentObject">
-                <summary />
-            </param>
-            <param name="Sketch">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
-            </param>
-            <returns />
-        </member>
         <member name="M:Inventor.SketchEvents.OnSketchChange(Inventor.Document,Inventor.Sketch,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
             <summary>The OnSketchChange event notifies the client when the geometry of a 2D sketch is changed.</summary>
             <param name="DocumentObject">
@@ -132879,22 +132744,6 @@ Since only one of the above options to specify a group of connected entities can
             </param>
             <param name="HandlingCode">
                 <summary>Output HandlingCodeEnum that indicates how you are handling the event. The value of this argument is currently ignored for this event.</summary>
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.StyleEvents.OnMigrateStyleLibrary(System.String,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Fires whenever a style library migrates, supplying the context in which this action is being taken.</summary>
-            <param name="LibraryPath">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
             </param>
             <returns />
         </member>
@@ -143113,7 +142962,7 @@ If a bias point is not given, one is calculated that is at the center of the par
         <member name="M:Inventor.TranslatorAddIn.SaveCopyAs(System.Object,Inventor.TranslationContext,Inventor.NameValueMap,Inventor.DataMedium)">
             <summary>Save the document to the specified data-source.</summary>
             <param name="SourceObject">
-                <summary>Input object that specifies the source of the data to be saved. This can be a Document or FlatPattern object. FlatPattern can be exported to DXF, DWG, SAT, STEP and IGES formats.</summary>
+                <summary>Input object that specifies the source of the data to be saved. This can be a Document or FlatPattern object. FlatPattern can be exported to DXF, DWG, STEP and IGES formats.</summary>
             </param>
             <param name="Context">
                 <summary>Input TranslationContext object that can be used to determine the context for the translation.</summary>
@@ -143333,22 +143182,6 @@ If a bias point is not given, one is calculated that is at the center of the par
             </param>
             <returns />
         </member>
-        <member name="M:Inventor.TriadEvents.OnEndSequence(System.Boolean,Inventor.Matrix,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Superseded; use OnEndSequence2.</summary>
-            <param name="Cancelled">
-                <summary />
-            </param>
-            <param name="CoordinateSystem">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
-            </param>
-            <returns />
-        </member>
         <member name="M:Inventor.TriadEvents.OnEndSequence2(System.Boolean,Inventor.Matrix,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
             <summary>Fires when the user ends a move sequence of the triad.</summary>
             <param name="Cancelled">
@@ -143381,22 +143214,6 @@ If a bias point is not given, one is calculated that is at the center of the par
             </param>
             <param name="HandlingCode">
                 <summary>Output HandlingCodeEnum that indicates how you are handling the event. The value of this argument is currently ignored for this event.</summary>
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.TriadEvents.OnMoveTriadOnlyToggle(System.Boolean,Inventor.EventTimingEnum,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Superseded; use OnMoveTriadOnlyToggle2.</summary>
-            <param name="MoveTriadOnly">
-                <summary />
-            </param>
-            <param name="BeforeOrAfter">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
             </param>
             <returns />
         </member>
@@ -143461,19 +143278,6 @@ If a bias point is not given, one is calculated that is at the center of the par
             </param>
             <param name="HandlingCode">
                 <summary>Output HandlingCodeEnum that indicates how you are handling the event. The value of this argument is currently ignored for this event.</summary>
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.TriadEvents.OnTerminate(System.Boolean,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Superseded; use OnTerminate2.</summary>
-            <param name="Cancelled">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
             </param>
             <returns />
         </member>
@@ -146523,32 +146327,6 @@ Name = SeamEdges. Value = EdgeCollection that specifies the seam edges.</summary
             </param>
             <returns />
         </member>
-        <member name="M:Inventor.UserInputEvents.OnContextMenu(Inventor.SelectionDeviceEnum,Inventor.NameValueMap,Inventor.CommandBar)">
-            <summary>Fires just before context menu is about to be displayed.</summary>
-            <param name="SelectionDevice">
-                <summary />
-            </param>
-            <param name="AdditionalInfo">
-                <summary />
-            </param>
-            <param name="CommandBar">
-                <summary />
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.UserInputEvents.OnContextMenuOld(Inventor.SelectionDeviceEnum,Inventor.NameValueMap,Inventor.CommandBar)">
-            <summary>Fires just before context menu is about to be displayed.</summary>
-            <param name="SelectionDevice">
-                <summary />
-            </param>
-            <param name="AdditionalInfo">
-                <summary />
-            </param>
-            <param name="CommandBar">
-                <summary />
-            </param>
-            <returns />
-        </member>
         <member name="M:Inventor.UserInputEvents.OnContextualMiniToolbar(Inventor.ObjectsEnumerator,Inventor.NameValueMap,Inventor.NameValueMap)">
             <summary>Fires before contextual commands are displayed to the user in the graphics window when the user selects an object.</summary>
             <param name="SelectedEntities">
@@ -146653,19 +146431,6 @@ Name = SeamEdges. Value = EdgeCollection that specifies the seam edges.</summary
             </param>
             <returns />
         </member>
-        <member name="M:Inventor.UserInputEvents.OnMarkTutorialCommand(System.String,Inventor.NameValueMap,Inventor.HandlingCodeEnum@)">
-            <summary>Fires when click a command on ribbon during the tutorial record process.</summary>
-            <param name="CommandID">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
-            </param>
-            <param name="HandlingCode">
-                <summary />
-            </param>
-            <returns />
-        </member>
         <member name="M:Inventor.UserInputEvents.OnPreSelect(System.Object@,System.Boolean@,Inventor.ObjectCollection@,Inventor.SelectionDeviceEnum,Inventor.Point,Inventor.Point2d,Inventor.View)">
             <summary>Fires when the user hovers over an Inventor object, and it is a potential candidate for selection.</summary>
             <param name="PreSelectEntity">
@@ -146727,20 +146492,6 @@ Instead of modifying the marking menu you can instead return a different marking
             </param>
             <param name="View">
                 <summary>Returns the View object where the selection took place. Applicable only when the SelectionDevice argument is kGraphicsWindowSelection.</summary>
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.UserInputEvents.OnStartCommand(Inventor.CommandIDEnum)">
-            <summary>Fires before starting up a command.</summary>
-            <param name="CommandID">
-                <summary />
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.UserInputEvents.OnStopCommand(Inventor.CommandIDEnum)">
-            <summary>Fires after a command terminates.</summary>
-            <param name="CommandID">
-                <summary />
             </param>
             <returns />
         </member>
@@ -146814,16 +146565,6 @@ Instead of modifying the marking menu you can instead return a different marking
             </param>
             <param name="HandlingCode">
                 <summary>Output HandlingCodeEnum that indicates how you are handling the event. You can cancel the environment change by changing this value to kEventCanceled.</summary>
-            </param>
-            <returns />
-        </member>
-        <member name="M:Inventor.UserInterfaceEvents.OnResetCommandBars(Inventor.ObjectsEnumerator,Inventor.NameValueMap)">
-            <summary>Event that is fired whenever ResetCommandsBars is executed.</summary>
-            <param name="CommandBars">
-                <summary />
-            </param>
-            <param name="Context">
-                <summary />
             </param>
             <returns />
         </member>

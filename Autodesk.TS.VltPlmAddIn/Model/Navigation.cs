@@ -25,7 +25,7 @@ namespace Autodesk.TS.VltPlmAddIn.Model
 
         private string _navigationSource = null;
 
-        private static Inventor.Application mInv = null;
+        //private static Inventor.Application mInv = null;
 
         public Navigation()
         {
@@ -160,41 +160,44 @@ namespace Autodesk.TS.VltPlmAddIn.Model
                 return;
             }
 
-            // try to get a running Inventor instance, exit with warning if none exists            
-            if (mInv == null)
-            {
-                mInv = Utils.MarshalCore.GetActiveObject("Inventor.Application") as Inventor.Application;
+            // call the Inventor command - it handles the different parent file behaviors for assemblies, parts, presentation, and drawing
+            Utils.InventorInteraction.InsertComponentFile(mFile);
 
-                if (mInv == null)
-                {
-                    VDF.Forms.Library.ShowWarning("This command requires a running Inventor.", "Vault PLM Extension", VDF.Forms.Currency.ButtonConfiguration.Ok);
-                    return;
-                }
-            }
+            //// try to get a running Inventor instance, exit with warning if none exists            
+            //if (mInv == null)
+            //{
+            //    mInv = Utils.MarshalCore.GetActiveObject("Inventor.Application") as Inventor.Application;
 
-            // show a progress dialog
-            Autodesk.TS.VltPlmAddIn.Utils.ProgressForm mProgressForm = new Autodesk.TS.VltPlmAddIn.Utils.ProgressForm("Downloading file...");
-            mProgressForm.Show();
+            //    if (mInv == null)
+            //    {
+            //        VDF.Forms.Library.ShowWarning("This command requires a running Inventor.", "Vault PLM Extension", VDF.Forms.Currency.ButtonConfiguration.Ok);
+            //        return;
+            //    }
+            //}
 
-            // download the file identified from the parameters
-            string mFullCompFileName = null;
-            mFullCompFileName = DownloadFiles(new List<VDF.Vault.Currency.Entities.FileIteration> { new VDF.Vault.Currency.Entities.FileIteration(_conn, mFile) })?.FirstOrDefault();
+            //// show a progress dialog
+            //Autodesk.TS.VltPlmAddIn.Utils.ProgressForm mProgressForm = new Autodesk.TS.VltPlmAddIn.Utils.ProgressForm("Downloading file...");
+            //mProgressForm.Show();
 
-            // exit with warning if the download failed
-            if (mFullCompFileName == null)
-            {
-                VDF.Forms.Library.ShowError("Could not download the file from Vault.", "Vault PLM Extension");
-                return;
-            }
-            mProgressForm.CloseProgress();
-            mProgressForm.Close();
-            mProgressForm = null;
+            //// download the file identified from the parameters
+            //string mFullCompFileName = null;
+            //mFullCompFileName = DownloadFiles(new List<VDF.Vault.Currency.Entities.FileIteration> { new VDF.Vault.Currency.Entities.FileIteration(_conn, mFile) })?.FirstOrDefault();
+
+            //// exit with warning if the download failed
+            //if (mFullCompFileName == null)
+            //{
+            //    VDF.Forms.Library.ShowError("Could not download the file from Vault.", "Vault PLM Extension");
+            //    return;
+            //}
+            //mProgressForm.CloseProgress();
+            //mProgressForm.Close();
+            //mProgressForm = null;
 
             // call the Inventor command - it handles the different parent file behaviors for assemblies, parts, presentation, and drawing
-            if (mInv != null && mFullCompFileName != null)
-            {
-                Utils.InvHelpers.m_PlaceComponent(mInv, mFullCompFileName);
-            }
+            //if (mInv != null && mFullCompFileName != null)
+            //{
+            //Utils.InventorInteraction.InsertComponentFile(mFile);
+            //}
         }
 
         internal void openComponent(string[] parameters)
@@ -220,64 +223,67 @@ namespace Autodesk.TS.VltPlmAddIn.Model
                 return;
             }
 
-            // try to get a running Inventor instance, exit with warning if none exists            
-            if (mInv == null)
-            {
-                mInv = Utils.MarshalCore.GetActiveObject("Inventor.Application") as Inventor.Application;
-
-                if (mInv == null)
-                {
-                    VDF.Forms.Library.ShowWarning("This command requires a running Inventor.", "Vault PLM Extension", VDF.Forms.Currency.ButtonConfiguration.Ok);
-                    return;
-                }
-            }
-
-            // show a progress dialog
-            Autodesk.TS.VltPlmAddIn.Utils.ProgressForm mProgressForm = new Autodesk.TS.VltPlmAddIn.Utils.ProgressForm("Downloading file...");
-            mProgressForm.Show();
-
-            // download the file identified from the parameters
-            string mFullCompFileName = null;
-            mFullCompFileName = DownloadFiles(new List<VDF.Vault.Currency.Entities.FileIteration> { new VDF.Vault.Currency.Entities.FileIteration(_conn, mFile) })?.FirstOrDefault();
-
-            // exit with warning if the download failed
-            if (mFullCompFileName == null)
-            {
-                VDF.Forms.Library.ShowError("Could not download the file from Vault.", "Vault PLM Extension");
-                return;
-            }
-            mProgressForm.CloseProgress();
-            mProgressForm.Close();
-            mProgressForm = null;
-
             // open the file in Inventor
-            mProgressForm = new Autodesk.TS.VltPlmAddIn.Utils.ProgressForm("Opening file in Inventor...");
-            mProgressForm.Show();
-            Inventor.Document mDoc = null; // reset the document to avoid issues with multiple open documents
-            try
-            {
-                mDoc = mInv.Documents.Open(mFullCompFileName, true);
-                if (mDoc == null)
-                {
-                    VDF.Forms.Library.ShowError("Could not open the file in Inventor.", "Vault PLM Extension");
-                    return;
-                }
-                else
-                {
-                    // switch to Inventor
-                    IntPtr mWinPt = (IntPtr)mInv.MainFrameHWND;
-                    Utils.InvHelpers.SwitchToThisWindow(mWinPt, true);
-                }
-            }
-            catch (Exception ex)
-            {
-                VDF.Forms.Library.ShowError("Inventor failed to open the dialog." + "-" + ex.Message, "Vault PLM Extension");
-            }
+            Utils.InventorInteraction.OpenComponentFile(mFile);
 
-            // close the progress dialog
-            mProgressForm.CloseProgress();
-            mProgressForm.Close();
-            mProgressForm = null;
+            //// try to get a running Inventor instance, exit with warning if none exists            
+            //if (mInv == null)
+            //{
+            //    mInv = Utils.MarshalCore.GetActiveObject("Inventor.Application") as Inventor.Application;
+
+            //    if (mInv == null)
+            //    {
+            //        VDF.Forms.Library.ShowWarning("This command requires a running Inventor.", "Vault PLM Extension", VDF.Forms.Currency.ButtonConfiguration.Ok);
+            //        return;
+            //    }
+            //}
+
+            //// show a progress dialog
+            //Autodesk.TS.VltPlmAddIn.Utils.ProgressForm mProgressForm = new Autodesk.TS.VltPlmAddIn.Utils.ProgressForm("Downloading file...");
+            //mProgressForm.Show();
+
+            //// download the file identified from the parameters
+            //string mFullCompFileName = null;
+            //mFullCompFileName = DownloadFiles(new List<VDF.Vault.Currency.Entities.FileIteration> { new VDF.Vault.Currency.Entities.FileIteration(_conn, mFile) })?.FirstOrDefault();
+
+            //// exit with warning if the download failed
+            //if (mFullCompFileName == null)
+            //{
+            //    VDF.Forms.Library.ShowError("Could not download the file from Vault.", "Vault PLM Extension");
+            //    return;
+            //}
+            //mProgressForm.CloseProgress();
+            //mProgressForm.Close();
+            //mProgressForm = null;
+
+            //// open the file in Inventor
+            //mProgressForm = new Autodesk.TS.VltPlmAddIn.Utils.ProgressForm("Opening file in Inventor...");
+            //mProgressForm.Show();
+            //Inventor.Document mDoc = null; // reset the document to avoid issues with multiple open documents
+            //try
+            //{
+            //    mDoc = mInv.Documents.Open(mFullCompFileName, true);
+            //    if (mDoc == null)
+            //    {
+            //        VDF.Forms.Library.ShowError("Could not open the file in Inventor.", "Vault PLM Extension");
+            //        return;
+            //    }
+            //    else
+            //    {
+            //        // switch to Inventor
+            //        IntPtr mWinPt = (IntPtr)mInv.MainFrameHWND;
+            //        Utils.InvHelpers.SwitchToThisWindow(mWinPt, true);
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    VDF.Forms.Library.ShowError("Inventor failed to open the dialog." + "-" + ex.Message, "Vault PLM Extension");
+            //}
+
+            //// close the progress dialog
+            //mProgressForm.CloseProgress();
+            //mProgressForm.Close();
+            //mProgressForm = null;
         }
 
         internal File GetFileByParameters(string[] parameters)
