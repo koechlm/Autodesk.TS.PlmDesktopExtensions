@@ -51,6 +51,8 @@ namespace Autodesk.TS.VltPlmAddIn
 
         internal static string mFmExtensionUrl { get; set; }
 
+        internal static Settings mSettings { get; set; }
+
         internal static NavigationSender? mSender { get; set; }
 
         ISelection selection = null;
@@ -85,11 +87,20 @@ namespace Autodesk.TS.VltPlmAddIn
                                                 "FM-UXE Search", typeof(WebViewFmSearch));
             mDockPanels.Add(mPanelSearch);
 
-            //DockPanel mPanelItemDetails = new DockPanel(Guid.Parse("31DB4F79-84D5-4D67-A109-5807563BE133"),
-            //                                    "FM-UXE Item", typeof(WebViewFmItem));
-            //// Add event handler for selection changed event; the content of the panel needs to update accordingly.
-            //mPanelItemDetails.SelectionChanged += mPanelItemDetails_SelectionChanged;
-            //mDockPanels.Add(mPanelItemDetails);
+            // Vault 2026.2 added a default FM Item Panel; enable the custom panel in the settings if needed though
+            if (mSettings == null)
+            {
+                mSettings = new Autodesk.TS.VltPlmAddIn.Utils.Settings();
+                mSettings = Settings.Load();
+            }
+            if (mSettings.FMExtensionItemPanel.ToLower() == "true")
+            {
+                DockPanel mPanelItemDetails = new DockPanel(Guid.Parse("31DB4F79-84D5-4D67-A109-5807563BE133"),
+                                                    "FM-UXE Item", typeof(WebViewFmItem));
+                // Add event handler for selection changed event; the content of the panel needs to update accordingly.
+                mPanelItemDetails.SelectionChanged += mPanelItemDetails_SelectionChanged;
+                mDockPanels.Add(mPanelItemDetails);
+            }
 
             DockPanel mPanelTasks = new DockPanel(Guid.Parse("7B5E20B1-C3FD-42FB-8955-A8D57D2015B2"),
                                                 "FM-UXE Tasks", typeof(WebViewFmTasks));
@@ -125,7 +136,7 @@ namespace Autodesk.TS.VltPlmAddIn
             mCurrentTheme = VDF.Forms.Library.CurrentTheme.ToString();
             VDF.Forms.Library.ThemeChanged += ThemeChanged;
 
-            Autodesk.TS.VltPlmAddIn.Utils.Settings mSettings = new Autodesk.TS.VltPlmAddIn.Utils.Settings();
+            mSettings = new Autodesk.TS.VltPlmAddIn.Utils.Settings();
             mSettings = Settings.Load();
             mFmExtensionUrl = mSettings.FmExtensionUrl;
 

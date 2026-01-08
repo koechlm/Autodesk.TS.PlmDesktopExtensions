@@ -3,4 +3,7 @@
   <!-- BaseUri -->
   <FmExtensionUrl>http://localhost:8080/addins</FmExtensionUrl>
   <AddOpenSpprtdExts>ipt, iam</AddOpenSpprtdExts>
+  
+  <!-- Enable (True/False) the custom FM Item panel; it will load on top of the default FM Item panel added in Vault 2026.2 -->
+  <FMExtensionItemPanel>False</FMExtensionItemPanel>
 </settings>
