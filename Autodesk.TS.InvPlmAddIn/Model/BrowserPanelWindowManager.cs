@@ -194,10 +194,28 @@ namespace InvPlmAddIn.Model
                         if (mSelectSet.Count == 1)
                         {
                             // get the full path of the occurrence iterating the OccurrencePath Items
-
                             var occurrence = (ComponentOccurrence)mSelectSet[1];
                             foreach (ComponentOccurrence pathItem in occurrence.OccurrencePath)
                             {
+                                // occurrences may belong to patterns that are not part of the OccurrencePath; we need to include them as well
+                                if (pathItem.PatternElement != null)
+                                {
+                                    // pattern parent may be another pattern; we need to loop until we reach the top
+                                    var currentPatternParent = pathItem.PatternElement?.Parent;
+                                    while (currentPatternParent != null)
+                                    {
+                                        // the pattern parent object may be one of three types; we need to try casting to get its name
+                                        if (currentPatternParent is OccurrencePattern occurrencePattern)
+                                        {
+                                            InstancePath += "|" + occurrencePattern.Name;
+                                            currentPatternParent = occurrencePattern.Parent;
+                                        }
+                                        else
+                                        {
+                                            currentPatternParent = null;
+                                        }
+                                    }
+                                }
                                 InstancePath += "|" + pathItem._DisplayName;
                             }
                             message = "selectInstance:" + mSelectedPartNumbers[0] + ";" + application.ActiveDocument.DisplayName + InstancePath;
