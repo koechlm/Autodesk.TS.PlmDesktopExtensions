@@ -27,13 +27,15 @@ namespace InvPlmAddIn.Model
     [ComVisible(true)]
     public class HostObject
     {
-
+        private static Inventor.Application _Inventor;
         private static VDF.Vault.Currency.Connections.Connection _conn = null;
         //private static IExplorerUtil _explorerUtil = null;
         private static string _navigationSource = null;
 
         public HostObject(BrowserPanelWindowManager panelManager)
         {
+            _Inventor = InvPlmAddIn.InvPlmAddinSrv.mInventorApplication;
+
             ApplicationPanelSet = panelManager;
 
             _conn = VltBase.ConnectionManager.Instance.Connection;
@@ -128,9 +130,7 @@ namespace InvPlmAddIn.Model
 
         public static async Task addComponent(string[] parameters)
         {
-            //show wait form and wait cursor
-            mWaitForm = new Forms.WaitForm1(InvPlmAddinSrv.mTheme, "Downloading Component(s)...");
-            mWaitForm.Show();
+            _Inventor.StatusBarText = "Downloading component from Vault...";
             Cursor.Current = Cursors.WaitCursor;
 
             var EntityIds = new Dictionary<string, mVaultEntity>();
@@ -140,6 +140,7 @@ namespace InvPlmAddIn.Model
             //download files from Vault
             List<string> mDownloadedFiles = new List<string>();
             mDownloadedFiles = VaultUtils.mDownloadRelatedFiles(EntityIds);
+            Cursor.Current = Cursors.Default;
 
             // check and feedback to user if the download was successful
             if (mDownloadedFiles.Count == 0)
@@ -158,20 +159,18 @@ namespace InvPlmAddIn.Model
                 ["DownloadedFiles"] = mDownloadedFiles
             };
 
-            mWaitForm.progressPanel1.Description = "Adding Component...";
+            _Inventor.StatusBarText = "Adding Component...";
+            Cursor.Current = Cursors.WaitCursor;
             CallILogic("AddComponents", ref dic);
             await Task.CompletedTask;
 
             Cursor.Current = Cursors.Default;
-            mWaitForm.Close();
-            mWaitForm.Dispose();
         }
 
         public static async Task openComponent(string[] parameters)
         {
             // Initialize the progress form
-            mWaitForm = new Forms.WaitForm1(InvPlmAddinSrv.mTheme, "Downloading Component(s)...");
-            mWaitForm.Show();
+            _Inventor.StatusBarText = "Downloading Component(s)...";
             Cursor.Current = Cursors.WaitCursor;
 
             var EntityIds = new Dictionary<string, mVaultEntity>();
@@ -181,15 +180,12 @@ namespace InvPlmAddIn.Model
             // download files from Vault
             List<string> mDownloadedFiles = new List<string>();
             mDownloadedFiles = VaultUtils.mDownloadRelatedFiles(EntityIds);
+            Cursor.Current = Cursors.Default;
 
             // check and feedback to user if the download was successful
             if (mDownloadedFiles.Count == 0)
             {
                 AdskTsVaultUtils.Messages.ShowError("No files were downloaded.", InvPlmAddinSrv.AddInName);
-
-                mWaitForm.Close();
-                mWaitForm.Dispose();
-
                 return;
             }
 
@@ -199,13 +195,11 @@ namespace InvPlmAddIn.Model
                 ["DownloadedFiles"] = mDownloadedFiles
             };
 
-            mWaitForm.progressPanel1.Description = "Opening...";
+            _Inventor.StatusBarText = "Opening...";
             CallILogic("OpenComponent", ref dic);
             await Task.CompletedTask;
 
             Cursor.Current = Cursors.Default;
-            mWaitForm.Close();
-            mWaitForm.Dispose();
         }
 
         public static async Task selectComponent(string[] parameters)
