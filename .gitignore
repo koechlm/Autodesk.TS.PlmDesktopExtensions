@@ -362,4 +362,6 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /Setups.Published
+/Setup.Vault.plm.Extension/
+/Setup.Inventor.Vault.plm.Extension/
 /Autodesk.TS.PlmEventHandler/tempSDK
