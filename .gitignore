@@ -365,3 +365,4 @@ FodyWeavers.xsd
 /Setup.Vault.plm.Extension/
 /Setup.Inventor.Vault.plm.Extension/
 /Autodesk.TS.PlmEventHandler/tempSDK
+/Autodesk.TS.InvPlmAddIn/Utils/VaultUtils_Ivan.cs
