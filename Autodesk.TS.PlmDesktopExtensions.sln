@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.10.35027.167
+# Visual Studio Version 18
+VisualStudioVersion = 18.7.11919.86 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Autodesk.TS.InvPlmAddIn", "Autodesk.TS.InvPlmAddIn\Autodesk.TS.InvPlmAddIn.csproj", "{B5D90179-8F97-4C48-8490-2A6ADB495F5B}"
 EndProject
@@ -41,8 +41,6 @@ EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup.Inventor.VaultPlmExtension", "Setup.Inventor.Vault.plm.Extension\Setup.Inventor.VaultPlmExtension.vdproj", "{22E700DA-59D6-6747-956D-876524F9FFBD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Autodesk.TS.PlmEventHandler", "Autodesk.TS.PlmEventHandler\Autodesk.TS.PlmEventHandler.csproj", "{0B11C526-2BFE-45AB-8614-AA22C8D861B4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "adsk.ts.job.assignupdateitem", "Autodesk.TS.AssignUpdateFmItem\adsk.ts.job.assignupdateitem.csproj", "{E47F92BA-E2C2-4C6C-91C3-9482B732D738}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -86,14 +84,6 @@ Global
 		{0B11C526-2BFE-45AB-8614-AA22C8D861B4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0B11C526-2BFE-45AB-8614-AA22C8D861B4}.Release|x64.ActiveCfg = Release|Any CPU
 		{0B11C526-2BFE-45AB-8614-AA22C8D861B4}.Release|x64.Build.0 = Release|Any CPU
-		{E47F92BA-E2C2-4C6C-91C3-9482B732D738}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E47F92BA-E2C2-4C6C-91C3-9482B732D738}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E47F92BA-E2C2-4C6C-91C3-9482B732D738}.Debug|x64.ActiveCfg = Debug|x64
-		{E47F92BA-E2C2-4C6C-91C3-9482B732D738}.Debug|x64.Build.0 = Debug|x64
-		{E47F92BA-E2C2-4C6C-91C3-9482B732D738}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E47F92BA-E2C2-4C6C-91C3-9482B732D738}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E47F92BA-E2C2-4C6C-91C3-9482B732D738}.Release|x64.ActiveCfg = Release|Any CPU
-		{E47F92BA-E2C2-4C6C-91C3-9482B732D738}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
