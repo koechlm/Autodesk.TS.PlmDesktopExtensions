@@ -9,6 +9,7 @@ using System.IO;
 using static System.Net.Mime.MediaTypeNames;
 using System.Runtime.Versioning;
 using System.Windows.Media.Imaging;
+using System.Windows.Forms;
 using ACW = Autodesk.Connectivity.WebServices;
 using Autodesk.Connectivity.WebServicesTools;
 using VDF = Autodesk.DataManagement.Client.Framework;
@@ -185,9 +186,11 @@ namespace Autodesk.TS.VltPlmAddIn.Utils
                 IntPtr mWinPt = (IntPtr)InvApp.MainFrameHWND;
                 InventorInteraction.SwitchToThisWindow(mWinPt, true);
                 InvApp.StatusBarText = "Downloading component from Vault...";
+                Cursor.Current = Cursors.WaitCursor;
 
                 // download the file from Vault
                 CompFullFileName = VaultUtils.DownloadFiles(new List<VDF.Vault.Currency.Entities.FileIteration> { new VDF.Vault.Currency.Entities.FileIteration(VaultExplorerExtension.conn, file) })?.FirstOrDefault();
+                Cursor.Current = Cursors.Default;
 
                 if (string.IsNullOrEmpty(CompFullFileName))
                 {
@@ -201,6 +204,7 @@ namespace Autodesk.TS.VltPlmAddIn.Utils
                     Inventor.NameValueMap openOptions = InvApp.TransientObjects.CreateNameValueMap();
                     openOptions.Add("ModelState", modelState);
                     InvApp.StatusBarText = "Opening component in Inventor...";
+                    Cursor.Current = Cursors.WaitCursor;
                     InvApp.Documents.OpenWithOptions(CompFullFileName, openOptions, true);
 
                 }
@@ -211,6 +215,7 @@ namespace Autodesk.TS.VltPlmAddIn.Utils
                 finally
                 {
                     InvApp.StatusBarText = "Ready";
+                    Cursor.Current = Cursors.Default;
                 }
 
             }
@@ -252,9 +257,11 @@ namespace Autodesk.TS.VltPlmAddIn.Utils
                 IntPtr mWinPt = (IntPtr)InvApp.MainFrameHWND;
                 InventorInteraction.SwitchToThisWindow(mWinPt, true);
                 InvApp.StatusBarText = "Downloading component from Vault...";
+                Cursor.Current = Cursors.WaitCursor;
 
                 // download the file from Vault
                 CompFullFileName = VaultUtils.DownloadFiles(new List<VDF.Vault.Currency.Entities.FileIteration> { new VDF.Vault.Currency.Entities.FileIteration(VaultExplorerExtension.conn, file) })?.FirstOrDefault();
+                Cursor.Current = Cursors.Default;
 
                 if (string.IsNullOrEmpty(CompFullFileName))
                 {
@@ -272,6 +279,7 @@ namespace Autodesk.TS.VltPlmAddIn.Utils
                 if (InvApp.ActiveDocumentType == DocumentTypeEnum.kAssemblyDocumentObject)
                 {
                     InvApp.StatusBarText = "Inserting component into assembly...";
+                    Cursor.Current = Cursors.WaitCursor;
                     InvCtrlDef = (ControlDefinition)InvCmdMgr.ControlDefinitions["AssemblyPlaceComponentCmd"];
                 }
                 else
@@ -284,6 +292,8 @@ namespace Autodesk.TS.VltPlmAddIn.Utils
                 // insert components to part environments as derived components
                 if (InvApp.ActiveDocumentType == DocumentTypeEnum.kPartDocumentObject)
                 {
+                    InvApp.StatusBarText = "Creating a derived component feature...";
+                    Cursor.Current = Cursors.WaitCursor;
                     InvCtrlDef = (ControlDefinition)InvCmdMgr.ControlDefinitions["PartDerivedComponentCmd"];
                 }
 
@@ -319,6 +329,8 @@ namespace Autodesk.TS.VltPlmAddIn.Utils
                 // insert components as new base view for drawing documents
                 if (InvApp.ActiveDocumentType == DocumentTypeEnum.kDrawingDocumentObject)
                 {
+                    InvApp.StatusBarText = "Inserting drawing view...";
+                    Cursor.Current = Cursors.WaitCursor;
                     InvCtrlDef = (ControlDefinition)InvCmdMgr.ControlDefinitions["DrawingBaseViewCmd"];
                 }
 
@@ -340,6 +352,7 @@ namespace Autodesk.TS.VltPlmAddIn.Utils
                 }
 
                 InvApp.StatusBarText = "Ready";
+                Cursor.Current = Cursors.Default; Cursor.Current = Cursors.Default;
             }
 
         }
